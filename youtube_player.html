@@ -11,23 +11,23 @@
 </head>
 <body>
     <script>
-    const params = new URLSearchParams(window.location.search);
-    frame = document.createElement("iframe");
-    frame.setAttribute("width", "100%");
-    frame.setAttribute("height", "100%");
-    url = "https://www.youtube-nocookie.com/embed/"+params.get("video")+"?controls=";
-    if (params.get("controls") === "0") {
+    const params = new URLSearchParams (window.location.search);
+    frame = document.createElement ("iframe");
+    frame.setAttribute ("width", "100%");
+    frame.setAttribute ("height", "100%");
+    url = "https://www.youtube-nocookie.com/embed/" + params.get("video") + "?controls=";
+    if (params.get ("controls") === "0") {
         url += "0";
     } else {
         url += "1";
     }
-    if (params.get("start") !== null) {
-        url += "&start=" + params.get("start");
+    if (params.get ("start") !== null) {
+        url += "&start=" + params.get ("start");
     }
-    if (params.get("end") !== null) {
-        url += "&end=" + params.get("end");
+    if (params.get ("end") !== null) {
+        url += "&end=" + params.get ("end");
     }
-    frame.setAttribute("src", url);
-  	document.body.appendChild(frame);
+    frame.setAttribute ("src", url);
+  	document.body.appendChild (frame);
     </script>
 </body>
