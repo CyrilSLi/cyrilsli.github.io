@@ -27,7 +27,7 @@
         if (end !== "") {
             url += "&end=" + end;
         }
-        open (url);
+        open (url, "_self");
     } else {
         frame = document.createElement ("iframe");
         frame.setAttribute ("width", "100%");
