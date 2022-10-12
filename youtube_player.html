@@ -12,22 +12,40 @@
 <body>
     <script>
     const params = new URLSearchParams (window.location.search);
-    frame = document.createElement ("iframe");
-    frame.setAttribute ("width", "100%");
-    frame.setAttribute ("height", "100%");
-    url = "https://www.youtube-nocookie.com/embed/" + params.get("video") + "?controls=";
-    if (params.get ("controls") === "0") {
-        url += "0";
+    if (params.get ("guide") === "1") {
+        url = "https://cyrilsli.github.io/portfolio/youtube_player?video=";
+        url += prompt ("Enter the YouTube video ID (the case-sensitive 11 digits after '?v='):");
+        controls = prompt ("OPTIONAL: Enter '0' for no controls on the video, leave blank for controls on:");
+        if (controls !== "") {
+            url += "&controls=0";
+        }
+        start = prompt ("OPTIONAL: Enter the time IN SECONDS when you want the video to start, leave blank to start at the beginning:");
+        if (start !== "") {
+            url += "&start=" + start;
+        }
+        end = prompt ("OPTIONAL: Enter the time IN SECONDS when you want the video to stop, leave blank to stop at the end:");
+        if (end !== "") {
+            url += "&end=" + end;
+        }
+        open (url);
     } else {
-        url += "1";
+        frame = document.createElement ("iframe");
+        frame.setAttribute ("width", "100%");
+        frame.setAttribute ("height", "100%");
+        url = "https://www.youtube-nocookie.com/embed/" + params.get("video") + "?controls=";
+        if (params.get ("controls") === "0") {
+            url += "0";
+        } else {
+            url += "1";
+        }
+        if (params.get ("start") !== null) {
+            url += "&start=" + params.get ("start");
+        }
+        if (params.get ("end") !== null) {
+            url += "&end=" + params.get ("end");
+        }
+        frame.setAttribute ("src", url);
+        document.body.appendChild (frame);
     }
-    if (params.get ("start") !== null) {
-        url += "&start=" + params.get ("start");
-    }
-    if (params.get ("end") !== null) {
-        url += "&end=" + params.get ("end");
-    }
-    frame.setAttribute ("src", url);
-  	document.body.appendChild (frame);
     </script>
 </body>
