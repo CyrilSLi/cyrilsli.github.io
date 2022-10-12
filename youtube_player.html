@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>YouTube Player</title>
+    <style>
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+    </style>
+</head>
+<body>
+    <script>
+    const video = new URLSearchParams(window.location.search);
+    frame = document.createElement("iframe");
+    frame.setAttribute("width", "100%");
+    frame.setAttribute("height", "100%");
+    frame.setAttribute("src", "https://www.youtube-nocookie.com/embed/"+video.get("video")+"?controls=0");
+  	document.body.appendChild(frame);
+    </script>
+</body>
