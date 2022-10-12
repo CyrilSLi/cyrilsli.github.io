@@ -11,9 +11,9 @@
     if (start !== "") {
         url += "&start=" + start;
     }
-    stop = prompt("OPTIONAL: Enter the time IN SECONDS when you want the video to stop, leave blank to stop at the end:");
-    if (stop !== "") {
-        url += "&stop=" + stop;
+    end = prompt("OPTIONAL: Enter the time IN SECONDS when you want the video to stop, leave blank to stop at the end:");
+    if (end !== "") {
+        url += "&end=" + end;
     }
     open (url);
     </script>
