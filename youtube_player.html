@@ -23,6 +23,8 @@
     }
     if (params.get("start") !== null) {
         url += "&start=" + params.get("start");
+    } else {
+        url += "&start=0";
     }
     if (params.get("end") !== null) {
         url += "&end=" + params.get("end");
