@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <script>
+    url = "https://cyrilsli.github.io/portfolio/youtube_player?video=";
+    url += prompt("Enter the YouTube video ID (the case-sensitive 11 digits after '?v='):");
+    controls = prompt("OPTIONAL: Enter '0' for no controls on the video, leave blank for controls on:");
+    if (controls !== "") {
+        url += "&controls=0";
+    }
+    start = prompt("OPTIONAL: Enter the time IN SECONDS when you want the video to start, leave blank to start at the beginning:");
+    if (start !== "") {
+        url += "&start=" + start;
+    }
+    prompt("OPTIONAL: Enter the time IN SECONDS when you want the video to stop, leave blank to stop at the end:");
+    if (stop !== "") {
+        url += "&stop=" + stop;
+    }
+    open (url, _self);
+    </script>
+    <body>
+    </body>
+    </html>
