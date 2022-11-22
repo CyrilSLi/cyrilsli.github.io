@@ -12,7 +12,7 @@
 <body>
     <script>
     const params = new URLSearchParams (window.location.search);
-    if (params.get ("guide") === "1") {
+    if (params.get ("video") === null) {
         url = "https://cyrilsli.github.io/portfolio/youtube_player?video=";
         url += prompt ("Enter the YouTube URL or Video ID:").slice (-11);
         controls = prompt ("OPTIONAL: Enter '0' for no controls on the video, leave blank for controls on:");
