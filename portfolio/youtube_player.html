@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <title>WARNING - DEPRECATED</title>
+    <style>
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+    </style>
+</head>
+<body>
+    <script>
+    alert ("WARNING - This website is deprecated. This site would still be up, however please switch (if you can) to the new site. Click 'OK' to redirect.");
+    const params = new URLSearchParams (window.location.search);
+    if (params.get ("video") === null) {
+        open ("https://cyrilsli.github.io/youtube_player", "_self");
+    } else {
+        url = "https://cyrilsli.github.io/youtube_player?video=" + params.get("video");
+        if (params.get ("controls") === "0") {
+            url += "&controls=0";
+        }
+        if (params.get ("start") !== null) {
+            url += "&start=" + params.get ("start");
+        }
+        if (params.get ("end") !== null) {
+            url += "&end=" + params.get ("end");
+        }
+        open (url, "_self");
+    }
+    </script>
+</body>
