@@ -16,7 +16,7 @@
         url = "https://cyrilsli.github.io/youtube_player?video=";
         url += prompt ("Enter the YouTube URL or Video ID:").slice (-11);
         controls = prompt ("OPTIONAL: Enter '0' for no controls on the video, leave blank for controls on:");
-        if (controls !== "") {
+        if (controls === "0") {
             url += "&controls=0";
         }
         start = prompt ("OPTIONAL: Enter the time IN SECONDS when you want the video to start, leave blank to start at the beginning:");
