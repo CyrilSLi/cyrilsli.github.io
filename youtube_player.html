@@ -32,17 +32,15 @@
         frame = document.createElement ("iframe");
         frame.setAttribute ("width", "100%");
         frame.setAttribute ("height", "100%");
-        url = "https://www.youtube-nocookie.com/embed/" + params.get("video") + "?controls=";
-        if (params.get ("controls") === "0") {
-            url += "0";
-        } else {
-            url += "1";
+        url = "https://www.youtube-nocookie.com/embed/" + params.get("video") + "?";
+        if (params.get ("controls") !== null) {
+            url += "&controls=" + params.get ("controls") + "&";
         }
         if (params.get ("start") !== null) {
-            url += "&start=" + params.get ("start");
+            url += "&start=" + params.get ("start") + "&";
         }
         if (params.get ("end") !== null) {
-            url += "&end=" + params.get ("end");
+            url += "&end=" + params.get ("end") + "&";
         }
         frame.setAttribute ("src", url);
         document.body.appendChild (frame);
