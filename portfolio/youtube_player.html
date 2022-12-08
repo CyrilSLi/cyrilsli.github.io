@@ -17,14 +17,14 @@
         open ("https://cyrilsli.github.io/youtube_player", "_self");
     } else {
         url = "https://cyrilsli.github.io/youtube_player?video=" + params.get("video");
-        if (params.get ("controls") === "0") {
-            url += "&controls=0";
+        if (params.get ("controls") !== null) {
+            url += "&controls=" + params.get ("controls") + "&";
         }
         if (params.get ("start") !== null) {
-            url += "&start=" + params.get ("start");
+            url += "&start=" + params.get ("start") + "&";
         }
         if (params.get ("end") !== null) {
-            url += "&end=" + params.get ("end");
+            url += "&end=" + params.get ("end") + "&";
         }
         open (url, "_self");
     }
