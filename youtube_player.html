@@ -14,10 +14,20 @@
     const params = new URLSearchParams (window.location.search);
     if (params.get ("video") === null) {
         url = "https://cyrilsli.github.io/youtube_player?video=";
-        url += prompt ("Enter the YouTube URL or Video ID:").slice (-11);
-        controls = prompt ("OPTIONAL: Enter '0' for no controls on the video, leave blank for controls on:");
-        if (controls === "0") {
+        first = prompt ("Enter the YouTube URL or Video ID:").slice (-11);
+        url += first + "&playlist=" + first;
+        for (let i = 2; i < Infinity; i++) {
+            entry = prompt ("(Video " + i + ") Enter the YouTube URL or Video ID, leave blank to finish:");
+            if (entry === "") {
+                break
+            }
+            url += "," + entry.slice (-11);
+        }
+        if (confirm ("OPTIONAL: Press 'OK' for no controls on the video or 'Cancel' to continue: ")) {
             url += "&controls=0";
+        }
+        if (confirm ("OPTIONAL: Press 'OK' to loop the video or 'Cancel' to continue: ")) {
+            url += "&loop=1";
         }
         start = prompt ("OPTIONAL: Enter the time IN SECONDS when you want the video to start, leave blank to start at the beginning:");
         if (start !== "") {
@@ -27,21 +37,29 @@
         if (end !== "") {
             url += "&end=" + end;
         }
+        console.log (url);
         open (url, "_self");
     } else {
         frame = document.createElement ("iframe");
         frame.setAttribute ("width", "100%");
         frame.setAttribute ("height", "100%");
         url = "https://www.youtube-nocookie.com/embed/" + params.get("video") + "?";
+        if (params.get ("playlist") !== null) {
+            url += "playlist=" + params.get ("playlist") + "&";
+        }
         if (params.get ("controls") !== null) {
-            url += "&controls=" + params.get ("controls") + "&";
+            url += "controls=" + params.get ("controls") + "&";
+        }
+        if (params.get ("loop") !== null) {
+            url += "&loop=" + params.get ("loop") + "&";
         }
         if (params.get ("start") !== null) {
-            url += "&start=" + params.get ("start") + "&";
+            url += "start=" + params.get ("start") + "&";
         }
         if (params.get ("end") !== null) {
-            url += "&end=" + params.get ("end") + "&";
+            url += "end=" + params.get ("end") + "&";
         }
+        console.log (url)
         frame.setAttribute ("src", url);
         document.body.appendChild (frame);
     }
