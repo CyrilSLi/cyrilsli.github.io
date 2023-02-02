@@ -23,10 +23,10 @@
             }
             url += "," + entry.slice (-11);
         }
-        if (confirm ("OPTIONAL: Press 'OK' for no controls on the video or 'Cancel' to continue: ")) {
+        if (! confirm ("OPTIONAL: Press 'Cancel' for no controls on the video or 'OK' to continue: ")) {
             url += "&controls=0";
         }
-        if (confirm ("OPTIONAL: Press 'OK' to loop the video or 'Cancel' to continue: ")) {
+        if (! confirm ("OPTIONAL: Press 'Cancel' to loop the video or 'OK' to continue: ")) {
             url += "&loop=1";
         }
         start = prompt ("OPTIONAL: Enter the time IN SECONDS when you want the video to start, leave blank to start at the beginning:");
