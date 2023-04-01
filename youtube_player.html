@@ -13,8 +13,8 @@
     <script>
     const params = new URLSearchParams (window.location.search);
     if (params.get ("video") === null) {
-        url = "https://cyrilsli.github.io/youtube_player?video=";
-        first = prompt ("Enter the YouTube URL or Video ID:").slice (-11);
+        url = "https://cyrilsli.github.io/youtube_player?video=" + prompt ("Enter the YouTube URL or Video ID:").slice (-11);
+        /*
         url += first + "&playlist=" + first;
         for (let i = 2; i < Infinity; i++) {
             entry = prompt ("(Video " + i + ") Enter the YouTube URL or Video ID, leave blank to finish:");
@@ -23,6 +23,7 @@
             }
             url += "," + entry.slice (-11);
         }
+        */
         if (! confirm ("OPTIONAL: Press 'Cancel' for no controls on the video or 'OK' to continue: ")) {
             url += "&controls=0";
         }
@@ -41,9 +42,14 @@
         open (url, "_self");
     } else {
         frame = document.createElement ("iframe");
+        orig = window.location.href.split ("&") [1];
         frame.setAttribute ("width", "100%");
         frame.setAttribute ("height", "100%");
-        url = "https://www.youtube-nocookie.com/embed/" + params.get("video") + "?";
+        url = "https://www.youtube-nocookie.com/embed/" + params.get("video");
+        if (orig) {
+            url += "?" + orig
+        }
+        /*
         if (params.get ("playlist") !== null) {
             url += "playlist=" + params.get ("playlist") + "&";
         }
@@ -59,6 +65,7 @@
         if (params.get ("end") !== null) {
             url += "end=" + params.get ("end") + "&";
         }
+        */
         console.log (url)
         frame.setAttribute ("src", url);
         document.body.appendChild (frame);
