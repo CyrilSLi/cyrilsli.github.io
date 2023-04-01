@@ -14,16 +14,6 @@
     const params = new URLSearchParams (window.location.search);
     if (params.get ("video") === null) {
         url = "https://cyrilsli.github.io/youtube_player?video=" + prompt ("Enter the YouTube URL or Video ID:").slice (-11);
-        /*
-        url += first + "&playlist=" + first;
-        for (let i = 2; i < Infinity; i++) {
-            entry = prompt ("(Video " + i + ") Enter the YouTube URL or Video ID, leave blank to finish:");
-            if (entry === "") {
-                break
-            }
-            url += "," + entry.slice (-11);
-        }
-        */
         if (! confirm ("OPTIONAL: Press 'Cancel' for no controls on the video or 'OK' to continue: ")) {
             url += "&controls=0";
         }
@@ -49,23 +39,6 @@
         if (orig) {
             url += "?" + orig
         }
-        /*
-        if (params.get ("playlist") !== null) {
-            url += "playlist=" + params.get ("playlist") + "&";
-        }
-        if (params.get ("controls") !== null) {
-            url += "controls=" + params.get ("controls") + "&";
-        }
-        if (params.get ("loop") !== null) {
-            url += "&loop=" + params.get ("loop") + "&";
-        }
-        if (params.get ("start") !== null) {
-            url += "start=" + params.get ("start") + "&";
-        }
-        if (params.get ("end") !== null) {
-            url += "end=" + params.get ("end") + "&";
-        }
-        */
         console.log (url)
         frame.setAttribute ("src", url);
         document.body.appendChild (frame);
