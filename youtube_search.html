@@ -32,7 +32,7 @@
                 document ["results"] <= html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', height = "200vh")
         def request (event):
             search = document ["search"].value
-            ajax.get (("https://www.youtube.com/results?search_query=" + search.replace (" ", "+")) + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
+            ajax.get (("https://corsproxy.io?https://www.youtube.com/results?search_query=" + search.replace (" ", "+")) + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
         document ["request"].bind ("click", request)
     </script>
     <input type = "text" id = "search">
