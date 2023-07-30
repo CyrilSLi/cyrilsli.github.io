@@ -2,11 +2,6 @@
 <html>
 <head>
     <title>YouTube Search</title>
-    <style>
-        h1 {{font-family: Ariel, sans-serif; font-size: 36px}}
-        p {{font-family: Ariel, sans-serif; font-size: 28px}}
-        img {{margin: 0px 20px 20px; height: 40vh}}
-    </style>
     <meta charset="utf-8">
     <script type="text/javascript"
         src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js">
@@ -19,38 +14,30 @@
 <body onload="brython (1)">
     <script type="text/python">
         from browser import document, ajax, html
-        def rfind (values, end = "}"):
+        def rfind (text, values, end = "}"):
             pointer = 0
             for j in values:
-                pointer += i [pointer : ].find (j)
+                pointer += text [pointer : ].find (j)
                 if pointer == -1:
                     return "N/A"
-            return i [pointer + len (values [-1]) + 3 : pointer + i [pointer : ].find (end) - 1]
-        global i
-        def_url = "cyrilsli.github.io/youtube_player?video=%v&playlist=%v&loop=1"
+            return text [pointer + len (values [-1]) + 3 : pointer + text [pointer : ].find (end) - 1]
+        def_url = "https://cyrilsli.github.io/youtube_player?video=%v&playlist=%v&loop=1"
         results = document ["results"]
-        results.clear ()
-        results <= html.P ("8")
+        def complete (request):
+            results.clear ()
+            for i in request.text.split ("videoRenderer") [1 : ]:
+                document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), href = def_url.replace ("%v", rfind (i, ["videoId"], ",")))
+                document ["results"] <= html.P (f'Creator: {rfind (i, ["ownerText", "text"], ",")}')
+                document ["results"] <= html.P (f'Views: {rfind (i, ["viewCountText", "simpleText"]) [ : -5]}')
+                document ["results"] <= html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', height = "200vh")
         def request (event):
             search = document ["search"].value
-            for i in ajax.get (("https://www.youtube.com/results?search_query=" + search.replace (" ", "+")) + "&sp=EgIQAQ%253D%253D", blocking = "True").text.split ("videoRenderer") [1 : ]:
-                document ["results"] <= html.P ("8")
-            """    
-            <body>
-                <h1 style = "color: #000000; margin: 20px">YouTube Search: {search}</h1>
-                for i in r.get (("https://www.youtube.com/results?search_query=" + search.replace (" ", "+")) + "&sp=EgIQAQ%253D%253D").text.split ("videoRenderer") [1 : ]:
-                    printstr += f"
-                <a href = "http://{url.replace ("%v", rfind (["videoId"], ","))}"><p style = "color: #000000; font-weight: bold; margin: 0px 20px 20px">{rfind (["title", "text"])}</p></a>
-                <p style = "color: #000000; margin: 0px 20px 20px">Creator: {rfind (["ownerText", "text"], ",")}<br>Duration: {rfind (["lengthText", "simpleText"])}<br>Views: {rfind (["viewCountText", "simpleText"]) [ : -5]}<br>Date: {rfind (["publishedTimeText", "simpleText"])}</p>
-                <img src = "https://i.ytimg.com/vi/{rfind (["videoId"], ",")}/hqdefault.jpg">"
-                printstr += 
-            </body>
-            </html>"""
+            ajax.get (("https://www.youtube.com/results?search_query=" + search.replace (" ", "+")) + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
         document ["request"].bind ("click", request)
     </script>
     <input type = "text" id = "search">
     <button type = "submit" id = "request">Send request</button>
     <br>
-    <span id = "results">Null</span>
+    <span id = "results"></span>
 </body>
 </html>
