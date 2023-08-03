@@ -24,9 +24,14 @@
             return text [pointer + len (values [-1]) + 3 : pointer + text [pointer : ].find (end) - 1]
         def_url = "https://cyrilsli.github.io/youtube_player?video=%v&playlist=%v&loop=1"
         results = document ["results"]
-        def complete (request):
+        def access (res):
+            ajax.get ("https://corsproxy.io?https://cors-anywhere.herokuapp.com/corsdemo?accessRequest=" + rfind (res.text, ["accessRequest", "valu"], end = ">"), oncomplete = granted)
+        def granted (res):
             results.clear ()
-            for i in request.text.split ("videoRenderer") [1 : ]:
+            document ["request"].bind ("click", request)
+        def complete (res):
+            results.clear ()
+            for i in res.text.split ("videoRenderer") [1 : ]:
                 document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), href = def_url.replace ("%v", rfind (i, ["videoId"], ",")))
                 document ["results"] <= html.P (f'Channel: {rfind (i, ["ownerText", "text"], ",")}')
                 document ["results"] <= html.P (f'Views: {rfind (i, ["viewCountText", "simpleText"]) [ : -5]}')
@@ -35,11 +40,11 @@
         def request (event):
             search = parse.quote (document ["search"].value)
             ajax.get (("https://cors-anywhere.herokuapp.com/https://www.youtube.com/results?search_query=" + search.replace (" ", "+")) + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
-        document ["request"].bind ("click", request)
+        ajax.get ("https://corsproxy.io?https://cors-anywhere.herokuapp.com/corsdemo", oncomplete = access)
     </script>
     <input type = "text" id = "search">
     <button type = "submit" id = "request">Send request</button>
     <br>
-    <span id = "results"></span>
+    <span id = "results">Loading...</span>
 </body>
 </html>
