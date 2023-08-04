@@ -23,14 +23,14 @@
                     return "N/A"
             return text [pointer + len (values [-1]) + 3 : pointer + text [pointer : ].find (end) - 1]
         def_url = "https://cyrilsli.github.io/youtube_player?video=%v&playlist=%v&loop=1"
-        results = document ["results"]
         def access (res):
-            ajax.get ("https://corsproxy.io?https://cors-anywhere.herokuapp.com/corsdemo?accessRequest=" + rfind (res.text, ["accessRequest", "valu"], end = ">"), oncomplete = granted)
-        def granted (res):
-            results.clear ()
-            document ["request"].bind ("click", request)
+            if res.text.find ("currently") == -1:
+                document ["results"] <= html.A (html.P ("Click to enable access"), href = "https://cors-anywhere.herokuapp.com/corsdemo", target = "_blank")
+                document ["results"] <= html.A (html.P ("Reload page"), href = ".")
+            else:
+                document ["results"].clear ()
         def complete (res):
-            results.clear ()
+            document ["results"].clear ()
             for i in res.text.split ("videoRenderer") [1 : ]:
                 document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), href = def_url.replace ("%v", rfind (i, ["videoId"], ",")))
                 document ["results"] <= html.P (f'Channel: {rfind (i, ["ownerText", "text"], ",")}')
