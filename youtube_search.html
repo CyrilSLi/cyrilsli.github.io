@@ -35,12 +35,15 @@
             search = parse.quote (document ["search"].value)
             ajax.get (("https://cors-anywhere.herokuapp.com/https://www.youtube.com/results?search_query=" + search.replace (" ", "+")) + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
         document ["request"].bind ("click", request)
+        document ["results"].clear ()
     </script>
     <input type = "text" id = "search">
     <button type = "submit" id = "request">Send request</button>
     <br>
     <br>
     <span id = "results">Loading...</span>
+    <br>
+    <br>
     <a href = "https://cors-anywhere.herokuapp.com/corsdemo" target = "_blank">Click to enable CORS proxy</a>
 </body>
 </html>
