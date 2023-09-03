@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>YouTube Search</title>
+    <meta charset="utf-8">
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js">
+    </script>
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js">
+    </script>
+</head>
+
+<body onload="brython (0)">
+    <script type="text/python">
+        from browser import document, ajax, html
+        from urllib import parse
+        def rfind (text, values, end = "}"):
+            pointer = 0
+            for j in values:
+                pointer += text [pointer : ].find (j)
+                if pointer == -1:
+                    return "N/A"
+            return text [pointer + len (values [-1]) + 3 : pointer + text [pointer : ].find (end) - 1]
+        def_url = "https://cyrilsli.github.io/youtube_player?video=%v&playlist=%v&loop=1"
+        def complete (res):
+            document ["results"].clear ()
+            for i in res.text.split ("videoRenderer") [1 : ]:
+                document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), href = def_url.replace ("%v", rfind (i, ["videoId"], ",")))
+                document ["results"] <= html.P (f'Channel: {rfind (i, ["ownerText", "text"], ",")}')
+                document ["results"] <= html.P (f'Views: {rfind (i, ["viewCountText", "simpleText"]) [ : -5]}')
+                document ["results"] <= html.P (f'Date: {rfind (i, ["publishedTimeText", "simpleText"])}')
+                document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', height = "200vh"), href = def_url.replace ("%v", rfind (i, ["videoId"], ",")))
+        def request (event):
+            search = parse.quote (document ["search"].value)
+            ajax.get (("https://corsproxy.io/https://www.youtube.com/results?search_query=" + search.replace (" ", "+")) + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
+        document ["request"].bind ("click", request)
+        document ["results"].clear ()
+    </script>
+    <input type = "text" id = "search">
+    <button type = "submit" id = "request">Send request</button>
+    <br>
+    <br>
+    <span id = "results">Loading...</span>
+</body>
+</html>
