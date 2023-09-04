@@ -36,7 +36,10 @@
                 document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', height = "200em"), href = def_url.replace ("%v", rfind (i, ["videoId"], ",")))
         def request (event):
             search = parse.quote (document ["search"].value)
-            ajax.get (("https://corsproxy.io/?https://www.youtube.com/results?search_query=" + search.replace (" ", "+")) + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
+            if search:
+                ajax.get (("https://corsproxy.io/?https://www.youtube.com/results?search_query=" + search.replace (" ", "+")) + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
+            else:
+                ajax.get ("https://corsproxy.io/?https://www.youtube.com/", oncomplete = complete)
         document ["request"].bind ("submit", request)
         ajax.get ("https://corsproxy.io/?https://www.youtube.com/", oncomplete = complete)
     </script>
