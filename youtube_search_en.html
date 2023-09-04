@@ -22,7 +22,7 @@
                 if pointer == -1:
                     return "N/A"
             return text [pointer + len (values [-1]) + 3 : pointer + text [pointer : ].find (end) - 1]
-        def_url = "https://cyrilsli.github.io/youtube_player?video=%v&rel=0&playlist=%v&loop=1"
+        def_url = "https://cyrilsli.github.io/youtube_player?video=%v&rel=0&playlist=%v&loop=1&modestbranding=1&fs=0"
         def complete (res):
             document ["results"].clear ()
             for i in res.text.split ("videoRenderer") [1 : ]:
