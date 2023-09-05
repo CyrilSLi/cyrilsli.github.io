@@ -26,10 +26,12 @@
         def complete (res):
             document ["results"].clear ()
             for i in res.text.split ("videoRenderer") [1 : ]:
-                document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), href = def_url.replace ("%v", rfind (i, ["videoId"], ",")))
+                document ["results"] <= html.A (html.P (rfind (i, ["title", "text"]).replace ("\\u0026", "&")), href = def_url.replace ("%v", rfind (i, ["videoId"], ",")))
+                document ["results"] <= html.P (rfind (i, ["descriptionSnippet", "text"]).replace ("\\n", "\n"))
                 document ["results"] <= html.P (f'Channel: {rfind (i, ["ownerText", "text"], ",")}')
+                document ["results"] <= html.P (f'Length: {rfind (i, ["lengthText", "simpleText"])}')
                 views = rfind (i, ["viewCountText", "simpleText"]) [ : -6]
-                if not set (views) <= set ("0123456789,"):
+                if (not set (views) <= set ("0123456789,")) or (not views):
                     views = "N/A"
                 document ["results"] <= html.P (f'Views: {views}')
                 document ["results"] <= html.P (f'Date: {rfind (i, ["publishedTimeText", "simpleText"])}')
