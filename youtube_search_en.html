@@ -9,11 +9,14 @@
     <script type="text/javascript"
         src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js">
     </script>
+    <style>
+        span {display: inline}
+    </style>
 </head>
 
 <body onload="brython (0)">
     <script type="text/python">
-        from browser import document, ajax, html
+        from browser import document, ajax, html, window
         from urllib import parse
         def rfind (text, values, end = "}"):
             pointer = 0
@@ -24,10 +27,11 @@
             return text [pointer + len (values [-1]) + 3 : pointer + text [pointer : ].find (end) - 1].replace ("\\n", "\n").replace ("\\u0026", "&")
         def_url = "https://cyrilsli.github.io/youtube_player?video=%v&rel=0&playlist=%v&loop=1&modestbranding=1&fs=0"
         def complete (res):
-            document ["results"].clear ()
             for i in res.text.split ("videoRenderer") [1 : ]:
                 document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), href = def_url.replace ("%v", rfind (i, ["videoId"], ",")))
-                document ["results"] <= html.P (f'Channel: {rfind (i, ["ownerText", "text"], ",")}')
+                channel = rfind (i, ["ownerText", "text"], ",")
+                if channel != "N/A":
+                    document ["results"] <= (html.SPAN ("Channel: "), html.A (channel, href = f'javascript:req_user ("{rfind (i, ["webCommandMetadata", "url"], ",")}", "{channel}")'))
                 document ["results"] <= html.P (f'Length: {rfind (i, ["lengthText", "simpleText"])}')
                 views = rfind (i, ["viewCountText", "simpleText"]) [ : -6]
                 if (not set (views) <= set ("0123456789,")) or (not views):
@@ -39,20 +43,24 @@
             document ["results"].clear ()
             search = parse.quote (document ["search"].value)
             if search:
-                document ["results"] <= ("Fetching results...")
+                document ["results"] <= html.H2 (f'Results for "{search}"')
                 ajax.get (("https://corsproxy.io/?https://www.youtube.com/results?search_query=" + search.replace (" ", "+")) + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
             else:
-                document ["results"] <= ("Fetching homepage...")
+                document ["results"] <= html.H2 ("Homepage")
                 ajax.get ("https://corsproxy.io/?https://www.youtube.com/", oncomplete = complete)
+        def req_user (url, name):
+            document ["results"].clear ()
+            document ["results"] <= (html.H2 (f'Videos by "{name}"'))
+            ajax.get ("https://corsproxy.io/?https://www.youtube.com" + url + "/videos", oncomplete = complete)
+        window.req_user = req_user
         document ["request"].bind ("submit", request)
-        document ["results"] <= (html.BR (), html.BR (), "Fetching homepage...")
-        ajax.get ("https://corsproxy.io/?https://www.youtube.com/", oncomplete = complete)
+        document ["results"] <= (html.BR (), html.BR (), html.H2 ("Homepage"))
+        request (None)
     </script>
     <form action = javascript:void(0); id = "request">
         <input type = "text" id = "search">
         <input type = "submit">
     </form>
-    <br>
-    <span id = "results">Starting Brython...</span>
+    <span id = "results"><br>Starting Brython...</span>
 </body>
 </html>
