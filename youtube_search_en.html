@@ -61,7 +61,7 @@
                     views = "N/A"
                 document ["results"] <= html.P (f'Views: {views}')
                 document ["results"] <= html.P (f'Date: {rfind (i, ["publishedTimeText", "simpleText"])}')
-                document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', height = "200em"), href = player_url.replace ("%v", rfind (i, ["videoId"], ",")))
+                document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', height = "300em"), href = player_url.replace ("%v", rfind (i, ["videoId"], ",")))
         def req_search (event, homepage = False):
             document ["results"].clear ()
             search = document ["search"].value
@@ -78,13 +78,12 @@
         window.req_search = req_search
         window.req_user = req_user
         document ["request"].bind ("submit", req_search)
+        document ["request"] <= html.INPUT (type = "text", id = "search")
+        document ["request"] <= html.INPUT (type = "submit")
+        document ["request"] <= html.INPUT (type = "reset", value = "Home", onclick = "req_search (null, true);")
         req_search (None, True)
     </script>
-    <form action = javascript:void(0); id = "request">
-        <input type = "text" id = "search">
-        <input type = "submit">
-        <input type = "reset" value = "Home" onclick = "req_search (null, true)">
-    </form>
+    <form action = javascript:void(0); id = "request"></form>
     <div id = "results"><p>Starting Brython...</p></div>
 </body>
 </html>
