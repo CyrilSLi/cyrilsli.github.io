@@ -29,9 +29,9 @@
         def complete (res):
             for i in res.text.split ("videoRenderer") [1 : ]:
                 document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), href = def_url.replace ("%v", rfind (i, ["videoId"], ",")))
-                channel = rfind (i, ["ownerText", "text"], ",")
+                channel, user_url = rfind (i, ["ownerText", "text"], ","), rfind (i, ["webCommandMetadata", "url"], ",")
                 if channel != "N/A":
-                    document ["results"] <= (html.SPAN ("Channel: "), html.A (channel, href = f'javascript:req_user ("{rfind (i, ["webCommandMetadata", "url"], ",")}", "{channel}")'))
+                    document ["results"] <= (html.SPAN ("Channel: "), html.A (f"{channel} ({user_url [1 : ]})", href = f'javascript:req_user ("{user_url}", "{channel}")'))
                 document ["results"] <= html.P (f'Length: {rfind (i, ["lengthText", "simpleText"])}')
                 views = rfind (i, ["viewCountText", "simpleText"]) [ : -6]
                 if (not set (views) <= set ("0123456789,")) or (not views):
@@ -50,7 +50,7 @@
                 ajax.get ("https://corsproxy.io/?https://www.youtube.com/", oncomplete = complete)
         def req_user (url, name):
             document ["results"].clear ()
-            document ["results"] <= (html.H2 (f'Videos by "{name}"'))
+            document ["results"] <= (html.H2 (f'Videos by "{name}" ({url [1 : ]})'))
             ajax.get ("https://corsproxy.io/?https://www.youtube.com" + url + "/videos", oncomplete = complete)
         window.req_user = req_user
         document ["request"].bind ("submit", request)
