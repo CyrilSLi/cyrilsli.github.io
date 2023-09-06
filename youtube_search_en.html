@@ -10,7 +10,29 @@
         src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js">
     </script>
     <style>
-        span {display: inline}
+        p {
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            margin: 20px 0px;
+        }
+        h1 {
+            font-family: Arial, sans-serif;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0px 0px 20px
+        }
+        input {
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            padding: 8px;
+            margin: 10px;
+        }
+        form {
+            margin: 10px;
+        }
+        div {
+            margin: 0px 20px 20px;
+        }
     </style>
 </head>
 
@@ -32,7 +54,7 @@
                 document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), href = player_url.replace ("%v", rfind (i, ["videoId"], ",")))
                 channel, user_url = rfind (i, ["ownerText", "text"], ","), rfind (i, ["webCommandMetadata", "url"], ",")
                 if channel != "N/A":
-                    document ["results"] <= (html.SPAN ("Channel: "), html.A (f"{channel} ({user_url [1 : ]})", href = f'javascript:req_user ("{user_url}", "{channel}")'))
+                    document ["results"] <= html.A (html.P (f"{channel} ({user_url [1 : ]})"), href = f'javascript:req_user ("{user_url}", "{channel}")')
                 document ["results"] <= html.P (f'Length: {rfind (i, ["lengthText", "simpleText"])}')
                 views = rfind (i, ["viewCountText", "simpleText"]) [ : -6]
                 if (not set (views) <= set ("0123456789,")) or (not views):
@@ -44,14 +66,14 @@
             document ["results"].clear ()
             search = document ["search"].value
             if homepage:
-                document ["results"] <= html.H2 ("Homepage")
+                document ["results"] <= html.H1 ("Homepage")
                 ajax.get (cors_url + "https://www.youtube.com/", oncomplete = complete)
             else:
-                document ["results"] <= html.H2 (f'Results for "{search}"')
+                document ["results"] <= html.H1 (f'Results for "{search}"')
                 ajax.get (cors_url + "https://www.youtube.com/results?search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
         def req_user (url, name):
             document ["results"].clear ()
-            document ["results"] <= (html.H2 (f'Videos by "{name}" ({url [1 : ]})'))
+            document ["results"] <= (html.H1 (f'Videos by "{name}" ({url [1 : ]})'))
             ajax.get (cors_url + "https://www.youtube.com" + url + "/videos", oncomplete = complete)
         window.req_search = req_search
         window.req_user = req_user
@@ -63,6 +85,6 @@
         <input type = "submit">
         <input type = "reset" value = "Home" onclick = "req_search (null, true)">
     </form>
-    <span id = "results"><br>Starting Brython...</span>
+    <div id = "results"><p>Starting Brython...</p></div>
 </body>
 </html>
