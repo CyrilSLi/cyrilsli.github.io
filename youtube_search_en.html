@@ -24,14 +24,19 @@
             font-weight: bold;
             margin: 0px 0px 20px
         }
-        input {
+        input, button {
             font-family: Arial, sans-serif;
             font-size: 20px;
-            padding: 8px;
+            padding: 5px 7px;
             margin: 10px;
+        }
+        input {
+            flex: 1;
+            width: 150px;
         }
         form {
             margin: 10px;
+            display: flex;
         }
         div {
             margin: 0px 20px 20px;
@@ -64,7 +69,7 @@
                     views = "N/A"
                 document ["results"] <= html.P (f'Views: {views}')
                 document ["results"] <= html.P (f'Date: {rfind (i, ["publishedTimeText", "simpleText"])}')
-                document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', height = "300em"), href = player_url.replace ("%v", rfind (i, ["videoId"], ",")))
+                document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', height = "300px"), href = player_url.replace ("%v", rfind (i, ["videoId"], ",")))
         def req_search (event, homepage = False):
             document ["results"].clear ()
             search = document ["search"].value
@@ -81,9 +86,9 @@
         window.req_search = req_search
         window.req_user = req_user
         document ["request"].bind ("submit", req_search)
-        document ["request"] <= html.INPUT (type = "text", id = "search")
-        document ["request"] <= html.INPUT (type = "submit")
-        document ["request"] <= html.INPUT (type = "reset", value = "Home", onclick = "req_search (null, true);")
+        document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (null, true);")
+        document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus")
+        document ["request"] <= html.BUTTON ("Search", type = "submit")
         req_search (None, True)
     </script>
     <form action = javascript:void(0); id = "request"></form>
