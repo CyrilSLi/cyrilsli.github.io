@@ -66,7 +66,8 @@
                 if pointer == -1:
                     return "N/A"
             return text [pointer + len (values [-1]) + 3 : pointer + text [pointer : ].find (end) - 1].replace ("\\n", "\n").replace ("\\u0026", "&").replace ('\\"', '"')
-        player_url = "https://www.youtube-nocookie.com/embed/%v?rel=0&modestbranding=1&fs=0"
+        #player_url = "https://www.youtube-nocookie.com/embed/%v?rel=0&modestbranding=1&fs=0"
+        player_url = "https://www.youtube-nocookie.com/embed/%v?rel=0&playlist=%v&loop=1&modestbranding=1&fs=0"
         cors_url = "https://corsproxy.io/?"
         def complete (res):
             for i in res.text.split ("videoRenderer") [1 : ]:
@@ -97,7 +98,7 @@
             ajax.get (cors_url + "https://www.youtube.com" + url + "/videos", oncomplete = complete)
         def req_video (url):
             document ["results"].clear ()
-            document ["results"] <= html.IFRAME (src = url, height = "100%", width = "100%", id = "frame", frameBorder = "0")
+            document ["results"] <= html.IFRAME (src = url, height = "100%", width = "100%", id = "frame", frameBorder = "0", onload = "this.src = this.src; this.onload = '';")
         window.req_search = req_search
         window.req_user = req_user
         window.req_video = req_video
