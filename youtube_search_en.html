@@ -18,6 +18,12 @@
             font-size: 20px;
             margin: 20px 0px;
         }
+        a {
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
         h1 {
             font-family: Arial, sans-serif;
             font-size: 36px;
@@ -59,10 +65,10 @@
         cors_url = "https://corsproxy.io/?"
         def complete (res):
             for i in res.text.split ("videoRenderer") [1 : ]:
-                document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), href = player_url.replace ("%v", rfind (i, ["videoId"], ",")))
+                document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), tabindex = "0", href = player_url.replace ("%v", rfind (i, ["videoId"], ",")))
                 channel, user_url = rfind (i, ["ownerText", "text"], ","), rfind (i, ["webCommandMetadata", "url"], ",")
                 if channel != "N/A":
-                    document ["results"] <= html.A (html.P (f"{channel} ({user_url [1 : ]})"), href = f'javascript:req_user ("{user_url}", "{channel}")')
+                    document ["results"] <= html.A (html.P (f"{channel} ({user_url [1 : ]})"), tabindex = "0", href = f'javascript:req_user ("{user_url}", "{channel}")')
                 document ["results"] <= html.P (f'Length: {rfind (i, ["lengthText", "simpleText"])}')
                 views = rfind (i, ["viewCountText", "simpleText"]) [ : -6]
                 if (not set (views) <= set ("0123456789,")) or (not views):
