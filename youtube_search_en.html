@@ -39,9 +39,13 @@
                     views = "N/A"
                 document ["results"] <= html.P (f'Views: {views}')
                 document ["results"] <= html.P (f'Date: {rfind (i, ["publishedTimeText", "simpleText"])}')
-                document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', height = "200em"), href = player_url.replace ("%v", rfind (i, ["videoId"], ",")))
+                document ["results"] <= html.IMG (src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', height = "200em")
         def req_search (event, homepage = False):
             document ["results"].clear ()
+            document ["request"] <= html.INPUT (type = "text", id = "search")
+            document ["request"] <= html.INPUT (type = "submit")
+            document ["request"] <= html.INPUT (type = "reset", value = "Home", onclick = "req_search (null, true);")
+            #document ["request"].clear ()
             search = document ["search"].value
             if homepage:
                 document ["results"] <= html.H2 ("Homepage")
