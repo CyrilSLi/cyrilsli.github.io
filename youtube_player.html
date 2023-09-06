@@ -10,6 +10,7 @@
     </style>
 </head>
 <body>
+    <iframe width = "100%" height = "100%" id = "frame"></iframe>
     <script>
     const params = new URLSearchParams (window.location.search);
     if (params.get ("video") === null) {
@@ -40,5 +41,4 @@
         document.getElementById ("frame").src = url;
     }
     </script>
-    <iframe width = "100%" height = "100%" id = "frame"></iframe>
 </body>
