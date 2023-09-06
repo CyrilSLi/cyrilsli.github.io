@@ -10,13 +10,14 @@
         src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js">
     </script>
     <style>
-        body {
+        html, body {
+            height: 100%;
             margin: 0px;
         }
         p {
             font-family: Arial, sans-serif;
             font-size: 20px;
-            margin: 20px 0px;
+            margin: 20px;
         }
         a {
             text-decoration: none;
@@ -24,11 +25,14 @@
         a:hover {
             text-decoration: underline;
         }
+        img {
+            margin: 0px 20px;
+        }
         h1 {
             font-family: Arial, sans-serif;
             font-size: 36px;
             font-weight: bold;
-            margin: 0px 0px 20px
+            margin: 0px 20px
         }
         input, button {
             font-family: Arial, sans-serif;
@@ -45,7 +49,8 @@
             display: flex;
         }
         div {
-            margin: 0px 20px 20px;
+            height: 100%;
+            margin: 0px;
         }
     </style>
 </head>
@@ -61,11 +66,11 @@
                 if pointer == -1:
                     return "N/A"
             return text [pointer + len (values [-1]) + 3 : pointer + text [pointer : ].find (end) - 1].replace ("\\n", "\n").replace ("\\u0026", "&").replace ('\\"', '"')
-        player_url = "https://cyrilsli.github.io/youtube_player?video=%v&rel=0&playlist=%v&loop=1&modestbranding=1&fs=0"
+        player_url = "https://www.youtube-nocookie.com/embed/%v?rel=0&modestbranding=1&fs=0"
         cors_url = "https://corsproxy.io/?"
         def complete (res):
             for i in res.text.split ("videoRenderer") [1 : ]:
-                document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), tabindex = "0", href = player_url.replace ("%v", rfind (i, ["videoId"], ",")))
+                document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), tabindex = "0", href = f'javascript:req_video ("{player_url.replace ("%v", rfind (i, ["videoId"], ","))}")')
                 channel, user_url = rfind (i, ["ownerText", "text"], ","), rfind (i, ["webCommandMetadata", "url"], ",")
                 if channel != "N/A":
                     document ["results"] <= html.A (html.P (f"{channel} ({user_url [1 : ]})"), tabindex = "0", href = f'javascript:req_user ("{user_url}", "{channel}")')
@@ -75,7 +80,8 @@
                     views = "N/A"
                 document ["results"] <= html.P (f'Views: {views}')
                 document ["results"] <= html.P (f'Date: {rfind (i, ["publishedTimeText", "simpleText"])}')
-                document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', height = "300px"), href = player_url.replace ("%v", rfind (i, ["videoId"], ",")))
+                document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', height = "300px"), href = f'javascript:req_video ("{player_url.replace ("%v", rfind (i, ["videoId"], ","))}")')
+            document ["results"] <= html.P ("&nbsp;")
         def req_search (event, homepage = False):
             document ["results"].clear ()
             search = document ["search"].value
@@ -89,8 +95,12 @@
             document ["results"].clear ()
             document ["results"] <= (html.H1 (f'Videos by "{name}" ({url [1 : ]})'))
             ajax.get (cors_url + "https://www.youtube.com" + url + "/videos", oncomplete = complete)
+        def req_video (url):
+            document ["results"].clear ()
+            document ["results"] <= html.IFRAME (src = url, height = "100%", width = "100%", id = "frame", frameBorder = "0")
         window.req_search = req_search
         window.req_user = req_user
+        window.req_video = req_video
         document ["request"].bind ("submit", req_search)
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (null, true);")
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus")
