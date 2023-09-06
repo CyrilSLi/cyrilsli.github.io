@@ -35,13 +35,10 @@
         console.log (url);
         open (url, "_self");
     } else {
-        frame = document.createElement ("iframe");
-        frame.setAttribute ("width", "100%");
-        frame.setAttribute ("height", "100%");
         url = "https://www.youtube-nocookie.com/embed/" + window.location.href.split ("video=") [1].replace ("&", "?");
         console.log (url)
-        frame.setAttribute ("src", url);
-        document.body.appendChild (frame);
+        document.getItemById ("frame").setAttribute ("src", url);
     }
     </script>
+    <iframe width = "100%" height = "100%" id = "frame"></iframe>
 </body>
