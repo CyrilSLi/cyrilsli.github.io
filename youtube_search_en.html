@@ -82,7 +82,7 @@
                 document ["results"] <= html.P (f'Views: {views}')
                 document ["results"] <= html.P (f'Date: {rfind (i, ["publishedTimeText", "simpleText"])}')
                 document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', height = "300px"), href = f'javascript:req_video ("{player_url.replace ("%v", rfind (i, ["videoId"], ","))}")')
-            document ["results"] <= html.P ("&nbsp;")
+            document ["results"] <= html.DIV (style = "height: 20px;")
         def req_search (event, homepage = False):
             document ["results"].clear ()
             search = document ["search"].value
