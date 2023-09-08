@@ -34,6 +34,9 @@
             font-weight: bold;
             margin: 0px 20px
         }
+        iframe {
+            margin: 0px;
+        }
         input, button {
             font-family: Arial, sans-serif;
             font-size: 20px;
@@ -98,10 +101,17 @@
             ajax.get (cors_url + "https://www.youtube.com" + url + "/videos", oncomplete = complete)
         def req_video (url):
             document ["results"].clear ()
-            document ["results"] <= html.IFRAME (src = url, height = "100%", width = "100%", id = "frame", frameBorder = "0", onload = "this.src = this.src; this.onload = '';")
+            document ["results"] <= html.P ("Loading video...", id = "load")
+            document ["results"] <= html.IFRAME (src = url, height = "0%", width = "100%", id = "frame", frameBorder = "0", onload = "reload_frame ();")
+        def reload_frame ():
+            document ["frame"].onload = ""
+            document ["frame"].src += ""
+            del document ["load"]
+            document ["frame"].attrs ["height"] = "100%"
         window.req_search = req_search
         window.req_user = req_user
         window.req_video = req_video
+        window.reload_frame = reload_frame
         document ["request"].bind ("submit", req_search)
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (null, true);")
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus")
