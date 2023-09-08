@@ -3,12 +3,8 @@
 <head>
     <title>YouTube Search</title>
     <meta charset="utf-8">
-    <script type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js">
-    </script>
-    <script type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js"></script>
     <style>
         html, body {
             height: 100%;
@@ -59,6 +55,12 @@
 </head>
 
 <body onload="brython (0)">
+    <script>
+        scrollTo (0, 0)
+        vid_scroll = function () {
+            scrollTo (0, document.getElementById ("request").offsetHeight + 20);
+        }
+    </script>
     <script type="text/python">
         from browser import document, ajax, html, window
         from urllib import parse
@@ -73,6 +75,7 @@
         player_url = "https://www.youtube-nocookie.com/embed/%v?rel=0&playlist=%v&loop=1&modestbranding=1&fs=0"
         cors_url = "https://corsproxy.io/?"
         def complete (res):
+            del document ["load"]
             for i in res.text.split ("videoRenderer") [1 : ]:
                 document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), tabindex = "0", href = f'javascript:req_video ("{player_url.replace ("%v", rfind (i, ["videoId"], ","))}")')
                 channel, user_url = rfind (i, ["ownerText", "text"], ","), rfind (i, ["webCommandMetadata", "url"], ",")
@@ -95,19 +98,23 @@
             else:
                 document ["results"] <= html.H1 (f'Results for "{search}"')
                 ajax.get (cors_url + "https://www.youtube.com/results?search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
+            document ["results"] <= html.P ("Loading...", id = "load")
         def req_user (url, name):
             document ["results"].clear ()
             document ["results"] <= (html.H1 (f'Videos by "{name}" ({url [1 : ]})'))
+            document ["results"] <= html.P ("Loading...", id = "load")
             ajax.get (cors_url + "https://www.youtube.com" + url + "/videos", oncomplete = complete)
         def req_video (url):
+            window.scrollTo (0, 0)
             document ["results"].clear ()
-            document ["results"] <= html.P ("Loading video...", id = "load")
+            document ["results"] <= html.P ("Loading...", id = "load")
             document ["results"] <= html.IFRAME (src = url, height = "0%", width = "100%", id = "frame", frameBorder = "0", onload = "reload_frame ();")
         def reload_frame ():
             document ["frame"].onload = ""
             document ["frame"].src += ""
             del document ["load"]
             document ["frame"].attrs ["height"] = "100%"
+            window.vid_scroll ()
         window.req_search = req_search
         window.req_user = req_user
         window.req_video = req_video
