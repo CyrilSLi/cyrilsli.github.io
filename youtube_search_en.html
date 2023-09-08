@@ -93,17 +93,17 @@
             search = document ["search"].value
             if homepage:
                 document ["results"] <= html.H1 ("Homepage")
-                ajax.get (cors_url + "https://www.youtube.com/?app=desktop", oncomplete = complete)
+                ajax.get (cors_url + "https://www.youtube.com/", oncomplete = complete)
             else:
                 document ["results"] <= html.H1 (f'Results for "{search}"')
-                ajax.get (cors_url + "https://www.youtube.com/results?app=desktop&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
+                ajax.get (cors_url + "https://www.youtube.com/results?search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
             document ["results"] <= html.P ("Loading...", id = "load")
         def req_user (url, name):
             window.scrollTo (0, 0)
             document ["results"].clear ()
             document ["results"] <= (html.H1 (f'Videos by "{name}" ({url [1 : ]})'))
             document ["results"] <= html.P ("Loading...", id = "load")
-            ajax.get (cors_url + "https://www.youtube.com" + url + "/videos?app=desktop", oncomplete = complete)
+            ajax.get (cors_url + "https://www.youtube.com" + url + "/videos", oncomplete = complete)
         def req_video (url):
             window.scrollTo (0, 0)
             document ["results"].clear ()
