@@ -99,6 +99,7 @@
                 ajax.get (cors_url + "https://www.youtube.com/results?search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
             document ["results"] <= html.P ("Loading...", id = "load")
         def req_user (url, name):
+            window.scrollTo (0, 0)
             document ["results"].clear ()
             document ["results"] <= (html.H1 (f'Videos by "{name}" ({url [1 : ]})'))
             document ["results"] <= html.P ("Loading...", id = "load")
