@@ -104,7 +104,7 @@
         def req_video (url):
             window.scrollTo (0, 0)
             document ["results"].clear ()
-            document ["results"] <= html.P ("Loading...", id = "load")
+            document ["results"] <= html.P ("Loading...", id = "load", style = "margin: 0px 20px 20px;")
             document ["results"] <= html.IFRAME (src = url, flex = "1", height = "0px", width = "100%", id = "frame", frameBorder = "0", allowfullscreen = "allowfullscreen", onload = "reload_frame ();")
         def reload_frame ():
             document ["frame"].onload = ""
@@ -122,6 +122,6 @@
         req_search (None, True)
     </script>
     <form action = javascript:void(0); id = "request"></form>
-    <div id = "results"><p>Starting Brython...</p></div>
+    <div id = "results"><p style = "margin: 0px 20px 20px;">Starting Brython...</p></div>
 </body>
 </html>
