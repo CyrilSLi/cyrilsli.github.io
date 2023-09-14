@@ -91,15 +91,19 @@
         def req_search (event, homepage = False):
             document ["results"].clear ()
             search = document ["search"].value
-            if homepage:
-                document ["results"] <= html.H1 ("Homepage")
-                ajax.get (cors_url + "https://www.youtube.com/?app=desktop&persist_app=1", oncomplete = complete)
+            if search or homepage:
+                if homepage:
+                    document ["results"] <= html.H1 ("Homepage")
+                    ajax.get (cors_url + "https://www.youtube.com/?app=desktop&persist_app=1", oncomplete = complete)
+                else:
+                    document ["results"] <= html.H1 (f'Results for "{search}"')
+                    ajax.get (cors_url + "https://www.youtube.com/results?app=desktop&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
+                if "frame" in document and "deleter" not in document:
+                    document ["player"] <= html.BUTTON ("Close player", id = "deleter", style = "margin: 0px 20px 20px;", onclick = "remove_video ();")
+                document ["player"] <= html.P ("Loading...", id = "load")
             else:
-                document ["results"] <= html.H1 (f'Results for "{search}"')
-                ajax.get (cors_url + "https://www.youtube.com/results?app=desktop&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
-            if "frame" in document and "deleter" not in document:
-                document ["player"] <= html.BUTTON ("Close player", id = "deleter", style = "margin: 0px 20px 20px;", onclick = "remove_video ();")
-            document ["player"] <= html.P ("Loading...", id = "load")
+                if "deleter" in document:
+                    del document ["deleter"]
             window.scrollTo (0, 0)
         def req_user (url, name):
             document ["results"].clear ()
