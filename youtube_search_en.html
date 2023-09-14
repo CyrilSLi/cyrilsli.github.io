@@ -100,17 +100,18 @@
             if "frame" in document and "deleter" not in document:
                 document ["player"] <= html.BUTTON ("Close player", id = "deleter", style = "margin: 0px 20px 20px;", onclick = "remove_video ();")
             document ["player"] <= html.P ("Loading...", id = "load")
-        def req_user (url, name):
             window.scrollTo (0, 0)
+        def req_user (url, name):
             document ["results"].clear ()
             document ["results"] <= (html.H1 (f'Videos by "{name}" ({url [1 : ]})'))
             document ["player"] <= html.P ("Loading...", id = "load")
+            window.scrollTo (0, 0)
             ajax.get (cors_url + "https://www.youtube.com" + url + "/videos?app=desktop&persist_app=1", oncomplete = complete)
         def req_video (url):
-            window.scrollTo (0, 0)
             document ["results"].clear ()
             remove_video ()
             document ["player"] <= html.P ("Loading...", id = "load")
+            window.scrollTo (0, 0)
             document ["player"] <= html.IFRAME (src = url, flex = "1", height = "0px", id = "frame", frameBorder = "0", allowfullscreen = "allowfullscreen", onload = "reload_frame ();")
         def reload_frame ():
             document ["frame"].onload = ""
