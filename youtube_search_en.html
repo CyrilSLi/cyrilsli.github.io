@@ -8,8 +8,9 @@
     <style>
         html, body {
             margin: 0px;
-            height: 100%;
             min-width: 440px;
+        }
+        #player {
             display: flex;
             flex-direction: column;
         }
@@ -17,6 +18,9 @@
             font-family: Arial, sans-serif;
             font-size: 20px;
             margin: 20px;
+        }
+        #load {
+            margin: 0px 20px 20px;
         }
         a {
             text-decoration: none;
@@ -34,7 +38,7 @@
             margin: 0px 20px
         }
         iframe {
-            margin: 0px;
+            margin: 0px 20px 20px;
             display: block;
         }
         input, button {
@@ -52,12 +56,10 @@
             display: flex;
         }
         div {
-            height: 100%;
             margin: 0px;
         }
     </style>
 </head>
-
 <body onload="brython (0)">
     <script type="text/python">
         from browser import document, ajax, html, window
@@ -95,34 +97,47 @@
             else:
                 document ["results"] <= html.H1 (f'Results for "{search}"')
                 ajax.get (cors_url + "https://www.youtube.com/results?app=desktop&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
-            document ["results"] <= html.P ("Loading...", id = "load")
+            if "frame" in document and "deleter" not in document:
+                document ["player"] <= html.BUTTON ("Close player", id = "deleter", style = "margin: 0px 20px 20px;", onclick = "remove_video ();")
+            document ["player"] <= html.P ("Loading...", id = "load")
         def req_user (url, name):
             window.scrollTo (0, 0)
             document ["results"].clear ()
             document ["results"] <= (html.H1 (f'Videos by "{name}" ({url [1 : ]})'))
-            document ["results"] <= html.P ("Loading...", id = "load")
+            document ["player"] <= html.P ("Loading...", id = "load")
             ajax.get (cors_url + "https://www.youtube.com" + url + "/videos?app=desktop&persist_app=1", oncomplete = complete)
         def req_video (url):
             window.scrollTo (0, 0)
             document ["results"].clear ()
-            document ["results"] <= html.P ("Loading...", id = "load", style = "margin: 0px 20px 20px;")
-            document ["results"] <= html.IFRAME (src = url, flex = "1", height = "0px", width = "100%", id = "frame", frameBorder = "0", allowfullscreen = "allowfullscreen", onload = "reload_frame ();")
+            remove_video ()
+            document ["player"] <= html.P ("Loading...", id = "load")
+            document ["player"] <= html.IFRAME (src = url, flex = "1", height = "0px", id = "frame", frameBorder = "0", allowfullscreen = "allowfullscreen", onload = "reload_frame ();")
         def reload_frame ():
             document ["frame"].onload = ""
             document ["frame"].src += ""
             del document ["load"]
+            document ["player"].attrs ["style"] = "height: 100vh; height: 100dvh;"
             document ["frame"].attrs ["height"] = "100%"
+        def remove_video ():
+            if "frame" in document:
+                del document ["frame"]
+            if "deleter" in document:
+                del document ["deleter"]
+            document ["player"].attrs ["style"] = ""
         window.req_search = req_search
         window.req_user = req_user
         window.req_video = req_video
         window.reload_frame = reload_frame
+        window.remove_video = remove_video
         document ["request"].bind ("submit", req_search)
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (null, true);")
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus")
         document ["request"] <= html.BUTTON ("Search", type = "submit")
         req_search (None, True)
     </script>
-    <form action = javascript:void(0); id = "request"></form>
-    <div id = "results"><p style = "margin: 0px 20px 20px;">Starting Brython... (JavaScript required)</p></div>
+    <div id = "player">
+        <form action = javascript:void(0); id = "request"></form>
+    </div>
+    <div id = "results"><p id = "load">Starting Brython... (JavaScript required)</p></div>
 </body>
 </html>
