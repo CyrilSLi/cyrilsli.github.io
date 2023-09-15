@@ -71,8 +71,13 @@
                 if pointer == -1:
                     return "N/A"
             return text [pointer + len (values [-1]) + 3 : pointer + text [pointer : ].find (end) - 1].replace ("\\n", "\n").replace ("\\u0026", "&").replace ('\\"', '"')
-        player_url = "https://www.youtube-nocookie.com/embed/%v?rel=0&playlist=%v&loop=1&modestbranding=1"
-        cors_url = "https://corsproxy.io/?"
+        player_url = document.query.getvalue ("player_url")
+        if not player_url:
+            player_url = "https://www.youtube-nocookie.com/embed/%v?rel=0&playlist=%v&loop=1&modestbranding=1"
+        cors_url = document.query.getvalue ("cors_url")
+        if not cors_url:
+            cors_url = "https://corsproxy.io/?"
+        player_persist = False if document.query.getvalue ("player_persist") else True
         def complete (res):
             del document ["load"]
             for i in res.text.split ("videoRenderer") [1 : ]:
@@ -89,6 +94,8 @@
                 document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', width = "400px"), tabindex = "-1", href = f'javascript:req_video ("{player_url.replace ("%v", rfind (i, ["videoId"], ","))}")')
             document ["results"] <= html.DIV (style = "height: 20px;")
         def req_search (event, homepage = False):
+            if not player_persist:
+                remove_video ()
             document ["results"].clear ()
             search = document ["search"].value
             if search or homepage:
@@ -113,22 +120,26 @@
             ajax.get (cors_url + "https://www.youtube.com" + url + "/videos?app=desktop&persist_app=1", oncomplete = complete)
         def req_video (url):
             document ["results"].clear ()
-            remove_video ()
+            remove_video (False)
             document ["player"] <= html.P ("Loading...", id = "load")
             window.scrollTo (0, 0)
+            if player_persist and "frame" in document:
+                document ["frame"].id = "player_old"
             document ["player"] <= html.IFRAME (src = url, flex = "1", height = "0px", id = "frame", frameBorder = "0", allowfullscreen = "allowfullscreen", onload = "reload_frame ();")
         def reload_frame ():
             document ["frame"].onload = ""
             document ["frame"].src += ""
             del document ["load"]
+            if "player_old" in document:
+                del document ["player_old"]
             document ["player"].attrs ["style"] = "height: 100vh; height: 100dvh;"
             document ["frame"].attrs ["height"] = "100%"
-        def remove_video ():
-            if "frame" in document:
+        def remove_video (frame = True):
+            if "frame" in document and frame:
                 del document ["frame"]
+                document ["player"].attrs ["style"] = ""
             if "deleter" in document:
                 del document ["deleter"]
-            document ["player"].attrs ["style"] = ""
         window.req_search = req_search
         window.req_user = req_user
         window.req_video = req_video
