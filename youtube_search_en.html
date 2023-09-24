@@ -84,6 +84,7 @@
         cors_url = document.query.getvalue ("cors_url")
         if not cors_url:
             cors_url = "https://corsproxy.io/?"
+        global playlist
         playlist = []
         player_persist = False if document.query.getvalue ("player_persist") else True
         def complete (res):
@@ -169,7 +170,8 @@
             else:
                 document ["change"].textContent = ("Add", "Remove") [vid_id in playlist]
         def list_clear ():
-            playlist = []
+            for i in range (len (playlist)):
+                playlist.pop () #Why doesn't setting it to [] work?
             document ["change"].textContent = "Add"
         def list_play ():
             if playlist:
