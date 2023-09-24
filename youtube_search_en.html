@@ -45,7 +45,7 @@
             font-family: Arial, sans-serif;
             font-size: 20px;
             padding: 5px 7px;
-            margin: 10px;
+            margin: 0px 10px 20px;
             border-radius: 0px;
             text-decoration: none;
             font-weight: normal;
@@ -59,7 +59,7 @@
             width: 150px;
         }
         form, #vidops {
-            margin: 10px;
+            margin: 20px 10px 0px;
             display: flex;
         }
         div {
@@ -129,6 +129,8 @@
             document ["player"] <= html.P ("Loading...", id = "load")
             window.scrollTo (0, 0)
             if player_persist and "frame" in document:
+                if document ["frame"].attrs ["height"] == "0px":
+                    document ["frame"].attrs ["style"] = ""
                 document ["frame"].id = "player_old"
             document ["player"] <= html.IFRAME (src = url, flex = "1", height = "0px", id = "frame", frameBorder = "0", allowfullscreen = "allowfullscreen", onload = "reload_frame ();")
         def reload_frame ():
@@ -153,10 +155,12 @@
             if document ["frame"].attrs ["height"] == "0px":
                 document ["frame"].attrs ["height"] = "100%"
                 document ["player"].attrs ["style"] = "height: 100vh; height: 100dvh;"
+                document ["vidops"].attrs ["style"] = "margin: 20px 10px 0px;"
                 document ["visibility"].textContent = "Hide"
             else:
                 document ["frame"].attrs ["height"] = "0px"
                 document ["player"].attrs ["style"] = ""
+                document ["vidops"].attrs ["style"] = "margin: 0px 10px;"
                 document ["visibility"].textContent = "Show"
         def list_change (change = True):
             vid_id = document ["frame"].src [player_url.find ("%v") : player_url.find ("%v") + 11]
