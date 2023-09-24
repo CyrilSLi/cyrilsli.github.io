@@ -170,6 +170,7 @@
                 document ["change"].textContent = ("Add", "Remove") [vid_id in playlist]
         def list_clear ():
             playlist = []
+            document ["change"].textContent = "Add"
         def list_play ():
             if playlist:
                 req_video (player_url.replace ("%v", playlist [0]).replace ("%p", ",".join (playlist)))
