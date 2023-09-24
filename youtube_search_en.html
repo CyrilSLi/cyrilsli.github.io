@@ -79,7 +79,11 @@
             cors_url = "https://corsproxy.io/?"
         player_persist = False if document.query.getvalue ("player_persist") else True
         def complete (res):
+            if not player_persist:
+                remove_video ()
             del document ["load"]
+            if "frame" in document and "deleter" not in document:
+                document ["player"] <= html.BUTTON ("Close player", id = "deleter", style = "margin: 0px 20px 20px;", onclick = "remove_video ();")
             for i in res.text.split ("videoRenderer") [1 : ]:
                 document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), tabindex = "0", href = f'javascript:req_video ("{player_url.replace ("%v", rfind (i, ["videoId"], ","))}")')
                 channel, user_url = rfind (i, ["ownerText", "text"], ","), rfind (i, ["webCommandMetadata", "url"], ",")
@@ -94,8 +98,6 @@
                 document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', width = "400px"), tabindex = "-1", href = f'javascript:req_video ("{player_url.replace ("%v", rfind (i, ["videoId"], ","))}")')
             document ["results"] <= html.DIV (style = "height: 20px;")
         def req_search (event, homepage = False):
-            if not player_persist:
-                remove_video ()
             document ["results"].clear ()
             search = document ["search"].value
             if search or homepage:
@@ -105,8 +107,6 @@
                 else:
                     document ["results"] <= html.H1 (f'Results for "{search}"')
                     ajax.get (cors_url + "https://www.youtube.com/results?app=desktop&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
-                if "frame" in document and "deleter" not in document:
-                    document ["player"] <= html.BUTTON ("Close player", id = "deleter", style = "margin: 0px 20px 20px;", onclick = "remove_video ();")
                 document ["player"] <= html.P ("Loading...", id = "load")
             else:
                 if "deleter" in document:
@@ -119,7 +119,6 @@
             window.scrollTo (0, 0)
             ajax.get (cors_url + "https://www.youtube.com" + url + "/videos?app=desktop&persist_app=1", oncomplete = complete)
         def req_video (url):
-            document ["results"].clear ()
             remove_video (False)
             document ["player"] <= html.P ("Loading...", id = "load")
             window.scrollTo (0, 0)
@@ -135,6 +134,8 @@
             document ["player"].attrs ["style"] = "height: 100vh; height: 100dvh;"
             document ["frame"].attrs ["height"] = "100%"
             document ["frame"].attrs ["style"] = ""
+            if "deleter" not in document:
+                document ["player"] <= html.BUTTON ("Close player", id = "deleter", style = "margin: 0px 20px 20px;", onclick = "remove_video ();")
         def remove_video (frame = True):
             if "frame" in document and frame:
                 del document ["frame"]
