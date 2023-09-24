@@ -35,7 +35,7 @@
             font-family: Arial, sans-serif;
             font-size: 36px;
             font-weight: bold;
-            margin: 0px 20px
+            margin: 0px 20px;
         }
         iframe {
             margin: 0px 20px;
@@ -45,14 +45,21 @@
             font-family: Arial, sans-serif;
             font-size: 20px;
             padding: 5px 7px;
-            margin: 0px 10px 20px;
+            margin: 10px;
+            border-radius: 0px;
+            text-decoration: none;
+            font-weight: normal;
+            background-color: #f8f8f8;
+            color: black;
+            -webkit-appearance: none;
+            border: 1px solid black;
         }
         input {
             flex: 1;
             width: 150px;
         }
         form, #vidops {
-            margin: 20px 10px 0px;
+            margin: 10px;
             display: flex;
         }
         div {
@@ -142,17 +149,19 @@
         def hide_show ():
             if document ["frame"].attrs ["height"] == "0px":
                 document ["frame"].attrs ["height"] = "100%"
-                document ["vidops"].attrs ["style"] = "margin: 20px 10px 0px;"
                 document ["player"].attrs ["style"] = "height: 100vh; height: 100dvh;"
             else:
                 document ["frame"].attrs ["height"] = "0px"
-                document ["vidops"].attrs ["style"] = "margin: 0px 10px;"
                 document ["player"].attrs ["style"] = ""
         def add_vidops ():
             document ["frame"].attrs ["style"] = ""
             document ["player"] <= html.DIV (id = "vidops")
-            document ["vidops"] <= html.BUTTON ("Close player", style = "flex: 1;", onclick = "remove_video ();")
-            document ["vidops"] <= html.BUTTON ("Hide / Show", style = "flex: 1;", onclick = "hide_show ();")
+            document ["vidops"] <= html.BUTTON ("Close player", style = "flex: 1 0 174px;", onclick = "remove_video ();")
+            document ["vidops"] <= html.BUTTON ("Hide / Show", style = "flex: 1 0 174px;", onclick = "hide_show ();")
+            #document ["vidops"] <= html.BUTTON ("Add", style = "flex: 1 0 174px;", onclick = "remove_video ();")
+            #document ["vidops"] <= html.BUTTON ("Remove", style = "flex: 1 0 174px;", onclick = "hide_show ();")
+            #document ["vidops"] <= html.BUTTON ("Clear", style = "flex: 1 0 174px;", onclick = "remove_video ();")
+            #update_listops ()
         window.req_search = req_search
         window.req_user = req_user
         window.req_video = req_video
