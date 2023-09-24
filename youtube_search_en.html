@@ -38,21 +38,21 @@
             margin: 0px 20px
         }
         iframe {
-            margin: 0px 20px 20px;
+            margin: 0px 20px;
             display: block;
         }
         input, button {
             font-family: Arial, sans-serif;
             font-size: 20px;
             padding: 5px 7px;
-            margin: 10px;
+            margin: 0px 10px 20px;
         }
         input {
             flex: 1;
             width: 150px;
         }
-        form {
-            margin: 10px;
+        form, #vidops {
+            margin: 20px 10px 0px;
             display: flex;
         }
         div {
@@ -82,8 +82,8 @@
             if not player_persist:
                 remove_video ()
             del document ["load"]
-            if "frame" in document and "deleter" not in document:
-                document ["player"] <= html.BUTTON ("Close player", id = "deleter", style = "margin: 0px 20px 20px;", onclick = "remove_video ();")
+            if "frame" in document and "vidops" not in document:
+                add_vidops ()
             for i in res.text.split ("videoRenderer") [1 : ]:
                 document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), tabindex = "0", href = f'javascript:req_video ("{player_url.replace ("%v", rfind (i, ["videoId"], ","))}")')
                 channel, user_url = rfind (i, ["ownerText", "text"], ","), rfind (i, ["webCommandMetadata", "url"], ",")
@@ -100,17 +100,13 @@
         def req_search (event, homepage = False):
             document ["results"].clear ()
             search = document ["search"].value
-            if search or homepage:
-                if homepage:
-                    document ["results"] <= html.H1 ("Homepage")
-                    ajax.get (cors_url + "https://www.youtube.com/?app=desktop&persist_app=1", oncomplete = complete)
-                else:
-                    document ["results"] <= html.H1 (f'Results for "{search}"')
-                    ajax.get (cors_url + "https://www.youtube.com/results?app=desktop&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
-                document ["player"] <= html.P ("Loading...", id = "load")
+            if homepage:
+                document ["results"] <= html.H1 ("Homepage")
+                ajax.get (cors_url + "https://www.youtube.com/?app=desktop&persist_app=1", oncomplete = complete)
             else:
-                if "deleter" in document:
-                    del document ["deleter"]
+                document ["results"] <= html.H1 (f'Results for "{search}"')
+                ajax.get (cors_url + "https://www.youtube.com/results?app=desktop&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
+            document ["player"] <= html.P ("Loading...", id = "load")
             window.scrollTo (0, 0)
         def req_user (url, name):
             document ["results"].clear ()
@@ -124,7 +120,7 @@
             window.scrollTo (0, 0)
             if player_persist and "frame" in document:
                 document ["frame"].id = "player_old"
-            document ["player"] <= html.IFRAME (src = url, flex = "1", height = "0px", style = "margin: 0px;", id = "frame", frameBorder = "0", allowfullscreen = "allowfullscreen", onload = "reload_frame ();")
+            document ["player"] <= html.IFRAME (src = url, flex = "1", height = "0px", id = "frame", frameBorder = "0", allowfullscreen = "allowfullscreen", onload = "reload_frame ();")
         def reload_frame ():
             document ["frame"].onload = ""
             document ["frame"].src += ""
@@ -134,19 +130,35 @@
             document ["player"].attrs ["style"] = "height: 100vh; height: 100dvh;"
             document ["frame"].attrs ["height"] = "100%"
             document ["frame"].attrs ["style"] = ""
-            if "deleter" not in document:
-                document ["player"] <= html.BUTTON ("Close player", id = "deleter", style = "margin: 0px 20px 20px;", onclick = "remove_video ();")
+            if "vidops" not in document:
+                add_vidops ()
         def remove_video (frame = True):
             if "frame" in document and frame:
                 del document ["frame"]
                 document ["player"].attrs ["style"] = ""
-            if "deleter" in document:
-                del document ["deleter"]
+            if "vidops" in document:
+                del document ["vidops"]
+                document ["frame"].attrs ["style"] = "margin: 0px 20px 20px;"
+        def hide_show ():
+            if document ["frame"].attrs ["height"] == "0px":
+                document ["frame"].attrs ["height"] = "100%"
+                document ["vidops"].attrs ["style"] = "margin: 20px 10px 0px;"
+                document ["player"].attrs ["style"] = "height: 100vh; height: 100dvh;"
+            else:
+                document ["frame"].attrs ["height"] = "0px"
+                document ["vidops"].attrs ["style"] = "margin: 0px 10px;"
+                document ["player"].attrs ["style"] = ""
+        def add_vidops ():
+            document ["frame"].attrs ["style"] = ""
+            document ["player"] <= html.DIV (id = "vidops")
+            document ["vidops"] <= html.BUTTON ("Close player", style = "flex: 1;", onclick = "remove_video ();")
+            document ["vidops"] <= html.BUTTON ("Hide / Show", style = "flex: 1;", onclick = "hide_show ();")
         window.req_search = req_search
         window.req_user = req_user
         window.req_video = req_video
         window.reload_frame = reload_frame
         window.remove_video = remove_video
+        window.hide_show = hide_show
         document ["request"].bind ("submit", req_search)
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (null, true);")
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus")
