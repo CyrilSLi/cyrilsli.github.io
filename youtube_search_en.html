@@ -8,7 +8,7 @@
     <style>
         html, body {
             margin: 0px;
-            min-width: 440px;
+            min-width: 520px;
         }
         #player {
             display: flex;
@@ -105,7 +105,7 @@
                     views = "N/A"
                 document ["results"] <= html.P (f'Views: {views}')
                 document ["results"] <= html.P (f'Date: {rfind (i, ["publishedTimeText", "simpleText"])}')
-                document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', width = "400px"), tabindex = "-1", href = f'javascript:req_video ("{vid_url}")')
+                document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', width = "480px"), tabindex = "-1", href = f'javascript:req_video ("{vid_url}")')
             document ["results"] <= html.DIV (style = "height: 20px;")
         def req_search (event, homepage = False):
             document ["results"].clear ()
@@ -187,7 +187,7 @@
             document ["vidops"] <= html.BUTTON ("Hide", id = "visibility", style = "flex: 1;", onclick = "hide_show ();")
             document ["vidops"] <= html.BUTTON ("Add", id = "change", style = "flex: 1;", onclick = "list_change ();")
             list_change (False)
-            document ["vidops"] <= html.BUTTON ("Clear", style = "flex: 1;", onclick = "list_clear ();")
+            document ["vidops"] <= html.BUTTON ("Manage", style = "flex: 1;", onclick = "list_clear ();")
             document ["vidops"] <= html.BUTTON ("Play", style = "flex: 1;", onclick = "list_play ();")
         window.req_search = req_search
         window.req_user = req_user
