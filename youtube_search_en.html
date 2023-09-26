@@ -90,7 +90,8 @@
         def complete (res):
             if not player_persist:
                 remove_video ()
-            del document ["load"]
+            if "load" in document:
+                del document ["load"]
             if "frame" in document and "vidops" not in document:
                 add_vidops ()
             for i in res.text.split ("videoRenderer") [1 : ]:
@@ -208,6 +209,6 @@
     <div id = "player">
         <form action = javascript:void(0); id = "request"></form>
     </div>
-    <div id = "results"><p id = "load">Starting Brython... (JavaScript required)</p></div>
+    <div id = "results"><p>Starting Brython... (JavaScript required)</p></div>
 </body>
 </html>
