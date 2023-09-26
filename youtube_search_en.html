@@ -108,15 +108,15 @@
                 document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', width = "480px"), tabindex = "-1", href = f'javascript:req_video ("{vid_url}")')
             document ["results"] <= html.DIV (style = "height: 20px;")
         def req_search (event, homepage = False):
+            document ["results"].clear ()
+            search = document ["search"].value
+            if homepage:
+                document ["results"] <= html.H1 ("Homepage")
+                ajax.get (cors_url + "https://www.youtube.com/?app=desktop&persist_app=1", oncomplete = complete)
+            else:
+                document ["results"] <= html.H1 (f'Results for "{search}"')
+                ajax.get (cors_url + "https://www.youtube.com/results?app=desktop&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
             if "load" not in document:
-                document ["results"].clear ()
-                search = document ["search"].value
-                if homepage:
-                    document ["results"] <= html.H1 ("Homepage")
-                    ajax.get (cors_url + "https://www.youtube.com/?app=desktop&persist_app=1", oncomplete = complete)
-                else:
-                    document ["results"] <= html.H1 (f'Results for "{search}"')
-                    ajax.get (cors_url + "https://www.youtube.com/results?app=desktop&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
                 document ["player"] <= html.P ("Loading...", id = "load")
             window.scrollTo (0, 0)
         def req_user (url, name):
@@ -208,6 +208,6 @@
     <div id = "player">
         <form action = javascript:void(0); id = "request"></form>
     </div>
-    <div id = "results"><p>Starting Brython... (JavaScript required)</p></div>
+    <div id = "results"><p id = "load">Starting Brython... (JavaScript required)</p></div>
 </body>
 </html>
