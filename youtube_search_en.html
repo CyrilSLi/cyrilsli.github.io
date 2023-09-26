@@ -90,8 +90,7 @@
         def complete (res):
             if not player_persist:
                 remove_video ()
-            if "load" in document:
-                del document ["load"]
+            del document ["load"]
             if "frame" in document and "vidops" not in document:
                 add_vidops ()
             for i in res.text.split ("videoRenderer") [1 : ]:
@@ -117,8 +116,7 @@
             else:
                 document ["results"] <= html.H1 (f'Results for "{search}"')
                 ajax.get (cors_url + "https://www.youtube.com/results?app=desktop&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
-            if "load" not in document:
-                document ["player"] <= html.P ("Loading...", id = "load")
+            document ["player"] <= html.P ("Loading...", id = "load")
             window.scrollTo (0, 0)
         def req_user (url, name):
             document ["results"].clear ()
