@@ -19,7 +19,7 @@
             font-size: 20px;
             margin: 20px;
         }
-        #load {
+        #load, #start {
             margin: 0px 20px 20px;
         }
         a {
@@ -108,31 +108,34 @@
                 document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', width = "480px"), tabindex = "-1", href = f'javascript:req_video ("{vid_url}")')
             document ["results"] <= html.DIV (style = "height: 20px;")
         def req_search (event, homepage = False):
-            document ["results"].clear ()
-            search = document ["search"].value
-            if homepage:
-                document ["results"] <= html.H1 ("Homepage")
-                ajax.get (cors_url + "https://www.youtube.com/?app=desktop&persist_app=1", oncomplete = complete)
-            else:
-                document ["results"] <= html.H1 (f'Results for "{search}"')
-                ajax.get (cors_url + "https://www.youtube.com/results?app=desktop&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
-            document ["player"] <= html.P ("Loading...", id = "load")
-            window.scrollTo (0, 0)
+            if "load" not in document:
+                document ["results"].clear ()
+                search = document ["search"].value
+                if homepage:
+                    document ["results"] <= html.H1 ("Homepage")
+                    ajax.get (cors_url + "https://www.youtube.com/?app=desktop&persist_app=1", oncomplete = complete)
+                else:
+                    document ["results"] <= html.H1 (f'Results for "{search}"')
+                    ajax.get (cors_url + "https://www.youtube.com/results?app=desktop&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
+                document ["player"] <= html.P ("Loading...", id = "load")
+                window.scrollTo (0, 0)
         def req_user (url, name):
-            document ["results"].clear ()
-            document ["results"] <= (html.H1 (f'Videos by "{name}" ({url [1 : ]})'))
-            document ["player"] <= html.P ("Loading...", id = "load")
-            window.scrollTo (0, 0)
-            ajax.get (cors_url + "https://www.youtube.com" + url + "/videos?app=desktop&persist_app=1", oncomplete = complete)
+            if "load" not in document:
+                document ["results"].clear ()
+                document ["results"] <= (html.H1 (f'Videos by "{name}" ({url [1 : ]})'))
+                document ["player"] <= html.P ("Loading...", id = "load")
+                window.scrollTo (0, 0)
+                ajax.get (cors_url + "https://www.youtube.com" + url + "/videos?app=desktop&persist_app=1", oncomplete = complete)
         def req_video (url):
-            remove_video (False)
-            document ["player"] <= html.P ("Loading...", id = "load")
-            window.scrollTo (0, 0)
-            if player_persist and "frame" in document:
-                if document ["frame"].attrs ["height"] == "0px":
-                    document ["frame"].attrs ["style"] = ""
-                document ["frame"].id = "player_old"
-            document ["player"] <= html.IFRAME (src = url, flex = "1", height = "0px", id = "frame", frameBorder = "0", allowfullscreen = "allowfullscreen", onload = "reload_frame ();")
+            if "load" not in document:
+                remove_video (False)
+                document ["player"] <= html.P ("Loading...", id = "load")
+                window.scrollTo (0, 0)
+                if player_persist and "frame" in document:
+                    if document ["frame"].attrs ["height"] == "0px":
+                        document ["frame"].attrs ["style"] = ""
+                    document ["frame"].id = "player_old"
+                document ["player"] <= html.IFRAME (src = url, flex = "1", height = "0px", id = "frame", frameBorder = "0", allowfullscreen = "allowfullscreen", onload = "reload_frame ();")
         def reload_frame ():
             document ["frame"].onload = ""
             document ["frame"].src += ""
@@ -207,6 +210,6 @@
     <div id = "player">
         <form action = javascript:void(0); id = "request"></form>
     </div>
-    <div id = "results"><p id = "load">Starting Brython... (JavaScript required)</p></div>
+    <div id = "results"><p id = "start">Starting Brython... (JavaScript required)</p></div>
 </body>
 </html>
