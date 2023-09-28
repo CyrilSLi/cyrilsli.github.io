@@ -155,8 +155,9 @@
                 del document ["frame"]
                 document ["player"].attrs ["style"] = ""
         def search_id ():
-            if len (document ["search"].value) == 11:
-                req_video (player_url.replace ("%v", document ["search"].value).replace ("%p", document ["search"].value))
+            vid_id = document ["search"].value
+            if len (vid_id) == 11 and all (i in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" for i in vid_id):
+                req_video (player_url.replace ("%v", vid_id).replace ("%p", vid_id))
         def hide_show ():
             if document ["frame"].attrs ["height"] == "0px":
                 document ["frame"].attrs ["height"] = "100%"
