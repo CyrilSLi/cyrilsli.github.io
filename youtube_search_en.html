@@ -154,6 +154,9 @@
             if "frame" in document and frame:
                 del document ["frame"]
                 document ["player"].attrs ["style"] = ""
+        def search_id ():
+            if len (document ["search"].value) == 11:
+                req_video (player_url.replace ("%v", document ["search"].value).replace ("%p", document ["search"].value))
         def hide_show ():
             if document ["frame"].attrs ["height"] == "0px":
                 document ["frame"].attrs ["height"] = "100%"
@@ -195,6 +198,7 @@
         window.req_search = req_search
         window.req_user = req_user
         window.req_video = req_video
+        window.search_id = search_id
         window.reload_frame = reload_frame
         window.remove_video = remove_video
         window.hide_show = hide_show
@@ -205,7 +209,7 @@
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (null, true);")
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus")
         document ["request"] <= html.BUTTON ("Search", type = "submit")
-        document ["request"] <= html.BUTTON ("ID", type = "button", onclick = "")
+        document ["request"] <= html.BUTTON ("ID", type = "button", onclick = "search_id ();")
         req_search (None, True)
     </script>
     <div id = "player">
