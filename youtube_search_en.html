@@ -205,7 +205,7 @@
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (null, true);")
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus")
         document ["request"] <= html.BUTTON ("Search", type = "submit")
-        document ["request"] <= html.BUTTON ("ID", onclick = "")
+        document ["request"] <= html.BUTTON ("ID", type = "button", onclick = "")
         req_search (None, True)
     </script>
     <div id = "player">
