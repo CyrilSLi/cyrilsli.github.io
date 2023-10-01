@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <title>Menu</title>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js"></script>
+    <style>
+        html, body {
+            margin: 0px;
+        }
+        p {
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            margin: 20px 20px 20px 60px;
+            line-height: 1.5;
+        }
+        #start {
+            margin: 20px;
+            line-height: 1;
+            font-size: 20px;
+        }
+        h1 {
+            font-family: Arial, sans-serif;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 20px;
+        }
+        h2 {
+            font-family: Arial, sans-serif;
+            font-size: 32px;
+            margin: 20px;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body onload="brython (0)">
+    <script type="text/python">
+        from browser import document, ajax, html, window
+        from urllib import parse
+        from datetime import datetime as d
+        def rfind (text, values, end = ")>>"):
+            pointer = 0
+            for j in values:
+                pointer += text [pointer : ].find (j)
+                if pointer == -1:
+                    return "N/A"
+            return text [pointer + len (values [-1]) : pointer + text [pointer : ].find (end)].replace ("\\r\\n", " • ")
+        def complete (res):
+            document.clear ()
+            document <= html.H1 ("Menu")
+            pdf = ""
+            days = (("mon", "Monday:"), ("tues", "Tuesday:"), ("wed", "Wednesday:"), ("thurs", "Thursday:"), ("fri", "Friday:"))
+            for i in res.text:
+                if i > 31 and i < 127:
+                    pdf += chr (i)
+            pdf = pdf.split ("Widget", 1) [1].split ("WODXNG", 1) [0]
+            weekday = document.query.getvalue ("weekday")
+            if weekday:
+                weekday = int (weekday) - 1
+            else:
+                weekday = d.now ().weekday ()
+            if weekday < 5:
+                document <= html.H2 ("Today:", style = "font-weight: bold;")
+                document <= html.P ("Dining Hall: " + rfind (pdf, ["Dining hall " + days [weekday] [0], "/V("]))
+                document <= html.P ("Mobile Cart: " + rfind (pdf, ["mobile cart " + days [weekday] [0], "/V("]))
+                document <= html.P ("Brunch Menu: " + rfind (pdf, ["box lunch " + days [weekday] [0], "/V("]))
+            for i, j in days:
+                document <= html.H2 (j)
+                document <= html.P ("Dining Hall: " + rfind (pdf, ["Dining hall " + i, "/V("]))
+                document <= html.P ("Mobile Cart: " + rfind (pdf, ["mobile cart " + i, "/V("]))
+                document <= html.P ("Brunch Menu: " + rfind (pdf, ["box lunch " + i, "/V("]))
+        ajax.get ("https://corsproxy.io/?https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", mode = "binary", oncomplete = complete)
+    </script>
+    <p id = "start">Starting Brython... (JavaScript required)</p>
+</body>
