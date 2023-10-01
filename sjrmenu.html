@@ -3,8 +3,8 @@
 <head>
     <title>Menu</title>
     <meta charset="utf-8">
-    <script src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3/brython.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3/brython_stdlib.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/any-date-parser/dist/browser-bundle.min.js"></script>
     <style>
         html, body {
@@ -68,7 +68,7 @@
                 document <= html.P ("Brunch Menu: " + rfind (pdf, ["box lunch " + days [weekday] [0], "/V("]))
             for i, j in days:
                 date = window.Date.fromString (rfind (pdf, ['Date ' + i.title (), '/V('])).toUTCString () [5 : 11]
-                document <= html.H2 (j + " (" + date + ")")
+                document <= html.H2 (f"{j} ({date})")
                 document <= html.P ("Dining Hall: " + rfind (pdf, ["Dining hall " + i, "/V("]))
                 document <= html.P ("Mobile Cart: " + rfind (pdf, ["mobile cart " + i, "/V("]))
                 document <= html.P ("Brunch Menu: " + rfind (pdf, ["box lunch " + i, "/V("]))
