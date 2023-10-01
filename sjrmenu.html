@@ -61,7 +61,7 @@
             else:
                 weekday = d.now ().weekday ()
             if weekday < 5:
-                document <= html.H2 ("Today", style = "font-weight: bold;")
+                document <= html.H2 (f"Today ({days [weekday] [1]})", style = "font-weight: bold;")
                 document <= html.P ("Dining Hall: " + rfind (pdf, ["Dining hall " + days [weekday] [0], "/V("]))
                 document <= html.P ("Mobile Cart: " + rfind (pdf, ["mobile cart " + days [weekday] [0], "/V("]))
                 document <= html.P ("Brunch Menu: " + rfind (pdf, ["box lunch " + days [weekday] [0], "/V("]))
