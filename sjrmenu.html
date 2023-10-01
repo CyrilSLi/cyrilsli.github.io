@@ -66,7 +66,7 @@
                 document <= html.P ("Mobile Cart: " + rfind (pdf, ["mobile cart " + days [weekday] [0], "/V("]))
                 document <= html.P ("Brunch Menu: " + rfind (pdf, ["box lunch " + days [weekday] [0], "/V("]))
             for i, j in days:
-                document <= html.H2 (j)
+                document <= html.H2 (j + " (" + window.Date.new (rfind (pdf, ['Date ' + i.title (), '/V('])).toDateString () [4 : 10] + ")")
                 document <= html.P ("Dining Hall: " + rfind (pdf, ["Dining hall " + i, "/V("]))
                 document <= html.P ("Mobile Cart: " + rfind (pdf, ["mobile cart " + i, "/V("]))
                 document <= html.P ("Brunch Menu: " + rfind (pdf, ["box lunch " + i, "/V("]))
