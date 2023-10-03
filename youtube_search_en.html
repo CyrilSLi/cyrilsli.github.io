@@ -107,7 +107,7 @@
                 document ["results"] <= html.P (f'Date: {rfind (i, ["publishedTimeText", "simpleText"])}')
                 document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', width = "480px"), tabindex = "-1", href = f'javascript:req_video ("{vid_url}")')
             document ["results"] <= html.DIV (style = "height: 20px;")
-        def req_search (event, homepage = False):
+        def req_search (homepage = False):
             if "load" not in document:
                 document ["results"].clear ()
                 search = document ["search"].value
@@ -212,15 +212,14 @@
         window.list_change = list_change
         window.list_clear = list_clear
         window.list_play = list_play
-        document ["request"].bind ("submit", req_search)
-        document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (null, true);")
+        document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (true);")
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus")
         document ["request"] <= html.BUTTON ("Search", type = "submit")
         document ["request"] <= html.BUTTON ("URL", type = "button", onclick = "search_id ();")
-        req_search (None, True)
+        req_search (True)
     </script>
     <div id = "player">
-        <form action = javascript:void(0); id = "request"></form>
+        <form action = javascript:void(0); id = "request" onsubmit = "req_search ();"></form>
     </div>
     <div id = "results"><p id = "start">Starting Brython... (JavaScript required)</p></div>
 </body>
