@@ -155,9 +155,15 @@
                 del document ["frame"]
                 document ["player"].attrs ["style"] = ""
         def search_id ():
-            vid_id = document ["search"].value
-            if len (vid_id) == 11 and all (i in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" for i in vid_id):
-                req_video (player_url.replace ("%v", vid_id).replace ("%p", vid_id))
+            run = ""
+            for i in document ["search"].value:
+                if i in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_":
+                    run += i
+                    if len (run) == 11:
+                        req_video (player_url.replace ("%v", run).replace ("%p", run))
+                        break
+                else:
+                    run = ""
         def hide_show ():
             if document ["frame"].attrs ["height"] == "0px":
                 document ["frame"].attrs ["height"] = "100%"
@@ -210,7 +216,7 @@
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (null, true);")
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus")
         document ["request"] <= html.BUTTON ("Search", type = "submit")
-        document ["request"] <= html.BUTTON ("ID", type = "button", onclick = "search_id ();")
+        document ["request"] <= html.BUTTON ("URL", type = "button", onclick = "search_id ();")
         req_search (None, True)
     </script>
     <div id = "player">
