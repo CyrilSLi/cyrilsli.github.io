@@ -155,15 +155,21 @@
                 del document ["frame"]
                 document ["player"].attrs ["style"] = ""
         def search_id ():
-            run = ""
-            for i in document ["search"].value:
-                if i in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_":
-                    run += i
-                    if len (run) == 11:
-                        req_video (player_url.replace ("%v", run).replace ("%p", run))
-                        break
-                else:
-                    run = ""
+            url, run = document ["search"].value, ""
+            if url:
+                if url [ : 6] == "ytpid:":
+                    args = url [6 : ].split (",")
+                    req_video (player_url.replace ("%v", run).replace ("%p", run))
+                for i in url:
+                    if i in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_":
+                        run += i
+                        if len (run) == 11:
+                            req_video (player_url.replace ("%v", run).replace ("%p", run))
+                            break
+                    else:
+                        run = ""
+            else:
+                
         def hide_show ():
             if document ["frame"].attrs ["height"] == "0px":
                 document ["frame"].attrs ["height"] = "100%"
@@ -175,8 +181,13 @@
                 document ["player"].attrs ["style"] = ""
                 document ["vidops"].attrs ["style"] = "margin: 0px 10px;"
                 document ["visibility"].textContent = "Show"
+        def parse_frame ():
+            vid_pos = player_url.find ("%v")
+            csvlist = document ["frame"].src [player_url.find ("%p") + 9 : ].split (",")
+            csvlist [-1] = csvlist [-1] [ : 11]
+            return document ["frame"].src [vid_pos : vid_pos + 11], csvlist
         def list_change (change = True):
-            vid_id = document ["frame"].src [player_url.find ("%v") : player_url.find ("%v") + 11]
+            vid_id = parse_frame () [0]
             if change:
                 if vid_id in playlist:
                     playlist.remove (vid_id)
@@ -215,7 +226,7 @@
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (true);")
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus")
         document ["request"] <= html.BUTTON ("Search", type = "submit")
-        document ["request"] <= html.BUTTON ("URL", type = "reset", onclick = "search_id ();")
+        document ["request"] <= html.BUTTON ("ID", type = "reset", onclick = "search_id ();")
         req_search (True)
     </script>
     <div id = "player">
