@@ -3,8 +3,8 @@
 <head>
     <title>YouTube Search</title>
     <meta charset = "utf-8">
-    <script src = "https://cdn.jsdelivr.net/npm/brython@3/brython.min.js"></script>
-    <script src = "https://cdn.jsdelivr.net/npm/brython@3/brython_stdlib.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js"></script>
     <style>
         html, body {
             margin: 0px;
@@ -89,7 +89,7 @@
         player_persist = False if document.query.getvalue ("player_persist") else True
         def complete (res):
             if not player_persist:
-                remove_video (None)
+                remove_video ()
             del document ["load"]
             if "frame" in document and "vidops" not in document:
                 add_vidops ()
@@ -119,8 +119,6 @@
                     ajax.get (cors_url + "https://www.youtube.com/results?app=desktop&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
                 document ["player"] <= html.P ("Loading...", id = "load")
                 window.scrollTo (0, 0)
-        def req_homepage (event):
-            req_search (event, True)
         def req_user (url, name):
             if "load" not in document:
                 document ["results"].clear ()
@@ -130,15 +128,15 @@
                 ajax.get (cors_url + "https://www.youtube.com" + url + "/videos?app=desktop&persist_app=1", oncomplete = complete)
         def req_video (url):
             if "load" not in document:
-                remove_video (None, False)
+                remove_video (False)
                 document ["player"] <= html.P ("Loading...", id = "load")
                 window.scrollTo (0, 0)
                 if player_persist and "frame" in document:
                     if document ["frame"].attrs ["height"] == "0px":
                         document ["frame"].attrs ["style"] = ""
                     document ["frame"].id = "player_old"
-                document ["player"] <= html.IFRAME (src = url, flex = "1", height = "0px", id = "frame", frameBorder = "0", allowfullscreen = "allowfullscreen", onload = reload_frame)
-        def reload_frame (event):
+                document ["player"] <= html.IFRAME (src = url, flex = "1", height = "0px", id = "frame", frameBorder = "0", allowfullscreen = "allowfullscreen", onload = "reload_frame ();")
+        def reload_frame ():
             document ["frame"].onload = ""
             document ["frame"].src += ""
             del document ["load"]
@@ -149,18 +147,18 @@
             document ["frame"].attrs ["style"] = ""
             if "vidops" not in document:
                 add_vidops ()
-        def remove_video (event, frame = True):
+        def remove_video (frame = True):
             if "vidops" in document:
                 del document ["vidops"]
                 document ["frame"].attrs ["style"] = "margin: 0px 20px 20px;"
             if "frame" in document and frame:
                 del document ["frame"]
                 document ["player"].attrs ["style"] = ""
-        def search_id (event):
+        def search_id ():
             vid_id = document ["search"].value
             if len (vid_id) == 11 and all (i in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" for i in vid_id):
                 req_video (player_url.replace ("%v", vid_id).replace ("%p", vid_id))
-        def hide_show (event):
+        def hide_show ():
             if document ["frame"].attrs ["height"] == "0px":
                 document ["frame"].attrs ["height"] = "100%"
                 document ["player"].attrs ["style"] = "height: 100vh; height: 100dvh;"
@@ -171,7 +169,7 @@
                 document ["player"].attrs ["style"] = ""
                 document ["vidops"].attrs ["style"] = "margin: 0px 10px;"
                 document ["visibility"].textContent = "Show"
-        def list_change (event, change = True):
+        def list_change (change = True):
             vid_id = document ["frame"].src [player_url.find ("%v") : player_url.find ("%v") + 11]
             if change:
                 if vid_id in playlist:
@@ -182,30 +180,38 @@
                     document ["change"].textContent = "Remove"
             else:
                 document ["change"].textContent = ("Add", "Remove") [vid_id in playlist]
-        def list_clear (event):
+        def list_clear ():
             for i in range (len (playlist)):
                 playlist.pop () #Why doesn't setting it to [] work?
             document ["change"].textContent = "Add"
-        def list_play (event):
+        def list_play ():
             if playlist:
                 req_video (player_url.replace ("%v", playlist [0]).replace ("%p", ",".join (playlist)))
         def add_vidops ():
             document ["frame"].attrs ["style"] = ""
             document ["player"] <= html.DIV (id = "vidops")
-            document ["vidops"] <= html.BUTTON ("Close", style = "flex: 1;", onclick = remove_video)
-            document ["vidops"] <= html.BUTTON ("Hide", id = "visibility", style = "flex: 1;", onclick = hide_show)
-            document ["vidops"] <= html.BUTTON ("Add", id = "change", style = "flex: 1;", onclick = list_change)
-            list_change (None, False)
-            document ["vidops"] <= html.BUTTON ("Clear", style = "flex: 1;", onclick = list_clear)
-            document ["vidops"] <= html.BUTTON ("Play", style = "flex: 1;", onclick = list_play)
+            document ["vidops"] <= html.BUTTON ("Close", style = "flex: 1;", onclick = "remove_video ();")
+            document ["vidops"] <= html.BUTTON ("Hide", id = "visibility", style = "flex: 1;", onclick = "hide_show ();")
+            document ["vidops"] <= html.BUTTON ("Add", id = "change", style = "flex: 1;", onclick = "list_change ();")
+            list_change (False)
+            document ["vidops"] <= html.BUTTON ("Clear", style = "flex: 1;", onclick = "list_clear ();")
+            document ["vidops"] <= html.BUTTON ("Play", style = "flex: 1;", onclick = "list_play ();")
+        window.req_search = req_search
         window.req_user = req_user
         window.req_video = req_video
+        window.search_id = search_id
+        window.reload_frame = reload_frame
+        window.remove_video = remove_video
+        window.hide_show = hide_show
+        window.list_change = list_change
+        window.list_clear = list_clear
+        window.list_play = list_play
         document ["request"].bind ("submit", req_search)
-        document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = req_homepage)
+        document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (null, true);")
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus")
         document ["request"] <= html.BUTTON ("Search", type = "submit")
-        document ["request"] <= html.BUTTON ("ID", type = "button", onclick = search_id)
-        req_homepage (None)
+        document ["request"] <= html.BUTTON ("ID", type = "button", onclick = "search_id ();")
+        req_search (None, True)
     </script>
     <div id = "player">
         <form action = javascript:void(0); id = "request"></form>
