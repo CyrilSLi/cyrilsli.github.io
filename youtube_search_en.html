@@ -155,15 +155,23 @@
                 del document ["frame"]
                 document ["player"].attrs ["style"] = ""
         def search_id ():
-            run = ""
-            for i in document ["search"].value:
-                if i in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_":
-                    run += i
-                    if len (run) == 11:
-                        req_video (player_url.replace ("%v", run).replace ("%p", run))
-                        break
+            url, run = document ["search"].value, ""
+            if url:
+                if url [ : 6] == "ytpid:":
+                    req_video (player_url.replace ("%v", url [6 : 17]).replace ("%p", url [6 : ]))
                 else:
-                    run = ""
+                    for i in url:
+                        if i in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_":
+                            run += i
+                            if len (run) == 11:
+                                req_video (player_url.replace ("%v", run).replace ("%p", run))
+                                break
+                        else:
+                            run = ""
+            else:
+                if "frame" in document:
+                    listindex, frame_url = player_url.find ("%p") + 9, document ["frame"].src
+                    document ["search"].value = "ytpid:" + frame_url [listindex : max (0, frame_url.find ("&", listindex))]
         def hide_show ():
             if document ["frame"].attrs ["height"] == "0px":
                 document ["frame"].attrs ["height"] = "100%"
@@ -215,7 +223,7 @@
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (true);")
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus")
         document ["request"] <= html.BUTTON ("Search", type = "submit")
-        document ["request"] <= html.BUTTON ("URL", type = "reset", onclick = "search_id ();")
+        document ["request"] <= html.BUTTON ("URL", type = "button", onclick = "search_id ();")
         req_search (True)
     </script>
     <div id = "player">
