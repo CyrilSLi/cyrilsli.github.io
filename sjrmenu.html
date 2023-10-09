@@ -10,6 +10,9 @@
         html, body {
             margin: 0px;
         }
+        h1, h2, p {
+            color: #000000;
+        }
         p {
             font-family: Arial, sans-serif;
             font-size: 24px;
@@ -26,6 +29,9 @@
             font-size: 36px;
             font-weight: bold;
             margin: 20px;
+        }
+        a {
+            text-decoration: none;
         }
         h2 {
             font-family: Arial, sans-serif;
@@ -71,6 +77,7 @@
                 document <= html.P ("Dining Hall: " + rfind (pdf, ["Dining hall " + i, "/V("]))
                 document <= html.P ("Mobile Cart: " + rfind (pdf, ["mobile cart " + i, "/V("]))
                 document <= html.P ("Brunch Menu: " + rfind (pdf, ["box lunch " + i, "/V("]))
+            document <= html.A (html.H2 ("View the menu as a PDF"), href = "https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", target = "_blank")
         ajax.get ("https://corsproxy.io/?https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", mode = "binary", oncomplete = complete)
     </script>
     <p id = "start">Starting Brython... (JavaScript required)</p>
