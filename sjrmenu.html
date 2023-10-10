@@ -72,7 +72,11 @@
                 document <= html.P ("Mobile Cart: " + rfind (pdf, ["mobile cart " + days [weekday] [0], "/V("]))
                 document <= html.P ("Brunch Menu: " + rfind (pdf, ["box lunch " + days [weekday] [0], "/V("]))
             for i, j in days:
-                date = window.Date.fromString (rfind (pdf, ['Date ' + i.title (), '/V('])).toUTCString () [5 : 11]
+                try:
+                    date = window.Date.fromString (rfind (pdf, ['Date ' + i.title (), '/V('])).toUTCString () [5 : 11]
+                except Exception as err:
+                    window.console.log (f"Error parsing {j}'s date: {str (err)}")
+                    date = "Date N/A"
                 document <= html.H2 (f"{j} ({date})")
                 document <= html.P ("Dining Hall: " + rfind (pdf, ["Dining hall " + i, "/V("]))
                 document <= html.P ("Mobile Cart: " + rfind (pdf, ["mobile cart " + i, "/V("]))
