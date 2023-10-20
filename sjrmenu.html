@@ -51,7 +51,7 @@
                 pointer += text [pointer : ].find (j)
                 if pointer == -1:
                     return "N/A"
-            return text [pointer + len (values [-1]) : pointer + text [pointer : ].find (end)].replace ("\\r\\n", " • ")
+            return " • ".join (i for i in text [pointer + len (values [-1]) : pointer + text [pointer : ].find (end)].split ("\\r\\n") if i)
         def complete (res):
             document.clear ()
             document <= html.H1 ("Menu")
