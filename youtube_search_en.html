@@ -95,10 +95,10 @@
                 add_vidops ()
             for i in res.text.split ("videoRenderer") [1 : ]:
                 vid_url = player_url.replace ("%v", rfind (i, ["videoId"], ",")).replace ("%p", rfind (i, ["videoId"], ","))
-                document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), tabindex = "0", href = f'javascript:req_video ("{vid_url}")')
+                document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), tabindex = "0", href = vid_url, onclick = f'javascript:req_video ("{vid_url}")')
                 channel, user_url = rfind (i, ["ownerText", "text"], ","), rfind (i, ["webCommandMetadata", "url"], ",")
                 if channel != "N/A":
-                    document ["results"] <= html.A (html.P (f"{channel} ({user_url [1 : ]})"), tabindex = "0", href = f'javascript:req_user ("{user_url}", "{channel}")')
+                    document ["results"] <= html.A (html.P (f"{channel} ({user_url [1 : ]})"), tabindex = "0", href = f"https://www.youtube.com{user_url}/videos", onclick = f'javascript:req_user ("{user_url}", "{channel}")')
                 document ["results"] <= html.P (f'Length: {rfind (i, ["lengthText", "simpleText"])}')
                 views = rfind (i, ["viewCountText", "simpleText"]) [ : -6]
                 if (not set (views) <= set ("0123456789,")) or (not views):
@@ -120,6 +120,7 @@
                 document ["player"] <= html.P ("Loading...", id = "load")
                 window.scrollTo (0, 0)
         def req_user (url, name):
+            window.event.preventDefault ()
             if "load" not in document:
                 document ["results"].clear ()
                 document ["results"] <= (html.H1 (f'Videos by "{name}" ({url [1 : ]})'))
@@ -127,6 +128,7 @@
                 window.scrollTo (0, 0)
                 ajax.get (cors_url + "https://www.youtube.com" + url + "/videos?app=desktop&persist_app=1", oncomplete = complete)
         def req_video (url):
+            window.event.preventDefault ()
             if "load" not in document:
                 remove_video (False)
                 document ["player"] <= html.P ("Loading...", id = "load")
