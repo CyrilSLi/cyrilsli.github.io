@@ -42,6 +42,9 @@
     </style>
 </head>
 <body onload = "brython (0)">
+    <noscript>
+        <p id = "start">JavaScript is required to use this website.</p>
+    </noscript>
     <script type = "text/python">
         from browser import document, ajax, html, window
         from datetime import datetime as d
@@ -85,5 +88,7 @@
         document ["start"].textContent = "Fetching Menu..."
         ajax.get ("https://api.codetabs.com/v1/proxy?quest=https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", mode = "binary", oncomplete = complete)
     </script>
-    <p id = "start">Starting Brython... (JavaScript required)</p>
+    <script>
+        document.body.insertAdjacentHTML ("beforeend", `<div id = "results"><p id = "start">Starting Brython...</p></div>`)
+    </script>
 </body>
