@@ -112,6 +112,7 @@
                 document ["results"].clear ()
                 search = document ["search"].value
                 if homepage:
+                    document ["enter"].textContent = "Help / Settings"
                     document ["results"] <= html.H1 ("Homepage")
                     ajax.get (cors_url + window.encodeURIComponent ("https://www.youtube.com/?app=desktop&hl=en&persist_app=1"), oncomplete = complete)
                     document ["player"] <= html.P ("Loading...", id = "load")
