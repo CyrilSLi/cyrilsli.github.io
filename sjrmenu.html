@@ -82,7 +82,8 @@
                 document <= html.P ("Mobile Cart: " + rfind (pdf, ["mobile cart " + i, "/V("]))
                 document <= html.P ("Brunch Menu: " + rfind (pdf, ["box lunch " + i, "/V("]))
             document <= html.A (html.H2 ("View the menu as a PDF"), href = "https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", target = "_blank")
-        ajax.get ("https://corsproxy.io/?https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", mode = "binary", oncomplete = complete)
+        document ["start"].textContent = "Fetching Menu..."
+        ajax.get ("https://api.codetabs.com/v1/proxy?quest=https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", mode = "binary", oncomplete = complete)
     </script>
     <p id = "start">Starting Brython... (JavaScript required)</p>
 </body>
