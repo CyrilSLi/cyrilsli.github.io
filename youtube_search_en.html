@@ -114,10 +114,14 @@
                 if homepage:
                     document ["results"] <= html.H1 ("Homepage")
                     ajax.get (cors_url + window.encodeURIComponent ("https://www.youtube.com/?app=desktop&hl=en&persist_app=1"), oncomplete = complete)
-                else:
+                    document ["player"] <= html.P ("Loading...", id = "load")
+                elif search:
                     document ["results"] <= html.H1 (f'Results for "{search}"')
                     ajax.get (cors_url + window.encodeURIComponent ("https://www.youtube.com/results?app=desktop&hl=en&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D"), oncomplete = complete)
-                document ["player"] <= html.P ("Loading...", id = "load")
+                    document ["player"] <= html.P ("Loading...", id = "load")
+                else:
+                    document ["results"] <= html.H1 ("Help / Settings")
+                    document ["results"] <= html.P ("Coming soon!")
                 window.scrollTo (0, 0)
         def req_user (url, name):
             window.event.preventDefault ()
@@ -211,6 +215,11 @@
             list_change (False)
             document ["vidops"] <= html.BUTTON ("Clear", style = "flex: 1;", onclick = "list_clear ();")
             document ["vidops"] <= html.BUTTON ("Play", style = "flex: 1;", onclick = "list_play ();")
+        def check_empty ():
+            if document ["search"].value:
+                document ["enter"].textContent = "Search"
+            else:
+                document ["enter"].textContent = "Help / Settings"
         window.req_search = req_search
         window.req_user = req_user
         window.req_video = req_video
@@ -221,9 +230,10 @@
         window.list_change = list_change
         window.list_clear = list_clear
         window.list_play = list_play
+        window.check_empty = check_empty
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (true);")
-        document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus")
-        document ["request"] <= html.BUTTON ("Search", type = "submit")
+        document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus", oninput = "check_empty ();")
+        document ["request"] <= html.BUTTON ("Help / Settings", id = "enter", type = "submit")
         document ["request"] <= html.BUTTON ("URL", type = "button", onclick = "search_id ();")
         req_search (True)
     </script>
