@@ -252,13 +252,12 @@
     <div id = "player">
         <form action = javascript:void(0); id = "request" onsubmit = "req_search ();"></form>
     </div>
-    <div id = "help">
+    <script>
+        document.body.insertAdjacentHTML ("beforeend", `<div id = "results"><p id = "start">Starting Brython...</p></div>`)
+    </script>
+    <div hidden id = "help">
         <h1>Help / Settings</h1>
         <p>Coming soon!</p>
     </div>
-    <script>
-        document.getElementById ("help").setAttribute ("hidden", "hidden")
-        document.body.insertAdjacentHTML ("beforeend", `<div id = "results"><p id = "start">Starting Brython...</p></div>`)
-    </script>
 </body>
 </html>
