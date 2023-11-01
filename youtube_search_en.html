@@ -83,7 +83,7 @@
             player_url = "https://www.youtube-nocookie.com/embed/%v?rel=0&playlist=%p&loop=1&modestbranding=1"
         cors_url = document.query.getvalue ("cors_url")
         if not cors_url:
-            cors_url = "https://corsproxy.io/?"
+            cors_url = "https://api.codetabs.com/v1/proxy?quest="
         global playlist
         playlist = []
         player_persist = False if document.query.getvalue ("player_persist") else True
@@ -113,10 +113,10 @@
                 search = document ["search"].value
                 if homepage:
                     document ["results"] <= html.H1 ("Homepage")
-                    ajax.get (cors_url + "https://www.youtube.com/?app=desktop&persist_app=1", oncomplete = complete)
+                    ajax.get (cors_url + window.encodeURIComponent ("https://www.youtube.com/?app=desktop&persist_app=1"), oncomplete = complete)
                 else:
                     document ["results"] <= html.H1 (f'Results for "{search}"')
-                    ajax.get (cors_url + "https://www.youtube.com/results?app=desktop&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
+                    ajax.get (cors_url + window.encodeURIComponent ("https://www.youtube.com/results?app=desktop&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D"), oncomplete = complete)
                 document ["player"] <= html.P ("Loading...", id = "load")
                 window.scrollTo (0, 0)
         def req_user (url, name):
@@ -126,7 +126,7 @@
                 document ["results"] <= (html.H1 (f'Videos by "{name}" ({url [1 : ]})'))
                 document ["player"] <= html.P ("Loading...", id = "load")
                 window.scrollTo (0, 0)
-                ajax.get (cors_url + "https://www.youtube.com" + url + "/videos?app=desktop&persist_app=1", oncomplete = complete)
+                ajax.get (cors_url + window.encodeURIComponent ("https://www.youtube.com" + url + "/videos?app=desktop&persist_app=1"), oncomplete = complete)
         def req_video (url):
             window.event.preventDefault ()
             if "load" not in document:
