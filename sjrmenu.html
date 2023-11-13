@@ -85,10 +85,14 @@
                 document <= html.P ("Mobile Cart: " + rfind (pdf, ["mobile cart " + i, "/V("]))
                 document <= html.P ("Brunch Menu: " + rfind (pdf, ["box lunch " + i, "/V("]))
             document <= html.A (html.H2 ("View the menu as a PDF"), href = "https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", target = "_blank")
-        document ["start"].textContent = "Fetching Menu..."
-        ajax.get ("https://api.codetabs.com/v1/proxy?quest=https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", mode = "binary", oncomplete = complete)
+        def fetch_menu ():
+            document.clear ()
+            document <= html.P ("Fetching Menu...", id = "start")
+            ajax.get ("https://api.codetabs.com/v1/proxy?quest=https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", mode = "binary", oncomplete = complete)
+        window.fetch_menu = fetch_menu
+        fetch_menu ()
     </script>
     <script>
-        document.body.insertAdjacentHTML ("beforeend", `<div id = "results"><p id = "start">Starting Brython...</p></div>`)
+        document.body.insertAdjacentHTML ("beforeend", `<p id = "start">Starting Brython...</p>`)
     </script>
 </body>
