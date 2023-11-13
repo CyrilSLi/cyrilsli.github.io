@@ -10,11 +10,11 @@
         html, body {
             margin: 0px;
         }
-        h1, h2, p {
+        h2, p {
             color: #000000;
+            font-family: Arial, sans-serif;
         }
         p {
-            font-family: Arial, sans-serif;
             font-size: 24px;
             margin: 20px 20px 20px 60px;
             line-height: 1.5;
@@ -26,15 +26,19 @@
         }
         h1 {
             font-family: Arial, sans-serif;
+            color: #008000;
             font-size: 36px;
             font-weight: bold;
             margin: 20px;
         }
         a {
             text-decoration: none;
+            color: #008000;
+        }
+        a:hover {
+            text-decoration: underline;
         }
         h2 {
-            font-family: Arial, sans-serif;
             font-size: 32px;
             margin: 20px;
             font-weight: normal;
@@ -57,7 +61,8 @@
             return " • ".join (i for i in text [pointer + len (values [-1]) : pointer + text [pointer : ].find (end)].split ("\\r\\n") if i)
         def complete (res):
             document.clear ()
-            document <= html.H1 ("Menu")
+            document <= html.A (html.H1 ("Menu (Click to Refresh)"), id = "title", href = "javascript:void (0)")
+            document ["title"].bind ("click", fetch_menu)
             pdf = ""
             days = (("mon", "Monday"), ("tues", "Tuesday"), ("wed", "Wednesday"), ("thurs", "Thursday"), ("fri", "Friday"))
             for i in res.text:
@@ -85,10 +90,13 @@
                 document <= html.P ("Mobile Cart: " + rfind (pdf, ["mobile cart " + i, "/V("]))
                 document <= html.P ("Brunch Menu: " + rfind (pdf, ["box lunch " + i, "/V("]))
             document <= html.A (html.H2 ("View the menu as a PDF"), href = "https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", target = "_blank")
-        document ["start"].textContent = "Fetching Menu..."
-        ajax.get ("https://api.codetabs.com/v1/proxy?quest=https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", mode = "binary", oncomplete = complete)
+        def fetch_menu (ev):
+            document.clear ()
+            document <= html.P ("Fetching Menu...", id = "start")
+            ajax.get ("https://api.codetabs.com/v1/proxy?quest=https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", mode = "binary", oncomplete = complete)
+        fetch_menu (None)
     </script>
     <script>
-        document.body.insertAdjacentHTML ("beforeend", `<div id = "results"><p id = "start">Starting Brython...</p></div>`)
+        document.body.insertAdjacentHTML ("beforeend", `<p id = "start">Starting Brython...</p>`)
     </script>
 </body>
