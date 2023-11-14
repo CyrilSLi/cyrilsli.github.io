@@ -63,7 +63,7 @@
         }
         input {
             flex: 1;
-            width: 145px;
+            width: 150px;
         }
         form, #vidops {
             margin: 20px 10px 0px;
@@ -81,7 +81,7 @@
     <script type = "text/python">
         from browser import document, ajax, html, window
         from urllib import parse
-        document ["help"].attrs ["hidden"] = "hidden"
+        document ["settings"].attrs ["hidden"] = "hidden"
         def rfind (text, values, end = "}"):
             pointer = 0
             for j in values:
@@ -119,12 +119,12 @@
                 document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', width = "480px"), tabindex = "-1", href = vid_url, onclick = f'javascript:req_video ("{vid_url}")')
             document ["results"] <= html.DIV (style = "height: 20px;")
         def req_search (homepage = False):
-            document ["help"].attrs ["hidden"] = "hidden"
+            document ["settings"].attrs ["hidden"] = "hidden"
             if "load" not in document:
                 document ["results"].clear ()
                 search = document ["search"].value
                 if homepage:
-                    document ["enter"].textContent = "Help / Settings"
+                    document ["enter"].textContent = "Settings"
                     document ["results"] <= html.H1 ("Homepage")
                     ajax.get (cors_url + window.encodeURIComponent ("https://www.youtube.com/?app=desktop&hl=en&persist_app=1"), oncomplete = complete)
                     document ["player"] <= html.P ("Loading...", id = "load")
@@ -133,7 +133,7 @@
                     ajax.get (cors_url + window.encodeURIComponent ("https://www.youtube.com/results?app=desktop&hl=en&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D"), oncomplete = complete)
                     document ["player"] <= html.P ("Loading...", id = "load")
                 else:
-                    del document ["help"].attrs ["hidden"]
+                    del document ["settings"].attrs ["hidden"]
                 window.scrollTo (0, 0)
         def req_user (url, name):
             window.event.preventDefault ()
@@ -231,7 +231,7 @@
             if document ["search"].value:
                 document ["enter"].textContent = "Search"
             else:
-                document ["enter"].textContent = "Help / Settings"
+                document ["enter"].textContent = "Settings"
         window.req_search = req_search
         window.req_user = req_user
         window.req_video = req_video
@@ -245,7 +245,7 @@
         window.check_empty = check_empty
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (true);")
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus", oninput = "check_empty ();")
-        document ["request"] <= html.BUTTON ("Help / Settings", id = "enter", type = "submit")
+        document ["request"] <= html.BUTTON ("Settings", id = "enter", type = "submit")
         document ["request"] <= html.BUTTON ("URL", type = "button", onclick = "search_id ();")
         req_search (True)
     </script>
@@ -255,8 +255,8 @@
     <script>
         document.body.insertAdjacentHTML ("beforeend", `<div id = "results"><p id = "start">Starting Brython...</p></div>`)
     </script>
-    <div hidden id = "help">
-        <h1>Help / Settings</h1>
+    <div hidden id = "settings">
+        <h1>Settings</h1>
         <h2>Subtitle</h2>
         <p>Text</p>
     </div>
