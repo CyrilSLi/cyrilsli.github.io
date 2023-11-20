@@ -116,7 +116,7 @@
                     views = "N/A"
                 document ["results"] <= html.P (f'Views: {views}')
                 document ["results"] <= html.P (f'Date: {rfind (i, ["publishedTimeText", "simpleText"])}')
-                document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/hqdefault.jpg', width = "480px"), tabindex = "-1", href = vid_url, onclick = f'javascript:req_video ("{vid_url}")')
+                document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/mqdefault.jpg', width = "480px"), tabindex = "-1", href = vid_url, onclick = f'javascript:req_video ("{vid_url}")')
             document ["results"] <= html.DIV (style = "height: 20px;")
         def req_search (homepage = False):
             document ["settings"].attrs ["hidden"] = "hidden"
@@ -225,7 +225,7 @@
             document ["vidops"] <= html.BUTTON ("Hide", id = "visibility", style = "flex: 1;", onclick = "hide_show ();")
             document ["vidops"] <= html.BUTTON ("Add", id = "change", style = "flex: 1;", onclick = "list_change ();")
             list_change (False)
-            document ["vidops"] <= html.BUTTON ("Clear", style = "flex: 1;", onclick = "list_clear ();")
+            document ["vidops"] <= html.BUTTON ("Manage", style = "flex: 1;", onclick = "list_clear ();")
             document ["vidops"] <= html.BUTTON ("Play", style = "flex: 1;", onclick = "list_play ();")
         def check_empty ():
             if document ["search"].value:
