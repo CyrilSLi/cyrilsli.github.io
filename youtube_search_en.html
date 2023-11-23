@@ -211,7 +211,7 @@
                     document ["change"].textContent = "Remove"
             else:
                 document ["change"].textContent = ("Add", "Remove") [vid_id in playlist]
-        def list_clear ():
+        def list_manage ():
             for i in range (len (playlist)):
                 playlist.pop () #Why doesn't setting it to [] work?
             document ["change"].textContent = "Add"
@@ -225,7 +225,7 @@
             document ["vidops"] <= html.BUTTON ("Hide", id = "visibility", style = "flex: 1;", onclick = "hide_show ();")
             document ["vidops"] <= html.BUTTON ("Add", id = "change", style = "flex: 1;", onclick = "list_change ();")
             list_change (False)
-            document ["vidops"] <= html.BUTTON ("Manage", style = "flex: 1;", onclick = "list_clear ();")
+            document ["vidops"] <= html.BUTTON ("Manage", style = "flex: 1;", onclick = "list_manage ();")
             document ["vidops"] <= html.BUTTON ("Play", style = "flex: 1;", onclick = "list_play ();")
         def check_empty ():
             if document ["search"].value:
@@ -240,7 +240,7 @@
         window.remove_video = remove_video
         window.hide_show = hide_show
         window.list_change = list_change
-        window.list_clear = list_clear
+        window.list_manage = list_manage
         window.list_play = list_play
         window.check_empty = check_empty
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (true);")
