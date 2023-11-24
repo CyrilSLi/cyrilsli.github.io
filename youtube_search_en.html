@@ -72,6 +72,15 @@
         div {
             margin: 0px;
         }
+        table, tr, td {
+            border: 0px;
+            padding: 0px;
+            margin: 0px;
+            border-collapse: collapse;
+        }
+        td {
+            vertical-align: top;
+        }
     </style>
 </head>
 <body onload = "brython (0)">
@@ -214,17 +223,30 @@
         def list_manage ():
             document ["results"].clear ()
             document ["results"] <= html.H1 ("Managing Playlist")
-            document ["results"] <= html.H2 ("Set playlist to")
-            document ["results"] <= html.FORM (action = "javascript:void(0);", id = "set", onsubmit = "list_set ();")
-            """
+            #document ["results"] <= html.H2 ("Set playlist to")
+            #document ["results"] <= html.FORM (action = "javascript:void(0);", id = "set", onsubmit = "list_set ();")
             document ["results"] <= html.DIV (id = "manage", style = "display: flex; flex-direction: column;")
-            for i in playlist:
-                document ["manage"] <= html.IMG ("", src = f'https://i.ytimg.com/vi/{i}/mqdefault.jpg', width = "480px", style = "margin: 20px;")
-
-            for i in range (len (playlist)):
-                playlist.pop () #Why doesn't setting it to [] work?
-            document ["change"].textContent = "Add"
-            """
+            for j, i in enumerate (playlist):
+                document ["manage"] <= html.TABLE (id = i, width = "520px")
+                vid_url = player_url.replace ("%v", i).replace ("%p", i)
+                document [i].innerHTML = f"""
+                    <tr>
+                        <td rowspan = 3><a href = {vid_url} onclick = "javascript:req_video ('{vid_url}')"><img src = "https://i.ytimg.com/vi/{i}/mqdefault.jpg" width = "360px" style = "margin: 0px 0px 20px 20px;"></img></a></td>  
+                        <td><button style = "margin: 0px 20px; width: 100px;" type = "button" onclick = "javascript:list_swap ({j}, {j - 1})">Up</button></td>
+                    </tr>
+                    <tr>
+                        <td><button style = "margin: 0px 20px; width: 100px;" type = "button" onclick = "javascript:list_swap ({j}, {j + 1})">Down</button></td>
+                    </tr>
+                    <tr>
+                        <td><button style = "margin: 0px 20px; width: 100px;" type = "button" onclick = "javascript:list_swap ({j}, -2)">Delete</button></td>
+                    </tr>
+                """
+        def list_swap (a, b):
+            if b == -2:
+                playlist.pop (a)
+            elif b > -1 and b < len (playlist):
+                playlist [a], playlist [b] = playlist [b], playlist [a]
+            list_manage ()
         def list_play ():
             if playlist:
                 req_video (player_url.replace ("%v", playlist [0]).replace ("%p", ",".join (playlist)))
@@ -251,6 +273,7 @@
         window.hide_show = hide_show
         window.list_change = list_change
         window.list_manage = list_manage
+        window.list_swap = list_swap
         window.list_play = list_play
         window.check_empty = check_empty
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (true);")
