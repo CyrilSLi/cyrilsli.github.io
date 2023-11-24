@@ -244,6 +244,7 @@
         def list_swap (a, b):
             if b == -2:
                 playlist.pop (a)
+                list_change (False)
             elif b > -1 and b < len (playlist):
                 playlist [a], playlist [b] = playlist [b], playlist [a]
             list_manage ()
