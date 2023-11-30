@@ -65,7 +65,7 @@
             flex: 1;
             width: 150px;
         }
-        form, #vidops {
+        form, #vidops, #listops {
             margin: 20px 10px 0px;
             display: flex;
         }
@@ -221,13 +221,19 @@
             else:
                 document ["change"].textContent = ("Add", "Remove") [vid_id in playlist]
         def list_manage ():
-            document ["results"].clear ()
-            document ["results"] <= html.H1 ("Managing Playlist")
+            document ["results"].innerHTML = f"""
+                <h1>Managing Playlist</h1>
+                <h2>Common Actions</h2>
+                <div id = "listops">
+                    <button style = "flex: 1;">Reverse</button>
+                    <button style = "flex: 1;">Shuffle</button>
+                    <button style = "flex: 1;">Export</button>
+                </div>
+            """
             #document ["results"] <= html.H2 ("Set playlist to")
             #document ["results"] <= html.FORM (action = "javascript:void(0);", id = "set", onsubmit = "list_set ();")
-            document ["results"] <= html.DIV (id = "manage", style = "display: flex; flex-direction: column;")
             for j, i in enumerate (playlist):
-                document ["manage"] <= html.TABLE (id = i, width = "520px")
+                document ["results"] <= html.TABLE (id = i, width = "520px")
                 vid_url = player_url.replace ("%v", i).replace ("%p", i)
                 document [i].innerHTML = f"""
                     <tr style = "height: 1px;">
@@ -281,7 +287,9 @@
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus", oninput = "check_empty ();")
         document ["request"] <= html.BUTTON ("Settings", id = "enter", type = "submit")
         document ["request"] <= html.BUTTON ("URL", type = "button", onclick = "search_id ();")
-        req_search (True)       
+        #req_search (True)
+        playlist = "kKGWaJdd1kc,K3EGOMhepQ0,KCB4V1GQRhQ,nmlPwCv-qY4,5bZ-QhW9YpU,935RgNLNuno,25N1pdzvp4c,BlIawcXK4Sc,rz5bslpZa6s,l8egYR31HoA,-BJdUGSdl-g,f56ybp3XFgw".split (",")
+        list_manage ()
     </script>
     <div id = "player">
         <form action = javascript:void(0); id = "request" onsubmit = "req_search ();"></form>
