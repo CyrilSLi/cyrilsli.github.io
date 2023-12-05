@@ -65,7 +65,7 @@
             flex: 1;
             width: 150px;
         }
-        form, #vidops {
+        form, #vidops, #listops {
             margin: 20px 10px 0px;
             display: flex;
         }
@@ -90,6 +90,7 @@
     <script type = "text/python">
         from browser import document, ajax, html, window
         from urllib import parse
+        from random import shuffle
         document ["settings"].attrs ["hidden"] = "hidden"
         def rfind (text, values, end = "}"):
             pointer = 0
@@ -115,17 +116,17 @@
                 add_vidops ()
             for i in res.text.split ("videoRenderer") [1 : ]:
                 vid_url = player_url.replace ("%v", rfind (i, ["videoId"], ",")).replace ("%p", rfind (i, ["videoId"], ","))
-                document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), tabindex = "0", href = vid_url, onclick = f'javascript:req_video ("{vid_url}")')
+                document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), tabindex = "0", href = vid_url, onclick = f'req_video ("{vid_url}")')
                 channel, user_url = rfind (i, ["ownerText", "text"], ","), rfind (i, ["webCommandMetadata", "url"], ",")
                 if channel != "N/A":
-                    document ["results"] <= html.A (html.P (f"{channel} ({user_url [1 : ]})"), tabindex = "0", href = f"https://www.youtube.com{user_url}/videos", onclick = f'javascript:req_user ("{user_url}", "{channel}")')
+                    document ["results"] <= html.A (html.P (f"{channel} ({user_url [1 : ]})"), tabindex = "0", href = f"https://www.youtube.com{user_url}/videos", onclick = f'req_user ("{user_url}", "{channel}")')
                 document ["results"] <= html.P (f'Length: {rfind (i, ["lengthText", "simpleText"])}')
                 views = rfind (i, ["viewCountText", "simpleText"]) [ : -6]
                 if (not set (views) <= set ("0123456789,")) or (not views):
                     views = "N/A"
                 document ["results"] <= html.P (f'Views: {views}')
                 document ["results"] <= html.P (f'Date: {rfind (i, ["publishedTimeText", "simpleText"])}')
-                document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/mqdefault.jpg', width = "480px"), tabindex = "-1", href = vid_url, onclick = f'javascript:req_video ("{vid_url}")')
+                document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/mqdefault.jpg', width = "480px"), tabindex = "-1", href = vid_url, onclick = f'req_video ("{vid_url}")')
             document ["results"] <= html.DIV (style = "height: 20px;")
         def req_search (homepage = False):
             document ["settings"].attrs ["hidden"] = "hidden"
@@ -181,11 +182,16 @@
             if "frame" in document and frame:
                 del document ["frame"]
                 document ["player"].attrs ["style"] = ""
-        def search_id ():
+        def search_id (imp = False):
             url, run = document ["search"].value, ""
-            if url [ : 6] == "ytpid:" and len (url) > 16:
-                req_video (player_url.replace ("%v", url [6 : 17]).replace ("%p", url [6 : ]))
-            else:
+            if url [ : 6] == "ytpid:" and len (url) > 16 and len (url) % 12 == 5:
+                if imp:
+                    playlist.clear ()
+                    playlist.extend (url [6 : ].split (","))
+                    list_manage ()
+                else:
+                    req_video (player_url.replace ("%v", url [6 : 17]).replace ("%p", url [6 : ]))
+            elif not imp:
                 for i in url + " ":
                     if i in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_":
                         run += i
@@ -221,24 +227,29 @@
             else:
                 document ["change"].textContent = ("Add", "Remove") [vid_id in playlist]
         def list_manage ():
-            document ["results"].clear ()
-            document ["results"] <= html.H1 ("Managing Playlist")
-            #document ["results"] <= html.H2 ("Set playlist to")
-            #document ["results"] <= html.FORM (action = "javascript:void(0);", id = "set", onsubmit = "list_set ();")
-            document ["results"] <= html.DIV (id = "manage", style = "display: flex; flex-direction: column;")
+            document ["results"].innerHTML = f"""
+                <h1>Managing Playlist</h1>
+                <div id = "listops">
+                    <button style = "flex: 1;" onclick = "list_op ('play');">Play</button>
+                    <button style = "flex: 1;" onclick = "list_op ('reverse');">Reverse</button>
+                    <button style = "flex: 1;" onclick = "list_op ('shuffle');">Shuffle</button>
+                    <button style = "flex: 1;" onclick = "search_id (true);">Import</button>
+                    <button style = "flex: 1;" onclick = "list_op ('export');">Export</button>
+                </div>
+            """
             for j, i in enumerate (playlist):
-                document ["manage"] <= html.TABLE (id = i, width = "520px")
+                document ["results"] <= html.TABLE (id = i, width = "520px")
                 vid_url = player_url.replace ("%v", i).replace ("%p", i)
                 document [i].innerHTML = f"""
                     <tr style = "height: 1px;">
-                        <td rowspan = 3><a href = {vid_url} onclick = "javascript:req_video ('{vid_url}')"><img src = "https://i.ytimg.com/vi/{i}/mqdefault.jpg" width = "360px" style = "margin: 0px 0px 20px 20px;"></img></a></td>  
-                        <td><button style = "margin: 0px 20px 20px 20px; width: 100px;" type = "button" onclick = "javascript:list_swap ({j}, {j - 1})">Up</button></td>
+                        <td rowspan = 3><a href = {vid_url} onclick = "req_video ('{vid_url}')"><img src = "https://i.ytimg.com/vi/{i}/mqdefault.jpg" width = "360px" style = "margin: 0px 0px 20px 20px;"></img></a></td>  
+                        <td><button style = "margin: 0px 20px 20px 20px; width: 100px;" type = "button" onclick = "list_swap ({j}, {j - 1})">Up</button></td>
                     </tr>
                     <tr style = "height: 1px;">
-                        <td><button style = "margin: 0px 20px 20px 20px; width: 100px;" type = "button" onclick = "javascript:list_swap ({j}, {j + 1})">Down</button></td>
+                        <td><button style = "margin: 0px 20px 20px 20px; width: 100px;" type = "button" onclick = "list_swap ({j}, {j + 1})">Down</button></td>
                     </tr>
                     <tr>
-                        <td><button style = "margin: 0px 20px; width: 100px;" type = "button" onclick = "javascript:list_swap ({j}, -2)">Delete</button></td>
+                        <td><button style = "margin: 0px 20px; width: 100px;" type = "button" onclick = "list_swap ({j}, -2)">Delete</button></td>
                     </tr>
                 """
         def list_swap (a, b):
@@ -248,9 +259,16 @@
             elif b > -1 and b < len (playlist):
                 playlist [a], playlist [b] = playlist [b], playlist [a]
             list_manage ()
-        def list_play ():
-            if playlist:
+        def list_op (op):
+            if op == "play" and playlist:
                 req_video (player_url.replace ("%v", playlist [0]).replace ("%p", ",".join (playlist)))
+            elif op == "shuffle":
+                playlist.shuffle ()
+            elif op == "reverse":
+                playlist.reverse ()
+            elif op == "export":
+                document ["search"].value = "ytpid:" + ",".join (playlist)
+            list_manage ()
         def add_vidops ():
             document ["frame"].attrs ["style"] = ""
             document ["player"] <= html.DIV (id = "vidops")
@@ -259,7 +277,7 @@
             document ["vidops"] <= html.BUTTON ("Add", id = "change", style = "flex: 1;", onclick = "list_change ();")
             list_change (False)
             document ["vidops"] <= html.BUTTON ("Manage", style = "flex: 1;", onclick = "list_manage ();")
-            document ["vidops"] <= html.BUTTON ("Play", style = "flex: 1;", onclick = "list_play ();")
+            document ["vidops"] <= html.BUTTON ("Play", style = "flex: 1;", onclick = "list_op ('play');")
         def check_empty ():
             if document ["search"].value:
                 document ["enter"].textContent = "Search"
@@ -275,16 +293,18 @@
         window.list_change = list_change
         window.list_manage = list_manage
         window.list_swap = list_swap
-        window.list_play = list_play
+        window.list_op = list_op
         window.check_empty = check_empty
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (true);")
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus", oninput = "check_empty ();")
         document ["request"] <= html.BUTTON ("Settings", id = "enter", type = "submit")
         document ["request"] <= html.BUTTON ("URL", type = "button", onclick = "search_id ();")
-        req_search (True)       
+        #req_search (True)
+        playlist = "kKGWaJdd1kc,K3EGOMhepQ0,KCB4V1GQRhQ,nmlPwCv-qY4,5bZ-QhW9YpU,935RgNLNuno,25N1pdzvp4c,BlIawcXK4Sc,rz5bslpZa6s,l8egYR31HoA,-BJdUGSdl-g,f56ybp3XFgw".split (",")
+        list_manage ()
     </script>
     <div id = "player">
-        <form action = javascript:void(0); id = "request" onsubmit = "req_search ();"></form>
+        <form action = void(0); id = "request" onsubmit = "req_search ();"></form>
     </div>
     <script>
         document.body.insertAdjacentHTML ("beforeend", `<div id = "results"><p id = "start">Starting Brython...</p></div>`)
