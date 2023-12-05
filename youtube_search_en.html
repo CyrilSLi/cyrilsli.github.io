@@ -264,7 +264,7 @@
             if op == "play" and playlist:
                 req_video (player_url.replace ("%v", playlist [0]).replace ("%p", ",".join (playlist)))
             elif op == "shuffle":
-                playlist.shuffle ()
+                shuffle (playlist)
             elif op == "reverse":
                 playlist.reverse ()
             elif op == "export":
