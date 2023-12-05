@@ -268,8 +268,8 @@
                 shuffle (playlist)
             elif op == "reverse":
                 playlist.reverse ()
-            elif op == "export" and len (playlist):
-                document ["search"].value = "ytpid:" + ",".join (playlist)
+            elif op == "export":
+                document ["search"].value = "ytpid:" * bool (len (playlist)) + ",".join (playlist)
             list_manage ()
         def add_vidops ():
             document ["frame"].attrs ["style"] = ""
