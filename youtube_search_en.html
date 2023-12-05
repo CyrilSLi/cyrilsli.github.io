@@ -230,6 +230,7 @@
         def list_manage ():
             document ["results"].innerHTML = f"""
                 <h1>Managing Playlist</h1>
+                <h2>List length: {len (playlist)}</h2>
                 <div id = "listops">
                     <button style = "flex: 1;" onclick = "list_op ('play');">Play</button>
                     <button style = "flex: 1;" onclick = "list_op ('reverse');">Reverse</button>
@@ -267,7 +268,7 @@
                 shuffle (playlist)
             elif op == "reverse":
                 playlist.reverse ()
-            elif op == "export":
+            elif op == "export" and len (playlist):
                 document ["search"].value = "ytpid:" + ",".join (playlist)
             list_manage ()
         def add_vidops ():
