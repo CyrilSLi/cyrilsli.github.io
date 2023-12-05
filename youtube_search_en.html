@@ -301,9 +301,7 @@
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus", oninput = "check_empty ();")
         document ["request"] <= html.BUTTON ("Settings", id = "enter", type = "submit")
         document ["request"] <= html.BUTTON ("URL", type = "button", onclick = "search_id ();")
-        #req_search (True)
-        playlist = "kKGWaJdd1kc,K3EGOMhepQ0,KCB4V1GQRhQ,nmlPwCv-qY4,5bZ-QhW9YpU,935RgNLNuno,25N1pdzvp4c,BlIawcXK4Sc,rz5bslpZa6s,l8egYR31HoA,-BJdUGSdl-g,f56ybp3XFgw".split (",")
-        list_manage ()
+        req_search (True)
     </script>
     <div id = "player">
         <form action = void(0); id = "request" onsubmit = "req_search ();"></form>
