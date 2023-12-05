@@ -216,16 +216,17 @@
                 document ["vidops"].attrs ["style"] = "margin: 0px 10px;"
                 document ["visibility"].textContent = "Show"
         def list_change (change = True):
-            vid_id = document ["frame"].src [player_url.find ("%v") : player_url.find ("%v") + 11]
-            if change:
-                if vid_id in playlist:
-                    playlist.remove (vid_id)
-                    document ["change"].textContent = "Add"
+            if "change" in document:
+                vid_id = document ["frame"].src [player_url.find ("%v") : player_url.find ("%v") + 11]
+                if change:
+                    if vid_id in playlist:
+                        playlist.remove (vid_id)
+                        document ["change"].textContent = "Add"
+                    else:
+                        playlist.append (vid_id)
+                        document ["change"].textContent = "Remove"
                 else:
-                    playlist.append (vid_id)
-                    document ["change"].textContent = "Remove"
-            else:
-                document ["change"].textContent = ("Add", "Remove") [vid_id in playlist]
+                    document ["change"].textContent = ("Add", "Remove") [vid_id in playlist]
         def list_manage ():
             document ["results"].innerHTML = f"""
                 <h1>Managing Playlist</h1>
