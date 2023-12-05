@@ -235,7 +235,9 @@
                     <button style = "flex: 1;" onclick = "list_op ('reverse');">Reverse</button>
                     <button style = "flex: 1;" onclick = "list_op ('shuffle');">Shuffle</button>
                     <button style = "flex: 1;" onclick = "search_id (true);">Import</button>
+                    <button style = "flex: 1;" onclick = "list_op ('export');">Export</button>
                 </div>
+                <input type="text" id="listout" placeholder="Copy and paste playlist here"></input>
             """
             for j, i in enumerate (playlist):
                 document ["results"] <= html.TABLE (id = i, width = "520px")
@@ -266,6 +268,8 @@
                 playlist.shuffle ()
             elif op == "reverse":
                 playlist.reverse ()
+            elif op == "export":
+                document ["search"].value = "ytpid:" + ",".join (playlist)
             list_manage ()
         def add_vidops ():
             document ["frame"].attrs ["style"] = ""
