@@ -189,7 +189,8 @@
                     playlist.clear ()
                     playlist.extend (url [6 : ].split (","))
                     list_manage ()
-                req_video (player_url.replace ("%v", url [6 : 17]).replace ("%p", url [6 : ]))
+                else:
+                    req_video (player_url.replace ("%v", url [6 : 17]).replace ("%p", url [6 : ]))
             elif not imp:
                 for i in url + " ":
                     if i in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_":
