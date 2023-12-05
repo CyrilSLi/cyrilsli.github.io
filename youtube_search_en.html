@@ -90,6 +90,7 @@
     <script type = "text/python">
         from browser import document, ajax, html, window
         from urllib import parse
+        from random import shuffle
         document ["settings"].attrs ["hidden"] = "hidden"
         def rfind (text, values, end = "}"):
             pointer = 0
@@ -228,8 +229,8 @@
                 <h2>Common Actions</h2>
                 <div id = "listops">
                     <button style = "flex: 1;" onclick = "list_op ('play');">Play</button>
-                    <button style = "flex: 1;">Reverse</button>
-                    <button style = "flex: 1;">Shuffle</button>
+                    <button style = "flex: 1;" onclick = "list_op ('reverse');">Reverse</button>
+                    <button style = "flex: 1;" onclick = "list_op ('shuffle');">Shuffle</button>
                     <button style = "flex: 1;" onclick = "search_id (true);">Import</button>
                 </div>
             """
@@ -258,8 +259,10 @@
         def list_op (op):
             if op == "play" and playlist:
                 req_video (player_url.replace ("%v", playlist [0]).replace ("%p", ",".join (playlist)))
-            elif op == "import":
-                playlist = 
+            elif op == "shuffle":
+                playlist.shuffle ()
+            elif op == "reverse":
+                playlist.reverse ()
         def add_vidops ():
             document ["frame"].attrs ["style"] = ""
             document ["player"] <= html.DIV (id = "vidops")
