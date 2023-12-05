@@ -187,6 +187,7 @@
             if url [ : 6] == "ytpid:" and len (url) > 16 and len (url) % 12 == 5:
                 if imp:
                     playlist = url [6 : ].split (",")
+                    list_manage ()
                 req_video (player_url.replace ("%v", url [6 : 17]).replace ("%p", url [6 : ]))
             elif not imp:
                 for i in url + " ":
@@ -263,6 +264,7 @@
                 playlist.shuffle ()
             elif op == "reverse":
                 playlist.reverse ()
+            list_manage ()
         def add_vidops ():
             document ["frame"].attrs ["style"] = ""
             document ["player"] <= html.DIV (id = "vidops")
