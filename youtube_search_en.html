@@ -129,7 +129,6 @@
                 document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/mqdefault.jpg', width = "480px"), tabindex = "-1", href = vid_url, onclick = f'req_video ("{vid_url}")')
             document ["results"] <= html.DIV (style = "height: 20px;")
         def req_search (homepage = False):
-            window.event.preventDefault ()
             document ["settings"].attrs ["hidden"] = "hidden"
             if "load" not in document:
                 document ["results"].clear ()
