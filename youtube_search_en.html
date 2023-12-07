@@ -226,6 +226,8 @@
                         document ["change"].textContent = "Remove"
                 else:
                     document ["change"].textContent = ("Add", "Remove") [vid_id in playlist]
+            if "manage" in document:
+                list_manage ()
         def list_manage ():
             list_change (False)
             document ["results"].innerHTML = f"""
