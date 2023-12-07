@@ -230,7 +230,7 @@
             list_change (False)
             document ["results"].innerHTML = f"""
                 <h1>Managing Playlist</h1>
-                <h2>List length: {len (playlist)}<button style = "margin: 0px 0px 0px 20px;" onclick = "list_op ('clear');">Clear</button></h2>
+                <h2>List length: {len (playlist)}<button style = "margin: 0px 0px 0px 20px;" onclick = "list_op ('clear');">Clear List</button></h2>
                 <div id = "listops">
                     <button style = "flex: 1;" onclick = "list_op ('reverse');">Reverse</button>
                     <button style = "flex: 1;" onclick = "list_op ('shuffle');">Shuffle</button>
@@ -267,9 +267,9 @@
                 shuffle (playlist)
             elif op == "reverse":
                 playlist.reverse ()
-                window.scrollTo (0, 0)
             elif op == "export":
                 document ["search"].value = "ytpid:" * bool (len (playlist)) + ",".join (playlist)
+                window.scrollTo (0, 0)
             elif op == "clear":
                 playlist.clear ()
             list_manage ()
