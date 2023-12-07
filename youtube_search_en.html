@@ -240,9 +240,9 @@
                 </div>
             """
             for j, i in enumerate (playlist):
-                document ["results"] <= html.TABLE (id = i, width = "520px")
+                document ["results"] <= html.TABLE (id = f"manage{j}", width = "520px")
                 vid_url = player_url.replace ("%v", i).replace ("%p", i)
-                document [i].innerHTML = f"""
+                document [f"manage{j}"].innerHTML = f"""
                     <tr style = "height: 1px;">
                         <td rowspan = 3><a href = {vid_url} onclick = "req_video ('{vid_url}')"><img src = "https://i.ytimg.com/vi/{i}/mqdefault.jpg" width = "360px" style = "margin: 0px 0px 20px 20px;"></img></a></td>  
                         <td><button style = "margin: 0px 20px 20px 20px; width: 100px;" type = "button" onclick = "list_swap ({j}, {j - 1})">Up</button></td>
