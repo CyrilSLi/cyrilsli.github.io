@@ -268,6 +268,7 @@
                 shuffle (playlist)
             elif op == "reverse":
                 playlist.reverse ()
+                window.scrollTo (0, 0)
             elif op == "export":
                 document ["search"].value = "ytpid:" * bool (len (playlist)) + ",".join (playlist)
             list_manage ()
