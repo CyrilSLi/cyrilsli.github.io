@@ -68,7 +68,7 @@
             for i in res.text:
                 if i > 31 and i < 127:
                     pdf += chr (i)
-            #pdf = pdf.split ("Widget", 1) [1].split ("WODXNG", 1) [0]
+            pdf = pdf.split ("Widget", 1) [1].split ("WODXNG", 1) [0]
             weekday = document.query.getvalue ("weekday")
             if weekday:
                 weekday = int (weekday) - 1
