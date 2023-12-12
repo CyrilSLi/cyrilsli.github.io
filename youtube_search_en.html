@@ -224,10 +224,10 @@
                     else:
                         playlist.append (vid_id)
                         document ["change"].textContent = "Remove"
+                    if "listops" in document:
+                        list_manage ()
                 else:
                     document ["change"].textContent = ("Add", "Remove") [vid_id in playlist]
-            if "listops" in document:
-                list_manage ()
         def list_manage ():
             list_change (False)
             document ["results"].innerHTML = f"""
