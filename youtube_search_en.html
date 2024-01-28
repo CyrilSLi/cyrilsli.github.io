@@ -120,12 +120,10 @@
                 channel, user_url = rfind (i, ["ownerText", "text"], ","), rfind (i, ["webCommandMetadata", "url"], ",")
                 if channel != "N/A":
                     document ["results"] <= html.A (html.P (f"{channel} ({user_url [1 : ]})"), tabindex = "0", href = f"https://www.youtube.com{user_url}/videos", onclick = f'req_user ("{user_url}", "{channel}")')
-                document ["results"] <= html.P (f'Length: {rfind (i, ["lengthText", "simpleText"])}')
                 views = rfind (i, ["viewCountText", "simpleText"]) [ : -6]
                 if (not set (views) <= set ("0123456789,")) or (not views):
                     views = "N/A"
-                document ["results"] <= html.P (f'Views: {views}')
-                document ["results"] <= html.P (f'Date: {rfind (i, ["publishedTimeText", "simpleText"])}')
+                document ["results"] <= html.P (f'{rfind (i, ["lengthText", "simpleText"])} • {views} views • {rfind (i, ["publishedTimeText", "simpleText"])}')
                 document ["results"] <= html.A (html.IMG ("", src = f'https://i.ytimg.com/vi/{rfind (i, ["videoId"], ",")}/mqdefault.jpg', width = "480px"), tabindex = "-1", href = vid_url, onclick = f'req_video ("{vid_url}")')
             document ["results"] <= html.DIV (style = "height: 20px;")
         def req_search (homepage = False):
