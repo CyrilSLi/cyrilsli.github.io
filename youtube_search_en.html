@@ -69,7 +69,7 @@
             margin: 20px 10px 0px;
             display: flex;
         }
-        div {
+        div, span {
             margin: 0px;
         }
         table, tr, td {
@@ -108,6 +108,7 @@
         global playlist
         playlist = []
         player_persist = False if document.query.getvalue ("player_persist") else True
+        show_id = False if document.query.getvalue ("show_id") else True
         def complete (res):
             if not player_persist:
                 remove_video ()
@@ -116,10 +117,10 @@
                 add_vidops ()
             for i in res.text.split ("videoRenderer") [1 : ]:
                 vid_url = player_url.replace ("%v", rfind (i, ["videoId"], ",")).replace ("%p", rfind (i, ["videoId"], ","))
-                document ["results"] <= html.A (html.P (rfind (i, ["title", "text"])), tabindex = "0", href = vid_url, onclick = f'req_video ("{vid_url}")')
+                document ["results"] <= html.P (html.A (rfind (i, ["title", "text"]), tabindex = "0", href = vid_url, onclick = f'req_video ("{vid_url}")') + (f' ({rfind (i, ["videoId"], ",")})' if show_id else ""))
                 channel, user_url = rfind (i, ["ownerText", "text"], ","), rfind (i, ["webCommandMetadata", "url"], ",")
                 if channel != "N/A":
-                    document ["results"] <= html.A (html.P (f"{channel} ({user_url [1 : ]})"), tabindex = "0", href = f"https://www.youtube.com{user_url}/videos", onclick = f'req_user ("{user_url}", "{channel}")')
+                    document ["results"] <= html.P (html.A (channel, tabindex = "0", href = f"https://www.youtube.com{user_url}/videos", onclick = f'req_user ("{user_url}", "{channel}")') + (f" ({user_url [1 : ]})" if show_id else ""))
                 views, timeago = rfind (i, ["accessibilityData", "label"]).split (" "), rfind (i, ["publishedTimeText", "simpleText"])
                 try:
                     views = views [views.index ("views") - 1]
