@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang = "en">
 <head>
-    <title>YouTube Search</title>
+    <title>French Resources</title>
     <meta charset = "utf-8">
     <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
     <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js"></script>
     <style>
         html, body {
             margin: 0px;
-            min-width: 520px;
         }
         #player {
             display: flex;
@@ -90,7 +89,6 @@
     <script type = "text/python">
         from browser import document, ajax, html, window
         from urllib import parse
-        from random import shuffle
         document ["settings"].attrs ["hidden"] = "hidden"
         def rfind (text, values, end = "}"):
             pointer = 0
@@ -316,10 +314,5 @@
     <script>
         document.body.insertAdjacentHTML ("beforeend", `<div id = "results"><p id = "start">Starting Brython...</p></div>`)
     </script>
-    <div hidden id = "settings">
-        <h1>Settings</h1>
-        <h2>Subtitle</h2>
-        <p>Text</p>
-    </div>
 </body>
 </html>
