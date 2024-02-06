@@ -103,9 +103,10 @@
             text = res.text
             dict_doc = "<!DOCTYPE html><html><head>"
             dict_doc += rfind (text, ["<style", "</style>"]
-            dict_doc += </head><body>
+            dict_doc += "</head><body>"
             dict_doc += rfind (text, ["<div id='articleWRD'>", "<div id='collinsdiv'>"], True)
-            
+            dict_doc += "</body></html>"
+            document ["results"] <= html.IFRAME (srcdoc = dict_doc, style = "height: 100vh; height: 100dvh;", height = "100%")
         ajax.get ("https://www.wordreference.com/fren/" + dict_word, oncomplete = complete)
     </script>
     <div id = "player">
