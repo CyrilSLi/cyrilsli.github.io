@@ -95,7 +95,7 @@
                 pointer += text [pointer : ].find (j)
                 if pointer == -1:
                     return "N/A"
-            return text [pointer : pointer + text [pointer : ].find (values [-1]) - 1 + (len (values [-1]) if end else 0)]
+            return text [pointer : pointer + text [pointer : ].find (values [-1]) + (len (values [-1]) if end else 0)]
         dict_word = document.query.getvalue ("dict_word")
         def complete (res):
             #del document ["load"]
@@ -105,7 +105,7 @@
             dict_doc += "</head><body>"
             dict_doc += rfind (text, ["<div id='articleWRD'>", "<div id='collinsdiv'>"])
             dict_doc += "</body></html>"
-            document ["results"] <= html.IFRAME (srcdoc = dict_doc, style = "height: 100vh; height: 100dvh; width: 100dvh;", height = "100%")
+            document ["results"] <= html.IFRAME (srcdoc = dict_doc, frameBorder = "0", style = "height: 100vh; height: 100dvh; width: 100dvh;", height = "100%")
         ajax.get ("https://www.wordreference.com/fren/" + dict_word, oncomplete = complete)
     </script>
     <div id = "player">
