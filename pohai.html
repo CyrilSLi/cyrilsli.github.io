@@ -83,7 +83,7 @@
             genqr ()
         def getchedi (req):
             try:
-                document ["emuid"].value = req.text ["content"] ["data"] ["carCode"]
+                document ["emuid"].value = req.json ["content"] ["data"] ["carCode"]
             except KeyError:
                 document ["emuid"].value = "列车编号获取失败"
             genqr ()
