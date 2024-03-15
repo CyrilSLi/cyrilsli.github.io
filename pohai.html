@@ -87,6 +87,8 @@
                 document ["emuid"].value = req.json ["content"] ["data"] ["carCode"]
             except KeyError:
                 document ["emuid"].value = "列车编号获取失败"
+            except Exception as e:
+                document <= html.P (e)
             genqr ()
         def resizeqr ():
             document ["qr"].style = f"height: {document ['qr'].clientWidth}px;"
