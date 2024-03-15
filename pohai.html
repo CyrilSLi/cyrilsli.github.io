@@ -69,9 +69,10 @@
                     return None
                 else:
                     model = ev.target.value.replace ("-", "").upper ()
-                    for i, j in (("CR400", 7), ("CRH6", 5), ("CRH3", 5), ("CRH1", 5)):
+                    for i, j in (("CR400", 7), ("CR300", 7), ("CRH380", 0), ("CRH6", 5), ("CRH3", 5), ("CRH1", 5)):
                         if model.startswith (i) and len (model) > j:
                             ev.target.value = "-".join ((i for i in (model [ : j], model [j : -4], model [-4 : ]) if i))
+                            break
             elif ev.target.id == "col":
                 if len (ev.target.value) and ev.target.value [-1] in "AaBbCcDdFf":
                     ev.target.value = ev.target.value [-1].upper ()
