@@ -65,6 +65,7 @@
                 if ev.target.value [1] in "0123456789":
                     cndate = (datetime.now (timezone.utc) + timedelta (hours = 8)).strftime ("%Y%m%d")
                     ajax.get (f"https://mobile.12306.cn/wxxcx/openplatform-inner/miniprogram/wifiapps/appFrontEnd/v2/lounge/open-smooth-common/trainStyleBatch/getCarDetail?carCode=&trainCode={ev.target.value [0].upper () + ev.target.value [1 : ]}&runningDay={cndate}&reqType=form&", mode = "json", oncomplete = getchedi)
+                    resizeqr (0)
                     ev.target.value = "列车编号获取中..."
                 else:
                     model = ev.target.value.replace ("-", "").upper ()
@@ -72,23 +73,27 @@
                         if model.startswith (i) and len (model) > j:
                             ev.target.value = "-".join ((i for i in (model [ : j], model [j : -4], model [-4 : ]) if i))
                             break
+                    genqr ()
             elif ev.target.id == "col":
                 if len (ev.target.value) and ev.target.value [-1] in "AaBbCcDdFf":
                     ev.target.value = ev.target.value [-1].upper ()
                     lastcol = ev.target.value
                 else:
                     ev.target.value = lastcol
+                genqr ()
             elif ev.target.id in ("car", "row"):
                 ev.target.value = ("00" + str (max (int ("00" + ev.target.value [-2 : ]), int (ev.type == "blur")))) [-2 : ]
-            genqr ()
+                if ev.type == "blur":
+                    ev.target.value = min (ev.target.value, "17" if ev.target.id == "car" else "20")
+                genqr ()
         def getchedi (req):
             try:
                 document ["emuid"].value = req.json ["content"] ["data"] ["carCode"]
             except:
                 document ["emuid"].value = "列车编号获取失败"
             genqr ()
-        def resizeqr ():
-            document ["qr"].style = f"height: {document ['qr'].clientWidth}px;"
+        def resizeqr (height = 10 ** 9):
+            document ["qr"].style = f"height: {min (height, document ['qr'].clientWidth)}px;"
         def genqr ():
             window.QRious.new ({"element": document ["qr"], "value": f"https://p.12306.cn/tservice/qr/travel/v1?c={document ['emuid'].value}-{document ['car'].value}-{document ['row'].value}{document ['col'].value}&w=h"})
             resizeqr ()
