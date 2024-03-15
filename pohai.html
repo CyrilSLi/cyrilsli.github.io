@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang = "zh-CN">
+<head>
+    <title>迫害码生成器</title>
+    <meta charset = "utf-8">
+    <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+    <style>
+        html, body {
+            margin: 0px;
+            display: flex;
+            flex-direction: column;
+        }
+        p {
+            font-family: Arial, sans-serif;
+            font-size: 9vw;
+            margin: 5vw;
+            display: inline;
+        }
+        h1 {
+            font-family: Arial, sans-serif;
+            font-size: 14vw;
+            font-weight: bold;
+            margin: 5vw 5vw 1vw;
+        }
+        input {
+            font-family: Arial, sans-serif;
+            font-size: 9vw;
+            padding: 1vw;
+            margin: 5vw;
+            border-radius: 0px;
+            text-decoration: none;
+            font-weight: normal;
+            background-color: #f8f8f8;
+            color: black;
+            -webkit-appearance: none;
+            border: 1px solid black;
+        }
+        .inline {
+            margin: 2.5vw;
+        }
+        canvas {
+            border: 0px;
+            margin: 5vw;
+            height: 0px;
+        }
+        div {
+            margin: 0px;
+        }
+    </style>
+</head>
+<body onload = "brython (0)" onresize = "resizeqr ()">
+    <noscript>
+        <p style = "display: block; font-size: 5vw;">使用该网站需要JavaScript。</p>
+    </noscript>
+    <script type = "text/python">
+        from browser import document, html, ajax, window
+        from datetime import *
+        global lastcol
+        lastcol = "A"
+        def oninput (ev):
+            global lastcol
+            if ev.target.id == "emuid" and len (ev.target.value) > 1:
+                if ev.target.value [1] in "0123456789":
+                    cndate = (datetime.now (timezone.utc) + timedelta (hours = 8)).strftime ("%Y%m%d")
+                    ajax.get (f"https://mobile.12306.cn/wxxcx/openplatform-inner/miniprogram/wifiapps/appFrontEnd/v2/lounge/open-smooth-common/trainStyleBatch/getCarDetail?carCode=&trainCode={ev.target.value [0].upper () + ev.target.value [1 : ]}&runningDay={cndate}&reqType=form&", mode = "json", oncomplete = getchedi)
+                    ev.target.value = "列车编号获取中..."
+                    return None
+                else:
+                    model = ev.target.value.replace ("-", "").upper ()
+                    for i, j in (("CR400", 7), ("CRH6", 5), ("CRH3", 5), ("CRH1", 5)):
+                        if model.startswith (i) and len (model) > j:
+                            ev.target.value = "-".join ((i for i in (model [ : j], model [j : -4], model [-4 : ]) if i))
+            elif ev.target.id == "col":
+                if len (ev.target.value) and ev.target.value [-1] in "AaBbCcDdFf":
+                    ev.target.value = ev.target.value [-1].upper ()
+                    lastcol = ev.target.value
+                else:
+                    ev.target.value = lastcol
+            elif ev.target.id in ("car", "row"):
+                ev.target.value = ("00" + str (max (int ("00" + ev.target.value [-2 : ]), int (ev.type == "blur")))) [-2 : ]
+            genqr ()
+        def getchedi (req):
+            try:
+                document ["emuid"].value = req.text ["content"] ["data"] ["carCode"]
+            except KeyError:
+                document ["emuid"].value = "列车编号获取失败"
+            genqr ()
+        def resizeqr ():
+            document ["qr"].style = f"height: {document ['qr'].clientWidth}px;"
+        def genqr ():
+            window.QRious.new ({"element": document ["qr"], "value": f"https://p.12306.cn/tservice/qr/travel/v1?c={document ['emuid'].value}-{document ['car'].value}-{document ['row'].value}{document ['col'].value}&w=h"})
+            resizeqr ()
+        def emublur (ev):
+            if ev.key == "Enter":
+                ev.target.blur ()
+        document.clear ()
+        document <= html.H1 ("迫害码生成器", style = "flex: 1;")
+        document <= html.INPUT (id = "emuid", placeholder = "列车编号或车次", style = "flex: 1;", autofocus = "autofocus")
+        document <= html.DIV (id = "params")
+        document ["params"] <= html.P ("车厢号:")
+        document ["params"] <= html.INPUT (Class = "inline", type = "number", id = "car", value = "01", min = 1, max = 17, style = "width: 15vw")
+        document ["params"] <= html.BR ()
+        document ["params"] <= html.P ("座位号:")
+        document ["params"] <= html.INPUT (Class = "inline", type = "number", id = "row", value = "01", min = 1, max = 20, style = "width: 15vw")
+        document ["params"] <= html.INPUT (Class = "inline", id = "col", value = "A", style = "width: 7vw")
+        document <= html.CANVAS (id = "qr")
+        document ["emuid"].bind ("blur", oninput)
+        document ["emuid"].bind ("keydown", emublur)
+        document ["car"].bind ("input", oninput)
+        document ["row"].bind ("input", oninput)
+        document ["car"].bind ("blur", oninput)
+        document ["row"].bind ("blur", oninput)
+        document ["col"].bind ("input", oninput)
+        window.resizeqr = resizeqr
+    </script>
+    <script>
+        document.body.insertAdjacentHTML ("beforeend", '<p style = "display: block;">加载中...</p></div>')
+    </script>
+</body>
+</html>
