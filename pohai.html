@@ -66,7 +66,6 @@
                     cndate = (datetime.now (timezone.utc) + timedelta (hours = 8)).strftime ("%Y%m%d")
                     ajax.get (f"https://mobile.12306.cn/wxxcx/openplatform-inner/miniprogram/wifiapps/appFrontEnd/v2/lounge/open-smooth-common/trainStyleBatch/getCarDetail?carCode=&trainCode={ev.target.value [0].upper () + ev.target.value [1 : ]}&runningDay={cndate}&reqType=form&", mode = "json", oncomplete = getchedi)
                     ev.target.value = "列车编号获取中..."
-                    return None
                 else:
                     model = ev.target.value.replace ("-", "").upper ()
                     for i, j in (("CR400", 7), ("CR300", 7), ("CRH380", 0), ("CRH6", 5), ("CRH3", 5), ("CRH1", 5)):
@@ -87,8 +86,6 @@
                 document ["emuid"].value = req.json ["content"] ["data"] ["carCode"]
             except KeyError:
                 document ["emuid"].value = "列车编号获取失败"
-            except Exception as e:
-                document <= html.P (e)
             genqr ()
         def resizeqr ():
             document ["qr"].style = f"height: {document ['qr'].clientWidth}px;"
