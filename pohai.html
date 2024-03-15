@@ -89,9 +89,9 @@
         def getchedi (req):
             try:
                 document ["emuid"].value = req.json ["content"] ["data"] ["carCode"]
+                genqr ()
             except:
                 document ["emuid"].value = "列车编号获取失败"
-            genqr ()
         def resizeqr (height = 10 ** 9):
             document ["qr"].style = f"height: {min (height, document ['qr'].clientWidth)}px;"
         def genqr ():
