@@ -82,7 +82,7 @@
                     ev.target.value = ""
                 else:
                     model = ev.target.value.replace ("-", "").upper ()
-                    for i, j in (("CR400", 7), ("CR300", 7), ("CRH380", 0), ("CRH", 5), ("", 0)):
+                    for i, j in (("CR400", 7), ("CR300", 7), ("CR200J", 7), ("CRH380", 0), ("CRH", 5), ("", 0)):
                         if model.startswith (i) and len (model) > j:
                             ev.target.value = "-".join ((i for i in (model [ : min (j, len (model) - 4)], model [min (j, len (model) - 4) : -4], model [-4 : ]) if i))
                             break
