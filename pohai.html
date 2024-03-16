@@ -7,6 +7,9 @@
     <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js"></script>
     <script src = "https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
     <style>
+        :root {
+            --landscape-scale: 1.85;
+        }
         html, body {
             margin: 0px;
             display: flex;
@@ -14,35 +17,44 @@
         }
         p {
             font-family: Arial, sans-serif;
-            font-size: 9vw;
-            margin: 5vw;
+            font-size: min(9dvw, calc(9dvh / var(--landscape-scale)));
+            margin: min(5dvw, calc(5dvh / var(--landscape-scale)));
             display: inline;
         }
         h1 {
             font-family: Arial, sans-serif;
-            font-size: 14vw;
+            font-size: min(14dvw, calc(14dvh / var(--landscape-scale)));
             font-weight: bold;
-            margin: 5vw 5vw 1vw;
+            margin: min(5dvw, calc(5dvh / var(--landscape-scale))) min(5dvw, calc(5dvh / var(--landscape-scale))) min(1dvw, calc(1dvh / var(--landscape-scale)));
         }
         input {
             font-family: Arial, sans-serif;
-            font-size: 9vw;
-            padding: 1vw;
-            margin: 5vw;
+            font-size: min(9dvw, calc(9dvh / var(--landscape-scale)));
+            padding: min(1dvw, calc(1dvh / var(--landscape-scale)));
+            margin: min(5dvw, calc(5dvh / var(--landscape-scale)));
             border-radius: 0px;
             text-decoration: none;
             font-weight: normal;
             background-color: #f8f8f8;
             color: black;
             -webkit-appearance: none;
-            border: 1px solid black;
+            border: min(0.2dvw, calc(0.2dvw / var(--landscape-scale))) solid black;
         }
         .inline {
-            margin: 2.5vw;
+            margin: min(2.5dvw, calc(2.5dvh / var(--landscape-scale)));
+            width: min(15dvw, calc(15dvh / var(--landscape-scale)));
+        }
+        #col {
+            width: min(7dvw, calc(7dvh / var(--landscape-scale)));
+        }
+        #emuid {
+            flex: 1;
+            max-width: calc(87.6dvh / var(--landscape-scale));
         }
         img {
             border: 0px;
-            margin: 5vw;
+            margin: min(5dvw, calc(5dvh / var(--landscape-scale)));
+            width: min(90dvw, calc(90dvh / var(--landscape-scale)));
         }
         div {
             margin: 0px;
@@ -51,7 +63,7 @@
 </head>
 <body onload = "brython (0)">
     <noscript>
-        <p style = "display: block; font-size: 5vw;">使用该网站需要JavaScript。</p>
+        <p style = "display: block; font-size: 5dvw;">使用该网站需要JavaScript。</p>
     </noscript>
     <script type = "text/python">
         from browser import document, html, ajax, window
@@ -100,14 +112,14 @@
                 ev.target.blur ()
         document.clear ()
         document <= html.H1 ("迫害码生成器", style = "flex: 1;")
-        document <= html.INPUT (id = "emuid", placeholder = "列车编号或车次", style = "flex: 1;", autofocus = "autofocus")
+        document <= html.INPUT (id = "emuid", placeholder = "列车编号或车次", autofocus = "autofocus")
         document <= html.DIV (id = "params")
         document ["params"] <= html.P ("车厢号:")
-        document ["params"] <= html.INPUT (Class = "inline", type = "number", id = "car", value = "01", min = 1, max = 17, style = "width: 15vw")
+        document ["params"] <= html.INPUT (Class = "inline", type = "number", id = "car", value = "01", min = 1, max = 17)
         document ["params"] <= html.BR ()
         document ["params"] <= html.P ("座位号:")
-        document ["params"] <= html.INPUT (Class = "inline", type = "number", id = "row", value = "01", min = 1, max = 20, style = "width: 15vw")
-        document ["params"] <= html.INPUT (Class = "inline", id = "col", value = "A", style = "width: 7vw")
+        document ["params"] <= html.INPUT (Class = "inline", type = "number", id = "row", value = "01", min = 1, max = 20)
+        document ["params"] <= html.INPUT (Class = "inline", id = "col", value = "A")
         document <= html.IMG (id = "qr")
         document ["emuid"].bind ("blur", oninput)
         document ["emuid"].bind ("focus", oninput)
