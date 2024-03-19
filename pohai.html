@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang = "zh-CN">
 <head>
-    <title>迫害码生成器</title>
+    <title>迫害码生成器v1.0</title>
     <meta charset = "utf-8">
     <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
     <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js"></script>
@@ -86,19 +86,17 @@
                         if model.startswith (i) and len (model) > j:
                             ev.target.value = "-".join ((i for i in (model [ : min (j, len (model) - 4)], model [min (j, len (model) - 4) : -4], model [-4 : ]) if i))
                             break
-                    genqr ()
             elif ev.target.id == "col":
                 if len (ev.target.value) and ev.target.value [-1] in "AaBbCcDdFf":
                     ev.target.value = ev.target.value [-1].upper ()
                     lastcol = ev.target.value
                 else:
                     ev.target.value = lastcol
-                genqr ()
             elif ev.target.id in ("car", "row"):
                 ev.target.value = ("00" + str (max (int ("00" + ev.target.value [-2 : ]), int (ev.type == "blur")))) [-2 : ]
                 if ev.type == "blur":
                     ev.target.value = min (ev.target.value, "17" if ev.target.id == "car" else "20")
-                genqr ()
+            genqr ()
         def getchedi (req):
             try:
                 document ["emuid"].value = req.json ["content"] ["data"] ["carCode"]
@@ -106,8 +104,9 @@
             except:
                 document ["emuid"].value = "列车编号获取失败"
         def genqr ():
-            document ["qr"].src = window.QRious.new ({"element": html.CANVAS (), "level": "M", "size": 814, "padding": 37, "value": f"https://p.12306.cn/tservice/qr/travel/v1?c={document ['emuid'].value}-{document ['car'].value}-{document ['row'].value}{document ['col'].value}&w=h"}).toDataURL ()
-            document ["qr"].style.visibility = "visible"
+            if len (document ["emuid"].value) and document ["emuid"].value [ : 6] != "列车编号获取":
+                document ["qr"].src = window.QRious.new ({"element": html.CANVAS (), "level": "M", "size": 814, "padding": 37, "value": f"https://p.12306.cn/tservice/qr/travel/v1?c={document ['emuid'].value}-{document ['car'].value}-{document ['row'].value}{document ['col'].value}&w=h"}).toDataURL ()
+                document ["qr"].style.visibility = "visible"
         def emublur (ev):
             if ev.key == "Enter":
                 ev.target.blur ()
