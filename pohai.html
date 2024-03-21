@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang = "zh-CN">
 <head>
-    <title>迫害码生成器v1.0</title>
+    <title>迫害码生成器v2.0</title>
     <meta charset = "utf-8">
     <script src = "https://cdn.staticfile.net/brython/3.11.0/brython.min.js"></script>
     <script src = "https://cdn.staticfile.net/brython/3.11.0/brython_stdlib.min.js"></script>
@@ -40,6 +40,10 @@
             -webkit-appearance: none;
             border: min(0.2dvw, calc(0.2dvw / var(--landscape-scale))) solid black;
         }
+        input:disabled {
+            background-color: #fff0f0;
+            color: #ff0000;
+        }
         .inline {
             margin: min(2.5dvw, calc(2.5dvh / var(--landscape-scale)));
             width: min(15dvw, calc(15dvh / var(--landscape-scale)));
@@ -68,19 +72,26 @@
     <script type = "text/python">
         from browser import document, html, ajax, window
         from datetime import *
-        global lastcol
-        lastcol = "A"
+        global lastcol, regular_ids
+        lastcol, regular_ids = "A", []
+        def disable (ids, state, visible = None):
+            for i in ids:
+                document [i].disabled = state
+            document ["qr"].style.visibility = ("hidden", "visible") [state == "" if visible == None else visible]
         def oninput (ev):
             global lastcol
+            disable (("emuid", "car", "row", "col"), "", False)
             if ev.target.id == "emuid" and len (ev.target.value) > 1:
-                if ev.target.value [1] in "0123456789":
+                if ev.target.value [1] in "123456789":
+                    disable (("emuid", "car", "row", "col"), "disabled")
                     cndate = (datetime.now (timezone.utc) + timedelta (hours = 8)).strftime ("%Y%m%d")
                     ajax.get (f"https://corsproxy.io/?https://mobile.12306.cn/wxxcx/openplatform-inner/miniprogram/wifiapps/appFrontEnd/v2/lounge/open-smooth-common/trainStyleBatch/getCarDetail?carCode=&trainCode={ev.target.value [0].upper () + ev.target.value [1 : ]}&runningDay={cndate}&reqType=form&", mode = "json", oncomplete = getchedi)
-                    document ["qr"].style.visibility = "hidden"
                     ev.target.value = "列车编号获取中..."
-                elif ev.type == "focus" and ev.target.value == "列车编号获取失败":
-                    ev.target.value = ""
-                else:
+                elif ev.type == "focus":
+                    if ev.target.value [ : 2] in ("列车", "车厢"):
+                        ev.target.value = ""
+                    return None
+                elif ev.target.value [ : 2].upper () == "CR":
                     model = ev.target.value.replace ("-", "").upper ()
                     for i, j in (("CR400", 7), ("CR300", 7), ("CR200J", 7), ("CRH380", 0), ("CRH", 5), ("", 0)):
                         if model.startswith (i) and len (model) > j:
@@ -96,17 +107,54 @@
                 ev.target.value = ("00" + str (max (int ("00" + ev.target.value [-2 : ]), int (ev.type == "blur")))) [-2 : ]
                 if ev.type == "blur":
                     ev.target.value = min (ev.target.value, "17" if ev.target.id == "car" else "20")
-            genqr ()
+            else:
+                return None
+            if document ["emuid"].value [ : 2] == "CR":
+                genqr ()
         def getchedi (req):
             try:
                 document ["emuid"].value = req.json ["content"] ["data"] ["carCode"]
                 genqr ()
-            except:
+            except Exception as e:
                 document ["emuid"].value = "列车编号获取失败"
-        def genqr ():
-            if len (document ["emuid"].value) and document ["emuid"].value [ : 6] != "列车编号获取":
-                document ["qr"].src = window.QRious.new ({"element": html.CANVAS (), "level": "M", "size": 814, "padding": 37, "value": f"https://p.12306.cn/tservice/qr/travel/v1?c={document ['emuid'].value}-{document ['car'].value}-{document ['row'].value}{document ['col'].value}&w=h"}).toDataURL ()
-                document ["qr"].style.visibility = "visible"
+                disable (("emuid", "car", "row", "col"), "", False)
+                window.console.log (f"Error retrieving train code: {e}")
+        def genqr (qr_url = False):
+            global regular_ids
+            if document ["emuid"].value not in regular_ids:
+                disable (("emuid", "car", "row", "col"), "disabled")
+                if not qr_url:
+                    ajax.get (f'https://corsproxy.io/?https://api.rail.re/emu/{document ["emuid"].value.replace ("-", "")}/qr', mode = "json", oncomplete = getqrform)
+            else:
+                disable (("emuid", "car", "row", "col"), "")
+            if not qr_url:
+                qr_url = f"https://p.12306.cn/tservice/qr/travel/v1?c={document ['emuid'].value}-{document ['car'].value}-{document ['row'].value}{document ['col'].value}&w=h"
+            document ["qr"].src = window.QRious.new ({"element": html.CANVAS (), "level": "M", "size": 814, "padding": 37, "value": qr_url}).toDataURL ()
+        def getqrform (req):
+            global regular_ids
+            if not req.json:
+                document ["emuid"].value = "列车编号不在数据库"
+                disable (("emuid", "car", "row", "col"), "", True)
+                return None
+            form = req.json ["url"]
+            form = form [form.find ("c=") + 2 : form.find ("&w")]
+            if not form.startswith ("CR"):
+                ajax.get ("https://corsproxy.io/?https://mobile.12306.cn/wxxcx/wechat/main/travelServiceDecodeQrcode", data = f"c={form}&w=h&eKey=zKT3tfG8H8MzIGMJ2%2FxbcUbhyU6lfkOJRPiZFqf2Z61y19QIs1TS5oL%2BL0OYKF%2FnFocNWnPt1105UkKKQnSIoanOHkFIkpnJzBE9pAPSHOSZ0oNhuWyHPb3xQPOehcoUwKh%2BV6jDV7K4jeVIPvKCvA%3D%3D", oncomplete = limited_qr)
+                document ["emuid"].value = "车厢和座位号受限"
+                genqr (f"https://p.12306.cn/tservice/qr/travel/v1?c={form}&w=h")
+            else:
+                regular_ids.append (document ["emuid"].value)
+                disable (("emuid", "car", "row", "col"), "")
+        def limited_qr (req):
+            try:
+                document ["car"].value = req.json ["data"] ["coachNo"]
+                document ["row"].value = req.json ["data"] ["seatNo"] [ : -1]
+                document ["col"].value = req.json ["data"] ["seatNo"] [-1]
+                disable (("emuid", "car", "row", "col"), "")
+            except Exception as e:
+                document ["emuid"].value = "列车编号不在数据库"
+                disable (("emuid", "car", "row", "col"), "", False)
+                window.console.log (f"Error retrieving databse QR Code: {e}")
         def emublur (ev):
             if ev.key == "Enter":
                 ev.target.blur ()
