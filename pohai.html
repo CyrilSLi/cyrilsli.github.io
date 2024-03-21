@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang = "zh-CN">
 <head>
-    <title>迫害码生成器v2.0</title>
+    <title>迫害码生成器v2.1</title>
     <meta charset = "utf-8">
     <script src = "https://cdn.staticfile.net/brython/3.11.0/brython.min.js"></script>
     <script src = "https://cdn.staticfile.net/brython/3.11.0/brython_stdlib.min.js"></script>
@@ -25,7 +25,7 @@
             font-family: Arial, sans-serif;
             font-size: min(14dvw, calc(14dvh / var(--landscape-scale)));
             font-weight: bold;
-            margin: min(5dvw, calc(5dvh / var(--landscape-scale))) min(5dvw, calc(5dvh / var(--landscape-scale))) min(1dvw, calc(1dvh / var(--landscape-scale)));
+            margin: min(5dvw, calc(5dvh / var(--landscape-scale))) min(5dvw, calc(5dvh / var(--landscape-scale))) 0px;
         }
         input {
             font-family: Arial, sans-serif;
@@ -38,7 +38,8 @@
             background-color: #f8f8f8;
             color: black;
             -webkit-appearance: none;
-            border: min(0.2dvw, calc(0.2dvw / var(--landscape-scale))) solid black;
+            -webkit-box-shadow: 0 0 0px 1000px #f8f8f8 inset !important;
+            border: min(0.3dvw, calc(0.3dvw / var(--landscape-scale))) solid black;
         }
         input:disabled {
             background-color: #fff0f0;
@@ -156,7 +157,7 @@
                 disable (("emuid", "car", "row", "col"), "", False)
                 window.console.log (f"Error retrieving databse QR Code: {e}")
         def emublur (ev):
-            if ev.key == "Enter":
+            if hasattr (ev, "key") and ev.key == "Enter":
                 ev.target.blur ()
         document.clear ()
         document <= html.H1 ("迫害码生成器", style = "flex: 1;")
