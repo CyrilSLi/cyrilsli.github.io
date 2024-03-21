@@ -39,11 +39,18 @@
             color: black;
             -webkit-appearance: none;
             -webkit-box-shadow: 0 0 0px 1000px #f8f8f8 inset !important;
-            border: min(0.3dvw, calc(0.3dvw / var(--landscape-scale))) solid black;
+            border: min(0.4dvw, calc(0.4dvh / var(--landscape-scale))) solid black;
         }
         input:disabled {
             background-color: #fff0f0;
             color: #ff0000;
+        }
+        ::placeholder {
+            color: #a0a0a0;
+            opacity: 1;
+        }
+        ::-ms-input-placeholder {
+            color: #a0a0a0;
         }
         .inline {
             margin: min(2.5dvw, calc(2.5dvh / var(--landscape-scale)));
@@ -82,8 +89,15 @@
         def oninput (ev):
             global lastcol
             disable (("emuid", "car", "row", "col"), "", False)
-            if ev.target.id == "emuid" and len (ev.target.value) > 1:
-                if ev.target.value [1] in "123456789":
+            if ev.target.id == "emuid":
+                if ev.type == "focus":
+                    disable (("car", "row", "col"), "disabled")
+                emuid = ev.target.value
+                ev.target.value = ""
+                ev.target.value = emuid
+                if len (ev.target.value) < 2:
+                    return None
+                elif ev.target.value [1] in "123456789":
                     disable (("emuid", "car", "row", "col"), "disabled")
                     cndate = (datetime.now (timezone.utc) + timedelta (hours = 8)).strftime ("%Y%m%d")
                     ajax.get (f"https://corsproxy.io/?https://mobile.12306.cn/wxxcx/openplatform-inner/miniprogram/wifiapps/appFrontEnd/v2/lounge/open-smooth-common/trainStyleBatch/getCarDetail?carCode=&trainCode={ev.target.value [0].upper () + ev.target.value [1 : ]}&runningDay={cndate}&reqType=form&", mode = "json", oncomplete = getchedi)
@@ -98,18 +112,19 @@
                         if model.startswith (i) and len (model) > j:
                             ev.target.value = "-".join ((i for i in (model [ : min (j, len (model) - 4)], model [min (j, len (model) - 4) : -4], model [-4 : ]) if i))
                             break
-            elif ev.target.id == "col":
-                if len (ev.target.value) and ev.target.value [-1] in "AaBbCcDdFf":
-                    ev.target.value = ev.target.value [-1].upper ()
-                    lastcol = ev.target.value
+            try:
+                (diff, ) = set (document ["col"].value).difference (lastcol)
+                if diff in "AaBbCcDdFf":
+                    document ["col"].value = diff.upper ()
+                    lastcol = document ["col"].value
                 else:
-                    ev.target.value = lastcol
-            elif ev.target.id in ("car", "row"):
-                ev.target.value = ("00" + str (max (int ("00" + ev.target.value [-2 : ]), int (ev.type == "blur")))) [-2 : ]
+                    raise ValueError
+            except ValueError:
+                document ["col"].value = lastcol
+            for i in (document ["car"], document ["row"]):
+                i.value = ("00" + str (max (int ("00" + i.value [-2 : ]), int (ev.type == "blur")))) [-2 : ]
                 if ev.type == "blur":
-                    ev.target.value = min (ev.target.value, "17" if ev.target.id == "car" else "20")
-            else:
-                return None
+                    i.value = min (i.value, "17" if i.id == "car" else "20")
             if document ["emuid"].value [ : 2] == "CR":
                 genqr ()
         def getchedi (req):
@@ -157,7 +172,7 @@
                 disable (("emuid", "car", "row", "col"), "", False)
                 window.console.log (f"Error retrieving databse QR Code: {e}")
         def emublur (ev):
-            if hasattr (ev, "key") and ev.key == "Enter":
+            if getattr (ev, "key", False) == "Enter":
                 ev.target.blur ()
         document.clear ()
         document <= html.H1 ("迫害码生成器", style = "flex: 1;")
