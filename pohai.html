@@ -149,7 +149,6 @@
         def getqrform (req):
             global regular_ids
             if not req.json:
-                document ["emuid"].value = "列车编号不在数据库"
                 disable (("emuid", "car", "row", "col"), "", True)
                 return None
             form = req.json ["url"]
