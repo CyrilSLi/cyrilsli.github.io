@@ -91,6 +91,7 @@
         from browser import document, ajax, html, window
         from urllib import parse
         from random import shuffle
+        global playlist, cors_url
         document ["settings"].attrs ["hidden"] = "hidden"
         def rfind (text, values, end = "}"):
             pointer = 0
@@ -105,9 +106,6 @@
         cors_url = document.query.getvalue ("cors_url")
         if not cors_url:
             cors_url = "https://corsproxy.io/?" # Default CORS proxy
-        elif cors_url == "none":
-            cors_url = ""
-        global playlist
         playlist = []
         player_persist = False if document.query.getvalue ("player_persist") else True
         show_id = False if document.query.getvalue ("show_id") else True
@@ -141,11 +139,11 @@
                 if homepage:
                     document ["enter"].textContent = "Settings"
                     document ["results"] <= html.H1 ("Homepage")
-                    ajax.get (cors_url + window.encodeURIComponent ("https://www.youtube.com/?app=desktop&hl=en&persist_app=1"), oncomplete = complete)
+                    cors_get ("https://www.youtube.com/?app=desktop&hl=en&persist_app=1")
                     document ["player"] <= html.P ("Loading...", id = "load")
                 elif search:
                     document ["results"] <= html.H1 (f'Results for "{search}"')
-                    ajax.get (cors_url + window.encodeURIComponent ("https://www.youtube.com/results?app=desktop&hl=en&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D"), oncomplete = complete)
+                    cors_get ("https://www.youtube.com/results?app=desktop&hl=en&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D")
                     document ["player"] <= html.P ("Loading...", id = "load")
                 else:
                     del document ["settings"].attrs ["hidden"]
@@ -157,7 +155,7 @@
                 document ["results"] <= (html.H1 (f'Videos by "{name}" ({url [1 : ]})'))
                 document ["player"] <= html.P ("Loading...", id = "load")
                 window.scrollTo (0, 0)
-                ajax.get (cors_url + window.encodeURIComponent ("https://www.youtube.com" + url + "/videos?app=desktop&hl=en&persist_app=1"), oncomplete = complete)
+                cors_get ("https://www.youtube.com" + url + "/videos?app=desktop&hl=en&persist_app=1")
         def req_video (url):
             window.event.preventDefault ()
             if "load" not in document:
@@ -294,6 +292,11 @@
                 document ["enter"].textContent = "Search"
             else:
                 document ["enter"].textContent = "Settings"
+        def cors_get (url, oncomplete = complete):
+            if cors_url.lower () != "none":
+                ajax.get (cors_url + window.encodeURIComponent (url), oncomplete = oncomplete)
+            else:
+                ajax.get (url, oncomplete = oncomplete)
         window.req_search = req_search
         window.req_user = req_user
         window.req_video = req_video
