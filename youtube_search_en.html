@@ -104,7 +104,9 @@
             player_url = "https://www.youtube-nocookie.com/embed/%v?rel=0&playlist=%p&loop=1&modestbranding=1"
         cors_url = document.query.getvalue ("cors_url")
         if not cors_url:
-            cors_url = "https://corsproxy.io/?"
+            cors_url = "https://corsproxy.io/?" # Default CORS proxy
+        elif cors_url == "none":
+            cors_url = ""
         global playlist
         playlist = []
         player_persist = False if document.query.getvalue ("player_persist") else True
