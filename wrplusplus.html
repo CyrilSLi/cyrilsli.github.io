@@ -40,7 +40,7 @@
         }
         h1 {
             font-family: Arial, sans-serif;
-            font-size: 36px;
+            font-size: 28px;
             font-weight: bold;
             margin: 0px 20px;
         }
@@ -88,58 +88,57 @@
     </noscript>
     <script type = "text/python">
         from browser import document, ajax, html, window
-        global ac_cache
+        global ac_cache, dict_lang
+        dict_lang = document.query.getvalue ("dict")
+        if not dict_lang:
+            document ["start"].textContent = "Please select a dictionary using the 'dict' query parameter (e.g. 'dict=enfr')." # Replace with a more user-friendly message
+            raise SystemExit
         ac_cache = {}
-        def rfind (text, values, end = False):
+        def rfind (text, values, start = True, end = False):
             pointer = 0
             for j in values [ : -1]:
                 pointer += text [pointer : ].find (j)
                 if pointer == -1:
                     return "N/A"
-            return text [pointer : pointer + text [pointer : ].find (values [-1]) + (len (values [-1]) if end else 0)]
+            return text [pointer + (0 if start else len (values [-2])) : pointer + text [pointer : ].find (values [-1]) + (len (values [-1]) if end else 0)]
         def resize_page ():
             document ["page"].attrs ["style"] = f"height: {document ['page'].contentDocument.documentElement.scrollHeight + 1}px;"
         def complete_dict (res):
             document ["results"].clear ()
-            lang = rfind (res.text, ["<title>", "</title>"])
-            if (lang.find ("Dictionary") > -1 and document ["lang"].textContent == "Français") or (lang.find ("Dictionnaire") > -1 and document ["lang"].textContent == "English"):
-                sw_lang ()
-            else:
-                document ["search"].focus ()
+            sw_lang (rfind (res.text, ["wrserver.ddict", '"dict": "', '",'], start = False))
             page_doc = "<!DOCTYPE html><html><head>"
-            page_doc += rfind (res.text, ["<style", "</style>"], True)
+            page_doc += rfind (res.text, ["<style", "</style>"], end = True)
             page_doc += "</head><body>"
             page_doc += rfind (res.text, ["<div id='articleWRD'>", "<div id='collinsdiv'>"])
             page_doc += "</body></html>"
-            document ["results"] <= html.H1 (f'{"Results for " if document ["lang"].textContent == "English" else "Résultats pour "}"{document ["search"].value}"')
+            document ["results"] <= html.H1 (rfind (res.text, ["<title>", "</title>"], start = False))
             document ["results"] <= html.IFRAME (srcdoc = page_doc, id = "page", frameBorder = "0", onload = "resize_page ()")
             document ["search"].value = ""
             document ["page"].contentWindow.addEventListener ("keydown", arrow_nav)
             autocomplete ()
-        def complete_conj (res):
+        def complete_conj (res): # Not yet implemented
             document ["results"].clear ()
             page_doc = '<!DOCTYPE html><html><head><link rel="stylesheet" href="https://www.wordreference.com/css/WRredesign.min.css"></head><body>'
             page_doc += rfind (res.text, ["<div class='content'>", "<script>"])
             page_doc += "</body></html>"
             document ["results"] <= html.IFRAME (srcdoc = page_doc, id = "page", frameBorder = "0", style = "width: 100dvh;", onload = "resize_page ()")
-        def sw_lang ():
-            if document ["lang"].textContent == "English":
-                document ["lang"].textContent = "Français"
-                document ["search"].placeholder = "Taper un mot..."
-                document ["enter"].textContent = "Recherche"
+        def sw_lang (lang = None):
+            global dict_lang
+            if lang:
+                dict_lang = lang
             else:
-                document ["lang"].textContent = "English"
-                document ["search"].placeholder = "Type a word..."
-                document ["enter"].textContent = "Search"
+                dict_lang = dict_lang [2 : ] + dict_lang [ : 2]
+            document ["lang"].textContent = dict_lang
             document ["search"].focus ()
             autocomplete ()
         def req_search ():
+            global dict_lang
             if document ["search"].value:
-                ajax.get (f'https://www.wordreference.com/{"enfr" if document ["lang"].textContent == "English" else "fren"}/{document ["search"].value}', oncomplete = complete_dict)
+                ajax.get (f'https://www.wordreference.com/{dict_lang}/{document ["search"].value}', oncomplete = complete_dict)
             else:
                 sw_lang ()
         def autocomplete (word = None):
-            global lastac, ac_cache, cache_key
+            global lastac, ac_cache, cache_key, dict_lang
             window.event.preventDefault ()
             if word:
                 document ["search"].focus ()
@@ -149,8 +148,7 @@
                 if "aclist" not in document:
                     document.body.insertBefore (html.SPAN (id = "aclist"), document ["results"])
                 document ["aclist"].clear ()
-                aclang = "enfr" if document ["lang"].textContent == "English" else "fren"
-                cache_key = f'{aclang}_{document ["search"].value}'
+                cache_key = f'{dict_lang}_{document ["search"].value}'
                 if cache_key not in ac_cache or not ac_cache [cache_key]:
                     for i in range (1, len (document ["search"].value)):
                         if cache_key [ : -i] in ac_cache:
@@ -158,14 +156,14 @@
                             if not document ["aclist"].innerHTML:
                                 document ["aclist"].innerHTML = '<p style = "display: inline; margin: 5px;"> </p>'
                             break
-                    ajax.get (f'https://www.wordreference.com/autocomplete?dict={aclang}&query={document ["search"].value}&', oncomplete = ac_comp)
+                    ajax.get (f'https://www.wordreference.com/autocomplete?dict={dict_lang}&query={document ["search"].value}&', oncomplete = ac_comp)
                 else:
                     ac_comp (None, True)
                 lastac = "ac0"
             elif "aclist" in document:
                 del document ["aclist"]  
         def ac_comp (res, cache = False):
-            global ac_cache, cache_key
+            global ac_cache, cache_key, dict_lang
             try:
                 document ["aclist"].clear ()
             except KeyError:
@@ -174,7 +172,7 @@
                 words, count = [], 0
                 for i in (i.split ("\t") for i in res.text.split ("\n")):
                     try:
-                        if (i [1] == "en" and document ["lang"].textContent == "English") or (i [1] == "fr" and document ["lang"].textContent == "Français"):
+                        if i [1] == dict_lang [ : 2]:
                             words.append (i [0])
                             count += 1
                         else:
@@ -184,7 +182,7 @@
                 if count:
                     ac_cache [cache_key] = tuple (words)
                 else:
-                    ac_cache [cache_key] = [document ["search"].value]
+                    ac_cache [cache_key] = (document ["search"].value, )
             try:
                 document ["aclist"].innerHTML = "".join ((f'<a id = "ac{i}" href = "javascript:void (0);" onclick = "autocomplete (\'{j}\')"><p style = "display: inline; margin: 5px;">{j}</p></a>' for i, j in enumerate (ac_cache [cache_key])))
                 if not document ["search"].value:
@@ -224,9 +222,9 @@
         window.req_search = req_search
         window.sw_lang = sw_lang
         window.autocomplete = autocomplete
-        document ["request"] <= html.BUTTON ("English", id = "lang", type = "reset", onclick = "sw_lang ();")
-        document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Type a word...", oninput = "autocomplete ();", autofocus = "autofocus")
-        document ["request"] <= html.BUTTON ("Search", id = "enter", type = "submit")
+        document ["request"] <= html.BUTTON (dict_lang, id = "lang", type = "reset", onclick = "sw_lang ();")
+        document ["request"] <= html.INPUT (type = "text", id = "search", oninput = "autocomplete ();", autofocus = "autofocus")
+        document ["request"] <= html.BUTTON ("Search", id = "enter", type = "submit") # Replace "Search" with language-neutral equivalent (e.g. a magnifying glass)
         document ["results"].clear ()
     </script>
     <form action = "javascript:void (0);" id = "request" onsubmit = "req_search ();" autocomplete = "off"></form>
