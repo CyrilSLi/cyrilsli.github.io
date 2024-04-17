@@ -91,7 +91,7 @@
         from browser import document, ajax, html, window
         from urllib import parse
         from random import shuffle
-        global playlist, cors_url
+        global playlist, cors_url, player_pwd
         document ["settings"].attrs ["hidden"] = "hidden"
         def rfind (text, values, end = "}"):
             pointer = 0
@@ -106,7 +106,7 @@
         cors_url = document.query.getvalue ("cors_url")
         if not cors_url:
             cors_url = "https://corsproxy.io/?" # Default CORS proxy
-        playlist = []
+        playlist, player_pwd = [], ""
         player_persist = False if document.query.getvalue ("player_persist") else True
         show_id = False if document.query.getvalue ("show_id") else True
         def complete (res):
@@ -207,16 +207,19 @@
                         listindex, frame_url = player_url.find ("%p") + 9, document ["frame"].src
                         document ["search"].value = "ytpid:" + frame_url [listindex : max (0, frame_url.find ("&", listindex))]        
         def hide_show ():
-            if document ["frame"].attrs ["height"] == "0px":
+            global player_pwd
+            if document ["visibility"].textContent == "Hide":
+                document ["frame"].attrs ["height"] = "0px"
+                document ["player"].attrs ["style"] = ""
+                document ["vidops"].attrs ["style"] = "margin: 0px 10px;"
+                document ["visibility"].textContent = "Show"
+            elif not player_pwd or player_pwd == window.prompt ("Enter player password:"):
                 document ["frame"].attrs ["height"] = "100%"
                 document ["player"].attrs ["style"] = "height: 100vh; height: 100dvh;"
                 document ["vidops"].attrs ["style"] = "margin: 20px 10px 0px;"
                 document ["visibility"].textContent = "Hide"
             else:
-                document ["frame"].attrs ["height"] = "0px"
-                document ["player"].attrs ["style"] = ""
-                document ["vidops"].attrs ["style"] = "margin: 0px 10px;"
-                document ["visibility"].textContent = "Show"
+                window.alert ("Password incorrect.")
         def list_change (change = True):
             if "change" in document:
                 vid_id = document ["frame"].src [player_url.find ("%v") : player_url.find ("%v") + 11]
@@ -297,6 +300,16 @@
                 ajax.get (cors_url + window.encodeURIComponent (url), oncomplete = oncomplete)
             else:
                 ajax.get (url, oncomplete = oncomplete)
+        def set_pwd ():
+            global player_pwd
+            if not player_pwd or player_pwd == window.prompt ("Enter the current password:"):
+                player_pwd = window.prompt ("Enter a new password (leave blank to remove):")
+                if player_pwd:
+                    document ["setpwd"].textContent = "Change"
+                else:
+                    document ["setpwd"].textContent = "Set"
+            else:
+                window.alert ("Password incorrect.")
         window.req_search = req_search
         window.req_user = req_user
         window.req_video = req_video
@@ -309,6 +322,7 @@
         window.list_swap = list_swap
         window.list_op = list_op
         window.check_empty = check_empty
+        window.set_pwd = set_pwd
         document ["request"] <= html.BUTTON ("Home", type = "reset", onclick = "req_search (true);")
         document ["request"] <= html.INPUT (type = "text", id = "search", placeholder = "Search YouTube", autofocus = "autofocus", oninput = "check_empty ();")
         document ["request"] <= html.BUTTON ("Settings", id = "enter", type = "submit")
@@ -323,7 +337,7 @@
     </script>
     <div hidden id = "settings">
         <h1>Settings</h1>
-        <h2>Subtitle</h2>
+        <h2>Player Password<button id = "setpwd" style = "margin: 0px 0px 0px 20px;" onclick = "set_pwd ();">Set</button></h2>
         <p>Text</p>
     </div>
 </body>
