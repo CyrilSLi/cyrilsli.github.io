@@ -239,6 +239,7 @@
             if player_pwd and player_pwd != window.prompt ("Enter player password:"):
                 window.alert ("Password incorrect.")
                 return
+            document ["settings"].attrs ["hidden"] = "hidden"
             list_change (False)
             document ["results"].innerHTML = f"""
                 <h1>Managing Playlist</h1>
