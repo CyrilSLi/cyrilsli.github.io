@@ -103,25 +103,24 @@
             return text [pointer + (0 if start else len (values [-2])) : pointer + text [pointer : ].find (values [-1]) + (len (values [-1]) if end else 0)]
         def resize_page ():
             document ["page"].attrs ["style"] = f"height: {document ['page'].contentDocument.documentElement.scrollHeight + 1}px;"
-        def complete_dict (res):
+        def complete (res, type):
             document ["results"].clear ()
-            sw_lang (rfind (res.text, ["wrserver.ddict", '"dict": "', '",'], start = False))
-            page_doc = "<!DOCTYPE html><html><head>"
-            page_doc += rfind (res.text, ["<style", "</style>"], end = True)
-            page_doc += "</head><body>"
-            page_doc += rfind (res.text, ["<div id='articleWRD'>", "<div id='collinsdiv'>"])
-            page_doc += "</body></html>"
+            if type == "dict":
+                sw_lang (rfind (res.text, ["wrserver.ddict", '"dict": "', '",'], start = False))
+                page_doc = "<!DOCTYPE html><html><head>"
+                page_doc += rfind (res.text, ["<style", "</style>"], end = True)
+                page_doc += "</head><body>"
+                page_doc += rfind (res.text, ["<div id='articleWRD'>", "<div id='collinsdiv'>"])
+                page_doc += "</body></html>"
+            elif type == "conj":
+                page_doc = '<!DOCTYPE html><html><head><link rel="stylesheet" type="text/css" href="https://www.wordreference.com/css/main.min.css"><link rel="stylesheet" type="text/css" href="https://www.wordreference.com/css/WRredesign.min.css"></head><body>'
+                page_doc += rfind (res.text, ["<div class='content'>", "<script>"])
+                page_doc += "</body></html>"
             document ["results"] <= html.H1 (rfind (res.text, ["<title>", "</title>"], start = False))
             document ["results"] <= html.IFRAME (srcdoc = page_doc, id = "page", frameBorder = "0", onload = "resize_page ()")
             document ["search"].value = ""
             document ["page"].contentWindow.addEventListener ("keydown", arrow_nav)
             autocomplete ()
-        def complete_conj (res): # Not yet implemented
-            document ["results"].clear ()
-            page_doc = '<!DOCTYPE html><html><head><link rel="stylesheet" href="https://www.wordreference.com/css/WRredesign.min.css"></head><body>'
-            page_doc += rfind (res.text, ["<div class='content'>", "<script>"])
-            page_doc += "</body></html>"
-            document ["results"] <= html.IFRAME (srcdoc = page_doc, id = "page", frameBorder = "0", style = "width: 100dvh;", onload = "resize_page ()")
         def sw_lang (lang = None):
             global dict_lang
             if lang:
@@ -134,13 +133,17 @@
         def req_search ():
             global dict_lang
             if document ["search"].value:
-                if dict_lang == "enes": # Special cases for English - Spanish
-                    url = f'https://www.wordreference.com/es/translation.asp?tranword={document ["search"].value}'
-                elif dict_lang == "esen":
-                    url = f'https://www.wordreference.com/es/en/translation.asp?spen={document ["search"].value}'
+                if dict_lang.endswith ("conj"):
+                    url = f'https://www.wordreference.com/conj/{dict_lang [ : 2]}verbs.aspx?v={document ["search"].value}'
+                    ajax.get (url, oncomplete = lambda res: complete (res, "conj"), cache = True)
                 else:
-                    url = f'https://www.wordreference.com/{dict_lang}/{document ["search"].value}'
-                ajax.get (url, oncomplete = complete_dict, cache = True)
+                    if dict_lang == "enes": # Special cases for English - Spanish
+                        url = f'https://www.wordreference.com/es/translation.asp?tranword={document ["search"].value}'
+                    elif dict_lang == "esen":
+                        url = f'https://www.wordreference.com/es/en/translation.asp?spen={document ["search"].value}'
+                    else:
+                        url = f'https://www.wordreference.com/{dict_lang}/{document ["search"].value}'
+                    ajax.get (url, oncomplete = lambda res: complete (res, "dict"), cache = True)
             else:
                 sw_lang ()
         def autocomplete (word = None):
@@ -162,7 +165,7 @@
                             if not document ["aclist"].innerHTML:
                                 document ["aclist"].innerHTML = '<p style = "display: inline; margin: 5px;"> </p>'
                             break
-                    ajax.get (f'https://www.wordreference.com/autocomplete?dict={dict_lang}&query={document ["search"].value}', oncomplete = ac_comp, cache = True)
+                    ajax.get (f'https://www.wordreference.com/autocomplete?dict={dict_lang}&query={document ["search"].value}' + (f'&conj={dict_lang [ : 2]}' if dict_lang.endswith ("conj") else ""), oncomplete = ac_comp, cache = True)
                 else:
                     ac_comp (None, True)
                 lastac = "ac0"
@@ -178,7 +181,7 @@
                 words, count = [], 0
                 for i in (i.split ("\t") for i in res.text.split ("\n")):
                     try:
-                        if i [1] == dict_lang [ : 2]:
+                        if i [1] == dict_lang [ : 2] and (not dict_lang.endswith ("conj") or i [3] == "1"):
                             words.append (i [0])
                             count += 1
                         else:
