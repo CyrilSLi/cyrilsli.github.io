@@ -106,7 +106,7 @@
         def complete (res, type):
             document ["results"].clear ()
             if type == "dict":
-                sw_lang (rfind (res.text, ["wrserver.ddict", '"dict": "', '",'], start = False))
+                sw_lang (rfind (res.text, ["wrserver", "ddict", '"dict": "', '",'], start = False))
                 page_doc = "<!DOCTYPE html><html><head>"
                 page_doc += rfind (res.text, ["<style", "</style>"], end = True)
                 page_doc += "</head><body>"
