@@ -123,7 +123,9 @@
             autocomplete ()
         def sw_lang (lang = None):
             global dict_lang
-            if lang:
+            if lang == "N/A":
+                return
+            elif lang:
                 dict_lang = lang
             elif len (dict_lang) == 4:
                 dict_lang = dict_lang [2 : ] + dict_lang [ : 2]
@@ -193,7 +195,7 @@
                 else:
                     ac_cache [cache_key] = (document ["search"].value, )
             try:
-                document ["aclist"].innerHTML = "".join ((f'<a id = "ac{i}" href = "javascript:void (0);" onclick = "autocomplete (\'{j}\')"><p style = "display: inline; margin: 5px;">{j}</p></a>' for i, j in enumerate (ac_cache [cache_key])))
+                document ["aclist"].innerHTML = "".join ((f'<a id = "ac{i}" href = "javascript:void (0);" onclick = "autocomplete (&quot;{j.replace ("\'", "&apos;")}&quot;);"><p style = "display: inline; margin: 5px;">{j}</p></a>' for i, j in enumerate (ac_cache [cache_key])))
                 if not document ["search"].value:
                     del document ["aclist"]
             except KeyError:
