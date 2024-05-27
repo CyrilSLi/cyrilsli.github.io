@@ -82,7 +82,7 @@
         }
     </style>
 </head>
-<body onload = "brython (0)" onresize = "resize_page ()">
+<body onload = "brython (0)">
     <noscript>
         <p>JavaScript is required to use this website.</p>
     </noscript>
@@ -101,8 +101,8 @@
                 if pointer == -1:
                     return "N/A"
             return text [pointer + (0 if start else len (values [-2])) : pointer + text [pointer : ].find (values [-1]) + (len (values [-1]) if end else 0)]
-        def resize_page ():
-            document ["page"].attrs ["style"] = f"height: {document ['page'].contentDocument.documentElement.scrollHeight + 1}px;"
+        def resize_page (_ = None):
+            document ["page"].attrs ["style"] = f"height: {document ['page'].contentDocument.documentElement.offsetHeight + 1}px;"
         def complete (res, type):
             document ["results"].clear ()
             if type == "dict":
@@ -117,9 +117,10 @@
                 page_doc += rfind (res.text, ["<div class='content'>", "<script>"])
                 page_doc += "</body></html>"
             document ["results"] <= html.H1 (rfind (res.text, ["<title>", "</title>"], start = False))
-            document ["results"] <= html.IFRAME (srcdoc = page_doc, id = "page", frameBorder = "0", onload = "resize_page ()")
+            document ["results"] <= html.IFRAME (srcdoc = page_doc, id = "page", frameBorder = "0", onload = "resize_page ()", sandbox = "allow-same-origin", scrolling = "no")
             document ["search"].value = ""
             document ["page"].contentWindow.addEventListener ("keydown", arrow_nav)
+            document ["page"].contentWindow.addEventListener ("resize", resize_page)
             autocomplete ()
         def sw_lang (lang = None):
             global dict_lang
