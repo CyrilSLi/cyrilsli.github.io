@@ -14,6 +14,10 @@
             font-size: 20px;
             margin: 20px;
         }
+        p.actext {
+            display: inline;
+            margin: 5px;
+        }
         h2 {
             font-family: Arial, sans-serif;
             font-size: 28px;
@@ -164,10 +168,10 @@
                 if cache_key not in ac_cache or not ac_cache [cache_key]:
                     for i in range (1, len (document ["search"].value)):
                         if cache_key [ : -i] in ac_cache:
-                            document ["aclist"].innerHTML = "".join ((f'<a id = "ac{i}" href = "javascript:void (0);" onclick = "autocomplete (\'{j}\')"><p style = "display: inline; margin: 5px;">{j}</p></a>' for i, j in enumerate ((k for k in ac_cache [cache_key [ : -i]] if k.startswith (document ["search"].value)))))
-                            if not document ["aclist"].innerHTML:
-                                document ["aclist"].innerHTML = '<p style = "display: inline; margin: 5px;"> </p>'
+                            document ["aclist"].innerHTML = "".join ((f'<a id = "ac{i}" href = "javascript:void (0);" onclick = "autocomplete (\'{j}\')"><p class = "actext">{j}</p></a>' for i, j in enumerate ((k for k in ac_cache [cache_key [ : -i]] if k.startswith (document ["search"].value)))))
                             break
+                    if not document ["aclist"].innerHTML:
+                        document ["aclist"].innerHTML = '<a><p class = "actext">&#x200b;</p></a>'
                     ajax.get (f'https://www.wordreference.com/autocomplete?dict={dict_lang}&query={document ["search"].value}' + (f'&conj={dict_lang [ : 2]}' if dict_lang.endswith ("conj") else ""), oncomplete = ac_comp, cache = True)
                 else:
                     ac_comp (None, True)
@@ -196,7 +200,7 @@
                 else:
                     ac_cache [cache_key] = (document ["search"].value, )
             try:
-                document ["aclist"].innerHTML = "".join ((f'<a id = "ac{i}" href = "javascript:void (0);" onclick = "autocomplete (&quot;{j.replace ("\'", "&apos;")}&quot;);"><p style = "display: inline; margin: 5px;">{j}</p></a>' for i, j in enumerate (ac_cache [cache_key])))
+                document ["aclist"].innerHTML = "".join ((f'<a id = "ac{i}" href = "javascript:void (0);" onclick = "autocomplete (&quot;{j.replace ("\'", "&apos;")}&quot;);"><p class = "actext">{j}</p></a>' for i, j in enumerate (ac_cache [cache_key])))
                 if not document ["search"].value:
                     del document ["aclist"]
             except KeyError:
@@ -210,6 +214,9 @@
                 elif "ac0" in document and ev.key == "ArrowRight" and document ["search"].selectionEnd == len (document ["search"].value):
                     window.event.preventDefault ()
                     document ["ac0"].focus ()
+                elif "ac0" in document and ev.key == "Enter" and ev.shiftKey:
+                    window.event.preventDefault ()
+                    autocomplete (document ["ac0"].textContent)
             elif document.activeElement.id [ : 2] == "ac":
                 if ev.key in ("ArrowLeft", "ArrowRight"):
                     window.event.preventDefault ()
