@@ -137,6 +137,9 @@
             document ["lang"].textContent = dict_lang
             document ["search"].focus ()
             autocomplete ()
+        def sw_dict ():
+            sw_lang (window.prompt ("Enter a dictionary code (e.g. 'enfr'):"))
+            window.history.replaceState (None, None, f'?dict={dict_lang}')
         def req_search ():
             global dict_lang
             if document ["search"].value:
@@ -155,7 +158,6 @@
                 sw_lang ()
         def autocomplete (word = None):
             global lastac, ac_cache, cache_key, dict_lang
-            window.event.preventDefault ()
             if word:
                 document ["search"].focus ()
                 document ["search"].value = word
@@ -214,9 +216,12 @@
                 elif "ac0" in document and ev.key == "ArrowRight" and document ["search"].selectionEnd == len (document ["search"].value):
                     window.event.preventDefault ()
                     document ["ac0"].focus ()
-                elif "ac0" in document and ev.key == "Enter" and ev.shiftKey:
+                elif ev.key == "Enter" and ev.shiftKey:
                     window.event.preventDefault ()
-                    autocomplete (document ["ac0"].textContent)
+                    if "ac0" in document:
+                        autocomplete (document ["ac0"].textContent)
+                    else:
+                        sw_dict ()
             elif document.activeElement.id [ : 2] == "ac":
                 if ev.key in ("ArrowLeft", "ArrowRight"):
                     window.event.preventDefault ()
@@ -236,19 +241,30 @@
             elif ev.key == "Enter":
                 window.event.preventDefault ()
                 document ["search"].focus ()
+        def lang_lp (ev = None):
+            global lp_timer
+            if ev.type == "mousedown":
+                lp_timer = window.setTimeout (sw_dict, 500)
+            elif ev.type == "mouseup":
+                window.clearTimeout (lp_timer)
+                sw_lang ()
+            else:
+                sw_dict ()
         document.bind ("keydown", arrow_nav)
         window.resize_page = resize_page
         window.req_search = req_search
         window.sw_lang = sw_lang
         window.autocomplete = autocomplete
-        document ["request"] <= html.BUTTON (dict_lang, id = "lang", type = "reset", onclick = "sw_lang ();")
+        document ["request"] <= html.BUTTON (dict_lang, id = "lang", type = "reset")
+        document ["lang"].bind ("mousedown", lang_lp)
+        document ["lang"].bind ("mouseup", lang_lp)
         document ["request"] <= html.INPUT (type = "text", id = "search", oninput = "autocomplete ();", autofocus = "autofocus")
         document ["request"] <= html.BUTTON ("Search", id = "enter", type = "submit") # Replace "Search" with language-neutral equivalent (e.g. a magnifying glass)
         document ["results"].clear ()
     </script>
     <form action = "javascript:void (0);" id = "request" onsubmit = "req_search ();" autocomplete = "off"></form>
     <script>
-        document.body.insertAdjacentHTML ("beforeend", `<div id = "results"><p id = "start">Starting Brython...</p></div>`)
+        document.body.insertAdjacentHTML ("beforeend", '<div id = "results"><p id = "start">Starting Brython...</p></div>')
     </script>
 </body>
 </html>
