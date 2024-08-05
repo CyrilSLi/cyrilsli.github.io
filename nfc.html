@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <title>WR++</title>
+    <meta charset = "utf-8">
+    <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.min.js"></script>
+    <style>
+        html, body {
+            margin: 0px;
+        }
+        p {
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body onload = "brython (0)">
+    <noscript>
+        <p>JavaScript is required to use this website.</p>
+    </noscript>
+    <script type = "text/python">
+        from browser import document, html
+
+        document.clear ()
+        tag_id = document.query.getvalue ("tid")
+
+        match tag_id:
+            case "beyondthebeat0":
+                document <= html.P ("The NFC tag is successfully read! This page is under construction.")
+    </script>
+    <script>
+        document.body.insertAdjacentHTML ("beforeend", '<p>Starting Brython...</p>')
+    </script>
+</body>
+</html>
