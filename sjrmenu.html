@@ -17,7 +17,7 @@
         p {
             font-size: 24px;
             margin: 20px 20px 20px 60px;
-            line-height: 1.5;
+            line-height: 1;
         }
         #start {
             margin: 20px;
@@ -43,6 +43,17 @@
             margin: 20px;
             font-weight: normal;
         }
+        mark {
+            color: #008000;
+            background-color: #ffffff;
+            font-weight: bold;
+        }
+        label {
+            margin: 20px 10px 20px 0px;
+        }
+        div {
+            margin: 0px;
+        }
     </style>
 </head>
 <body onload = "brython (0)">
@@ -52,6 +63,26 @@
     <script type = "text/python">
         from browser import document, ajax, html, window
         from datetime import datetime as d
+
+        # (Brunch, Soup, Salad, Deli, Hot Entrée, Vegetarian Entrée, Hydration Station) for each day
+        keys = (
+            "Monday Brunch", "Tuesday Brunch", "WednesdayBrunch", "Thursday Brunch", "Friday Brunch",
+            "Monday_Soup", "Tuesday_Soup", "Wednesday_Soup", "Thursday_Soup", "Friday_Soup",
+            "Monday_Salad", "Tuesday_Salad", "Wednesday_Salad", "Thursday_Salad", "Friday_Salad",
+            "Monday_Deli", "Tuesday_Deli", "Wednesday_Deli", "Thursday_Deli", "Friday_Deli",
+            "Monday_Entree", "Tuesday_Entree", "Wednesday_Entree", "Thursday_Entree", "Friday_Entree",
+            "Monday_Veg", "Tuesday_Veg", "Wednesday_Veg", "Thursday_Veg", "Friday_Veg",
+            "Monday_Hyd", "Tuesday_Hyd", "Wednesday_Hyd", "Thursday_Hyd", "Friday_Hyd"
+        )
+        days = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+        items = ("Brunch", "Soup", "Salad", "Deli", "Hot Entrée", "Vegetarian Entrée", "Hydration Station")
+
+        weekday = document.query.getvalue ("weekday")
+        if weekday:
+            weekday = int (weekday) - 1
+        else:
+            weekday = d.now ().weekday ()
+
         def rfind (text, values, end = ")>>"):
             pointer = 0
             for j in values:
@@ -59,37 +90,48 @@
                 if pointer == -1:
                     return "N/A"
             return " • ".join (i for i in text [pointer + len (values [-1]) : pointer + text [pointer : ].find (end)].split ("\\r\\n") if i)
+
         def complete (res):
             document.clear ()
-            document <= html.A (html.H1 ("Menu (Click to Refresh)"), id = "title", href = "javascript:void (0)")
-            document ["title"].bind ("click", fetch_menu)
             pdf = ""
-            days = (("mon", "Monday"), ("tues", "Tuesday"), ("wed", "Wednesday"), ("thurs", "Thursday"), ("fri", "Friday"))
             for i in res.text:
                 if i > 31 and i < 127:
                     pdf += chr (i)
-            pdf = pdf.split ("Widget", 1) [1].split ("WODXNG", 1) [0]
-            weekday = document.query.getvalue ("weekday")
-            if weekday:
-                weekday = int (weekday) - 1
-            else:
-                weekday = d.now ().weekday ()
-            if weekday < 5:
-                document <= html.H2 (f"Today ({days [weekday] [1]})", style = "font-weight: bold;")
-                document <= html.P ("Dining Hall: " + rfind (pdf, ["Dining hall " + days [weekday] [0], "/V("]))
-                document <= html.P ("Mobile Cart: " + rfind (pdf, ["mobile cart " + days [weekday] [0], "/V("]))
-                document <= html.P ("Brunch Menu: " + rfind (pdf, ["box lunch " + days [weekday] [0], "/V("]))
-            for i, j in days:
-                try:
-                    date = window.Date.fromString (rfind (pdf, ['Date ' + i.title (), '/V('])).toUTCString () [5 : 11]
-                except Exception as err:
-                    window.console.log (f"Error parsing {j}'s date: {str (err)}")
-                    date = "Date N/A"
-                document <= html.H2 (f"{j} ({date})")
-                document <= html.P ("Dining Hall: " + rfind (pdf, ["Dining hall " + i, "/V("]))
-                document <= html.P ("Mobile Cart: " + rfind (pdf, ["mobile cart " + i, "/V("]))
-                document <= html.P ("Brunch Menu: " + rfind (pdf, ["box lunch " + i, "/V("]))
-            document <= html.A (html.H2 ("View the menu as a PDF"), href = "https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", target = "_blank")
+            pdf = pdf.split ("</x:xmpmeta>", 1) [1].replace ("\\(", "(").replace ("\\)", ")")
+
+            header = rfind (pdf, ["PageHeader", "/V("])
+            document <= html.A (html.H1 (f"Menu for '{header}' (Click to Refresh)"), id = "title", href = "javascript:void (0)")
+            document ["title"].bind ("click", fetch_menu)
+
+            global values
+            values = tuple (rfind (pdf, [i, "/V("]) for i in keys)
+            window.console.log ("Values: ", values)
+            
+            select = html.P ("<mark>Display: </mark>", style = "margin: 20px;")
+            for j, i in enumerate (items):
+                chkbox = html.INPUT (Type = "checkbox", id = f"{i}_sel", checked = "checked")
+                chkbox.bind ("change", display)
+                select <= chkbox
+                select <= html.LABEL (i, For = f"{i}_sel")
+            document <= select
+
+            display (None)
+
+        def display (ev):
+            global keys, days, items, values, weekday
+            if "menu" in document:
+                del document ["menu"]
+            document <= html.DIV (id = "menu")
+            for j, i in enumerate (days):
+                if weekday == j:
+                    document ["menu"] <= html.H2 (f"Today ({i})", style = "font-weight: bold; color: #008000;")
+                else:
+                    document ["menu"] <= html.H2 (f"{i}")
+                for l, k in enumerate (items):
+                    if document [f"{k}_sel"].checked:
+                        document ["menu"] <= html.P (f"<mark>{k}</mark>: {values [l * len (days) + j]}")
+
+            document ["menu"] <= html.A (html.H2 ("View the menu as a PDF"), href = "https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", target = "_blank")
         def fetch_menu (ev):
             document.clear ()
             document <= html.P ("Fetching Menu...", id = "start")
