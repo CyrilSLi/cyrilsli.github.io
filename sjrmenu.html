@@ -62,7 +62,9 @@
     </noscript>
     <script type = "text/python">
         from browser import document, ajax, html, window
+        from browser.local_storage import storage
         from datetime import datetime as d
+        import json
 
         # (Brunch, Soup, Salad, Deli, Hot Entrée, Vegetarian Entrée, Hydration Station) for each day
         keys = (
@@ -76,6 +78,7 @@
         )
         days = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
         items = ("Brunch", "Soup", "Salad", "Deli", "Hot Entrée", "Vegetarian Entrée", "Hydration Station")
+        VERSION = "2" # Affected by changes in the menu format
 
         weekday = document.query.getvalue ("weekday")
         if weekday:
@@ -108,8 +111,10 @@
             window.console.log ("Values: ", values)
             
             select = html.P ("<mark>Display: </mark>", style = "margin: 20px;")
-            for j, i in enumerate (items):
-                chkbox = html.INPUT (Type = "checkbox", id = f"{i}_sel", checked = "checked")
+            chkbox_list = json.loads (storage ["display_sel"]) if "display_sel" in storage and storage ["version"] == VERSION else None
+            check = lambda b: chkbox_list [b] if chkbox_list is not None else "checked"
+            for i in items:
+                chkbox = html.INPUT (Type = "checkbox", id = f"{i}_sel", checked = check (i))
                 chkbox.bind ("change", display)
                 select <= chkbox
                 select <= html.LABEL (i, For = f"{i}_sel")
@@ -119,6 +124,10 @@
 
         def display (ev):
             global keys, days, items, values, weekday
+            if "version" not in storage or storage ["version"] != VERSION:
+                storage.clear ()
+                storage ["version"] = VERSION
+
             if "menu" in document:
                 del document ["menu"]
             document <= html.DIV (id = "menu")
@@ -127,9 +136,13 @@
                     document ["menu"] <= html.H2 (f"Today ({i})", style = "font-weight: bold; color: #008000;")
                 else:
                     document ["menu"] <= html.H2 (f"{i}")
+
+                chkbox_list = {}
                 for l, k in enumerate (items):
                     if document [f"{k}_sel"].checked:
                         document ["menu"] <= html.P (f"<mark>{k}</mark>: {values [l * len (days) + j]}")
+                    chkbox_list [k] = document [f"{k}_sel"].checked
+                storage ["display_sel"] = json.dumps (chkbox_list)
 
             document ["menu"] <= html.A (html.H2 ("View the menu as a PDF"), href = "https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", target = "_blank")
         def fetch_menu (ev):
