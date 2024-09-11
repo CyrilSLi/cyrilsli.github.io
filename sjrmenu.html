@@ -80,12 +80,6 @@
         items = ("Brunch", "Soup", "Salad", "Deli", "Hot Entrée", "Vegetarian Entrée", "Hydration Station")
         VERSION = "2" # Affected by changes in the menu format
 
-        weekday = document.query.getvalue ("weekday")
-        if weekday:
-            weekday = int (weekday) - 1
-        else:
-            weekday = d.now ().weekday ()
-
         def rfind (text, values, end = ")>>"):
             pointer = 0
             for j in values:
@@ -146,6 +140,13 @@
 
             document ["menu"] <= html.A (html.H2 ("View the menu as a PDF"), href = "https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", target = "_blank")
         def fetch_menu (ev):
+            global weekday
+            weekday = document.query.getvalue ("weekday")
+            if weekday:
+                weekday = int (weekday) - 1
+            else:
+                weekday = d.now ().weekday ()
+
             document.clear ()
             document <= html.P ("Fetching Menu...", id = "start")
             ajax.get ("https://api.codetabs.com/v1/proxy?quest=https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", mode = "binary", oncomplete = complete)
