@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <title>Ride the Whole Line</title>
+    <meta charset = "utf-8">
+    <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/@leeoniya/ufuzzy@1.0.14/dist/uFuzzy.iife.min.js"></script>
+    <style>
+        html, body {
+            margin: 0px;
+        }
+        #site {
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+        #map {
+            flex: 1;
+        }
+        p {
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            margin: 20px;
+        }
+        h2 {
+            font-family: Arial, sans-serif;
+            font-size: 28px;
+            text-decoration: none;
+            font-weight: normal;
+            margin: 20px;
+        }
+        #load, #start {
+            margin: 0px 20px 20px;
+        }
+        h1 {
+            font-family: Arial, sans-serif;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0px 20px 20px;
+        }
+    </style>
+</head>
+<body onload = "brython (0)">
+    <noscript>
+        <p>JavaScript is required to use this website.</p>
+    </noscript>
+    <script type = "text/python">
+        from browser import document, ajax, html, window
+
+        required_files = ("agency.txt", "stops.txt", "routes.txt", "trips.txt", "stop_times.txt")
+        uf = window.uFuzzy.new ()
+        window.uf = uf # for debugging
+
+        def load_gtfs (ev):
+            if not document ["gtfs"].files:
+                return
+            files = tuple (document ["gtfs"].files)
+            filenames = tuple (i.name for i in files)
+            for i in required_files:
+                if i not in filenames:
+                    window.alert (f"Missing file '{i}'. All required files: {', '.join (required_files)}.")
+                    return
+            print ("Loading GTFS files")
+        
+        L, Map = window.L, window.map
+        test = L.marker ([51.5, -0.09]).addTo (Map)
+        test.bindPopup ("A pretty CSS3 popup.<br> Easily customizable.")
+
+        document ["gtfs"].bind ("change", load_gtfs)
+        
+    </script>
+    <div id = "site">
+        <input type="file" id="gtfs" webkitdirectory directory multiple />
+        <div id = "map"></div>
+    </div>
+    <script>
+        var map = L.map ("map").setView ([51.505, -0.09], 13);
+        L.tileLayer ("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution: "&copy; <a href = 'https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+        }).addTo (map);
+    </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>GPX Visualizer</title>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/maptalks/dist/maptalks.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gpxparser/dist/GPXParser.min.js"></script>
+    <style>
+        html, body, div, span {
+            margin: 0px;
+        }
+        #site {
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+        #map {
+            flex: 1;
+        }
+        p:not(.maptalks-layer-switcher, .maptalks-layer-switcher *), input:not(.maptalks-layer-switcher, .maptalks-layer-switcher *) {
+            display: inline;
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            margin: 5px;
+            padding: 5px;
+            border-radius: 0px;
+            text-decoration: none;
+            font-weight: normal;
+            background-color: #f8f8f8;
+            color: black;
+            -webkit-appearance: none;
+            border: 1px solid black;
+        }
+        h2 {
+            font-family: Arial, sans-serif;
+            font-size: 28px;
+            text-decoration: none;
+            font-weight: normal;
+            margin: 20px;
+        }
+        h1 {
+            font-family: Arial, sans-serif;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0px 20px 20px;
+        }
+    </style>
+</head>
+<body onload="brython (0)">
+    <noscript>
+        <p>JavaScript is required to use this website.</p>
+    </noscript>
+    <script>
+        window.gpxParser = gpxParser
+    </script>
+    <script type = "text/python">
+        from browser import document, ajax, html, window, timer
+
+        mt = window.maptalks
+
+        Map = mt.Map.new ("map", {
+            "center": [0, 0],
+            "zoom": 2,
+            "maxZoom": 19,
+            "seamlessZoom": True,
+            "attribution": {
+                "content": "&copy; <a href = 'https://esri.com'>esri</a> | <a href='https://carto.com/'>CARTO</a> | <a href = 'https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+            },
+            "layerSwitcherControl": {
+                "position": "top-right",
+                "baseTitle": "Base Layers",
+                "overlayTitle": "Layers",
+                "excludeLayers": [],
+            },
+            "baseLayer": mt.GroupTileLayer.new ("Base", [
+                mt.TileLayer.new ("OSM Standard", {
+                    "urlTemplate": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    "maxZoom": 19
+                }),
+                mt.TileLayer.new ("ESRI Satellite", {
+                    "visible": False,
+                    "urlTemplate": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                    "maxZoom": 19
+                }),
+                mt.TileLayer.new ("Carto Light", {
+                    "visible": False,
+                    "urlTemplate": "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+                    "subdomains": ["a", "b", "c", "d"],
+                    "maxZoom": 22
+                }),
+                mt.TileLayer.new ("Carto Dark", {
+                    "visible": False,
+                    "urlTemplate": "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+                    "subdomains": ["a", "b", "c", "d"],
+                    "maxZoom": 22
+                }),
+                mt.TileLayer.new ("Carto Voyager", {
+                    "visible": False,
+                    "urlTemplate": "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
+                    "subdomains": ["a", "b", "c", "d"],
+                    "maxZoom": 22
+                })
+            ])
+        })
+        gpx_layer = mt.VectorLayer.new ("GPX Track", None).addTo (Map)
+        preview = None
+
+        def interactive (toggle):
+            Map.setOptions ({
+                "draggable": toggle,
+                "dragPan": toggle,
+                "dragRotate": toggle,
+                "dragPitch": toggle,
+                "scrollWheelZoom": toggle,
+                "touchZoom": toggle,
+                "doubleClickZoom": toggle
+            })
+
+        def load_gpx (ev):
+            if not document ["gpx"].files:
+                return
+            reader = window.FileReader.new ()
+            reader.bind ("load", lambda ev: process_gpx (ev.target.result))
+            reader.readAsText (document ["gpx"].files [0])
+
+        def process_gpx (gpx_file):
+            global preview, gpx_layer, Map
+            gpx = window.gpxParser.new ()
+            gpx.parse (gpx_file)
+            if len (gpx.tracks) == 0:
+                window.alert ("No tracks found in the GPX file.")
+                document ["gpx"].value = ""
+            elif len (gpx.tracks) > 1:
+                window.alert ("Multiple tracks found in the GPX file. Only the first track will be displayed.")
+
+            preview = mt.LineString.new (tuple ((i.lon, i.lat) for i in gpx.tracks [0].points), {
+                "visible": True,
+                "editable": False,
+                "draggable": False,
+                "interactive": False,
+                "symbol": {
+                    "lineColor": "#0000FF",
+                    "lineWidth": 5
+                }
+            })
+
+            interactive (False)
+            temp = dict (Map.getView ())
+            preview.addTo (gpx_layer, True)
+            preview_view = dict (Map.getView ())
+            Map.setView (temp)
+            gpx_layer.clear ()
+            zoomout = 0
+            if temp ["zoom"] > 2:
+                zoomout = 1500
+                temp.update ({"zoom": 2})
+                Map.animateTo (temp, {"duration": 1500, "easing": "inAndOut"})
+            temp.update ({"center": preview_view ["center"]})
+            timer.set_timeout (lambda: Map.animateTo (temp, {"duration": 1000, "easing": "inAndOut"}), zoomout)
+            timer.set_timeout (lambda: Map.animateTo (preview_view, {"duration": 1500, "easing": "inAndOut"}), 1000 + zoomout)
+            timer.set_timeout (lambda: interactive (True), 2500 + zoomout)
+            timer.set_timeout (lambda: preview.addTo (gpx_layer, True), 2500 + zoomout)
+
+        document ["gpx"].bind ("change", load_gpx)
+
+        def animate (ev):
+            global preview
+            interactive (False)
+            if preview is None:
+                window.alert ("No GPX file loaded.")
+                return
+            preview.remove ()
+
+            preview.addTo (gpx_layer, True)
+            interactive (True)
+        
+        document ["animate"].bind ("click", animate)
+        
+    </script>
+    <div id="site">
+        <span>
+            <input type="file" id="gpx" accept=".gpx" />
+            <input type="button" id="animate" value="Animate!" />
+        </span>
+        <div id="map"></div>
+    </div>
+</body>
+</html>
