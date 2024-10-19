@@ -13,6 +13,7 @@
             font-family: Arial, sans-serif;
             font-size: 20px;
             margin: 20px;
+            line-height: normal;
         }
         p.actext {
             display: inline;
@@ -95,7 +96,27 @@
         global ac_cache, dict_lang
         dict_lang = document.query.getvalue ("dict")
         if not dict_lang:
-            document ["start"].textContent = "Please select a dictionary using the 'dict' query parameter (e.g. 'dict=enfr')." # Replace with a more user-friendly message
+            document ["results"].clear ()
+            document ["results"].innerHTML = """
+                <h1>Welcome to WR++!</h1>
+                <p style = "line-height: 1.25;">
+                This is a front-end to <a href = "https://www.wordreference.com">WordReference.com</a> online dictionaries with improved search, autocomplete, and navigation features.
+                <br><br>To get started, please select a dictionary using the 'dict' query parameter (e.g. <a href = "?dict=enfr">dict=enfr</a>).
+                <br><br>The following parameters are supported:
+                <br>&emsp;- A four-letter string consisting of two language codes (<a href = "https://www.wordreference.com/virtual_dictionaries.html">these options</a> are available along with 'en' for English)
+                <br>&emsp;- One language code followed by 'conj' (e.g. 'frconj' for French conjugations)
+                <br><br>The entire site is easily navigable using only the keyboard. The keyboard shortcuts are as follows:
+                <br>&emsp;- Enter: Focus on the search bar, search, swap languages (e.g. 'enfr' to 'fren') if search bar is empty
+                <br>&emsp;- Shift + Enter: Search for the first autocomplete suggestion, change dictionary if the search bar is empty
+                <br>&emsp;- Up & Down Arrows: Navigate between the search bar and autocomplete list
+                <br>&emsp;- Left & Right Arrows: Navigate between autocomplete suggestions
+                <br>&emsp;- Right Arrow: Focus on the first autocomplete suggestion if at the right edge of the search bar
+                <br>&emsp;- '1' to '9': While focused on the autocomplete list, search for the corresponding suggestion
+                <br><br>If the search word is only found in the other language, the dictionary will automatically switch to that language.
+                <br><br>Autocomplete suggestions are cached for faster loading times. The cache is cleared on page reload.
+                <br><br>The entire site is contained within a single <a href = "https://github.com/CyrilSLi/cyrilsli.github.io/blob/main/wrplusplus.html">HTML file</a> and is fully functional if opened locally.
+                </p>
+            """
             raise SystemExit
         ac_cache = {}
         def rfind (text, values, start = True, end = False):
