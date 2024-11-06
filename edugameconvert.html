@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>edugameconvert</title>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/brython@3/brython.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3/brython_stdlib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/zipcelx@1.6.2/lib/standalone.min.js"></script>
+    <style>
+        html, body, div {
+            margin: 0px;
+        }
+        #site {
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+        p, input, button, label, span {
+            font-family: Arial, sans-serif;
+            font-size: 32px;
+            color: black;
+            line-height: normal;
+            text-decoration: none;
+            font-weight: normal;
+            padding: 0px;
+        }
+        input, button {
+            border-radius: 0px;
+            background-color: #f8f8f8;
+            -webkit-appearance: none;
+            border: 1px solid gray;
+        }
+        ::placeholder {
+            color: gray;
+            opacity: 1;
+        }
+        ::-ms-input-placeholder {
+            color: gray;
+        }
+        span, label, button {
+            margin: 0px 10px;
+        }
+        #form {
+            display: flex;
+            flex-direction: column;
+        }
+        #platform {
+            display: flex;
+            flex-direction: row;
+            margin: 0px 10px;
+        }
+        button[type="submit"] {
+            flex: 1;
+        }
+        #report {
+            margin: 0px 20px 20px;
+            padding: 5px 7px;
+            font-size: 20px;
+        }
+        #game_url {
+            margin: 20px;
+            padding: 5px 7px;
+            font-size: 28px;
+            display: block;
+            flex: 1;
+        }
+        input[type="radio"] {
+            width: 0px;
+            height: 0px;
+            border: 0px;
+            margin: 0px;
+            padding: 0px;
+        }
+        input[type="radio"]:checked + label {
+            background-color: lightcoral;
+        }
+        textarea {
+            font-family: monospace;
+            font-size: 20px;
+            margin: 20px;
+            padding: 10px;
+            color: darkred;
+            line-height: normal;
+            flex: 1;
+            resize: none;
+            word-break: break-all;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+<body onload="brython (0)">
+    <noscript>
+        <p>JavaScript is required to use this website.</p>
+    </noscript>
+    <div id="site">
+        <form action = "javascript:void (0);" id="form">
+            <input type="text" id="game_url" placeholder="Paste URL of game here:" required>
+            <div id="platform">
+                <span>To:</span>
+                <input type="radio" name="platform" id="kahoot" value="kahoot" checked>
+                <label for="kahoot">Kahoot</label>
+                <input type="radio" name="platform" id="quizizz" value="quizizz">
+                <label for="quizizz">Quizizz</label>
+                <input type="radio" name="platform" id="blooket" value="blooket">
+                <label for="blooket">Blooket</label>
+                <button type="submit">&nbsp;Convert!&nbsp;</button>
+            </div>
+        </form>
+
+<textarea id="output" readonly>
+Welcome to edugameconvert! This is a tool to convert questions between Kahoot, Quizizz, and Blooket.
+Paste the URL of a question set in the box above, select the platform to convert to, and click "Convert!"
+A file would be downloaded with the converted questions, which you can import into the selected platform.
+Information and warnings would be displayed here. Enjoy!
+
+Each platform has different import limitations. The tool would attempt to convert as much as possible.
+Supported question types and fields for each platform are listed below:
+- Kahoot:  MCQ (max 4 answers), time limit (limited options)
+- Quizizz: MCQ (max 5 answers), time limit (limited options), Typing (max 5 answers), Image (URL)
+- Blooket: MCQ (max 4 answers), time limit (max 300 seconds), Typing (max 4 answers)
+</textarea>
+
+        <button id="report" onclick="location.href='https://github.com/CyrilSLi/edugameconvert';">GitHub&nbsp;repo&nbsp;/&nbsp;Report&nbsp;a&nbsp;bug</button>
+    </div>
+    <script type = "text/python">
+        from browser import document, html, ajax, window
+        import json
+
+        def log (msg):
+            document ["output"].value += msg + "\n"
+        def show_metadata (title, creator, description, platform):
+            log (f'{platform} game "{title}" by {creator}') # Description is currently not used
+        def show_warning (question, message):
+            log (f'WARNING - Question {question + 1}: {message}')
+        def show_stats (msg, stats):
+           stats ["Total"] = sum (stats.values ())
+           log (msg.format (stats = ", ".join (f"{v} {k}" for k, v in stats.items ())))
+
+        def kahoot_import (game):
+            show_metadata (game ["title"], game ["creator_username"], game ["description"], "Kahoot")
+            export = []
+            for j, i in enumerate (game ["questions"]):
+                if i ["type"] not in ("quiz", "multiple_select_quiz", "open_ended"):
+                    show_warning (j, f"Question type {i ['type']} not supported, skipping")
+                    continue
+                question = {
+                    "question": i ["question"],
+                    "type": {"quiz": "MCQ", "multiple_select_quiz": "MCQ", "open_ended": "Typing"} [i ["type"]],
+                    "time": i ["time"] // 1000,
+                    "image": i ["image"] if "image" in i else ""
+                }
+
+                answers, correct = [], []
+                for k in i ["choices"]:
+                    if "answer" in k:
+                        answers.append (k ["answer"])
+                    elif "image" in k and "altText" in k ["image"]:
+                        answers.append (k ["image"] ["altText"])
+                        show_warning (j, f"Image answer not supported, using alt text {k ["image"] ["altText"]}")
+                    else:
+                        show_warning (j, "Non-text answer not supported, skipping")
+                        break
+                    if k ["correct"]:
+                        correct.append (len (answers)) # 1-indexed
+                else:
+                    question ["answers"], question ["correct"] = answers, correct
+                    export.append (question)
+
+            return export
+
+        def quizizz_import (game):
+            import re
+            game = game ["data"] ["quiz"]
+            show_metadata (game ["info"] ["name"], game ["createdBy"] ["local"] ["username"], "", "Quizizz")
+            game = game ["info"] ["questions"]
+            export = []
+
+            for j, i in enumerate (game):
+                if i ["type"] not in ("MCQ", "MSQ", "BLANK"):
+                    show_warning (j, f"Question type {i ['type']} not supported, skipping")
+                    continue
+
+                exp = re.compile ("<[^>]*>") # Strip HTML tag
+                question = {
+                    "question": exp.sub ("", i ["structure"] ["query"] ["text"]),
+                    "type": {"MCQ": "MCQ", "MSQ": "MCQ", "BLANK": "Typing"} [i ["type"]],
+                    "time": i ["time"] // 1000,
+                    "image": i ["structure"] ["query"] ["media"] [0] ["url"] if i ["structure"] ["query"] ["media"] else "",
+                    "correct": []
+                }
+
+                if type (i ["structure"] ["answer"]) == int:
+                    if i ["structure"] ["answer"] > -1:
+                        question ["correct"] = [i ["structure"] ["answer"] + 1]
+                else:
+                    question ["correct"] = [k + 1 for k in i ["structure"] ["answer"]]
+
+                answers = []
+                for k in i ["structure"] ["options"]:
+                    if k ["type"] != "text":
+                        show_warning (j, "Non-text answer not supported, skipping")
+                        break
+                    answers.append (exp.sub ("", k ["text"]))
+                else:
+                    if question ["type"] == "Typing":
+                        question ["correct"] = list (range (1, len (answers) + 1))
+                    elif not len (question ["correct"]):
+                        show_warning (j, "No correct answer found (likely a poll), skipping")
+                        continue
+                    question ["answers"] = answers
+
+                    export.append (question)
+            return export
+
+        def blooket_import (game):
+            show_metadata (game ["title"], game ["author"], game ["desc"], "Blooket")
+            export = []
+            for i in game ["questions"]:
+                question = {
+                    "question": i ["question"],
+                    "type": {"mc": "MCQ", "typing": "Typing"} [i ["qType"]],
+                    "answers": i ["answers"],
+                    "correct": [i ["answers"].index (j) + 1 for j in i ["correctAnswers"]],
+                    "time": i ["timeLimit"],
+                    "image": i ["image"] ["url"] if "image" in i else ""
+                }
+                if question ["type"] == "Typing":
+                    question ["correct"] = list (range (1, len (question ["answers"]) + 1))
+
+                export.append (question)
+            return export
+
+        def add_row (values):
+            return [{"value": i, "type": "string"} for i in values]
+
+        def remove_answers (num, question, max_answers):
+            if len (question ["answers"]) > max_answers:
+                if max (question ["correct"]) <= max_answers:
+                    question ["answers"] = question ["answers"] [ : max_answers]
+                    show_warning (num, f"More than maximum of {max_answers} answers, removing excess answers")
+                    return True # Success
+                else:
+                    show_warning (num, f"More than maximum of {max_answers} answers and correct answer is outside range, skipping")
+                    return False # continue loop
+            return True # Success
+
+        def kahoot_export (game):
+            template = {
+                "filename": "kahoot-export",
+                "sheet": {
+                    "data": [
+                        [{
+                            "value": "Question - max 120 characters",
+                            "type": "string"
+                        }, {
+                            "value": "Answer 1 - max 75 characters",
+                            "type": "string"
+                        }, {
+                            "value": "Answer 2 - max 75 characters",
+                            "type": "string"
+                        }, {
+                            "value": "Answer 3 - max 75 characters",
+                            "type": "string"
+                        }, {
+                            "value": "Answer 4 - max 75 characters",
+                            "type": "string"
+                        }, {
+                            "value": "Time limit (sec) – 5, 10, 20, 30, 60, 90, 120, or 240 secs",
+                            "type": "string"
+                        }, {
+                            "value": "Correct answer(s) - choose at least one",
+                            "type": "string"
+                        }]
+                    ]
+                }
+            }
+            stats = {}
+
+            for j, i in enumerate (game):
+                question = [i ["question"] [ : 120]]
+                if i ["type"] != "MCQ":
+                    show_warning (j, f"Question type {i ['type']} not supported, skipping")
+                    continue
+                if not remove_answers (j, i, 4):
+                    continue
+
+                question.extend ([j [ : 75] for j in i ["answers"]] + [""] * (4 - len (i ["answers"])))
+                question.append (str (min ((5, 10, 20, 30, 45, 60, 90, 120, 180, 240), key = lambda x: abs (x - i ["time"]))))
+                question.append (",".join (str (j) for j in i ["correct"]))
+
+                template ["sheet"] ["data"].append (add_row (question))
+                stats [i ["type"]] = stats.get (i ["type"], 0) + 1
+
+            window.zipcelx (template)
+            return stats
+
+        def quizizz_export (game):
+            template = {
+                "filename": "quizizz-export",
+                "sheet": {
+                    "data": [
+                        [{
+                            "value": "Question Text",
+                            "type": "string"
+                        }, {
+                            "value": "Question Type",
+                            "type": "string"
+                        }, {
+                            "value": "Option 1",
+                            "type": "string"
+                        }, {
+                            "value": "Option 2",
+                            "type": "string"
+                        }, {
+                            "value": "Option 3",
+                            "type": "string"
+                        }, {
+                            "value": "Option 4",
+                            "type": "string"
+                        }, {
+                            "value": "Option 5",
+                            "type": "string"
+                        }, {
+                            "value": "Correct Answer",
+                            "type": "string"
+                        }, {
+                            "value": "Time in seconds",
+                            "type": "string"
+                        }, {
+                            "value": "Image Link",
+                            "type": "string"
+                        }]
+                    ]
+                }
+            }
+            stats = {}
+
+            for j, i in enumerate (game):
+                question = [i ["question"]]
+                if i ["type"] == "MCQ":
+                    if len (i ["correct"]) > 1:
+                        question.append ("Checkbox")
+                    else:
+                        question.append ("Multiple Choice")
+                elif i ["type"] == "Typing":
+                    question.append ("Fill-in-the-Blank")
+                else:
+                    show_warning (j, f"Question type {i ['type']} not supported, skipping")
+                    continue
+
+                if not remove_answers (j, i, 5):
+                    continue
+                question.extend (i ["answers"] + [""] * (5 - len (i ["answers"])))
+                question.append (",".join (str (j) for j in i ["correct"]))
+                question.extend ([str (i ["time"]), i ["image"]])
+
+                template ["sheet"] ["data"].append (add_row (question))
+                stats [i ["type"]] = stats.get (i ["type"], 0) + 1
+
+            window.zipcelx (template)
+            return stats
+
+        def blooket_export (game):
+            template = ',,,,,,,,,\n,Question Text,Answer 1,Answer 2,"Answer 3\n(Optional)","Answer 4\n(Optional)","Time Limit (sec)\n(Max: 300 seconds)","Correct Answer(s)\n(Only include Answer #)",,\n'
+            escape = lambda x: f"\"{x.replace ('"', '""')}\""
+            stats = {}
+
+            for j, i in enumerate (game):
+                question = ["", escape (i ["question"])]
+                if i ["type"] not in ("MCQ", "Typing"):
+                    show_warning (j, f"Question type {i ['type']} not supported, skipping")
+                    continue
+                if not remove_answers (j, i, 4):
+                    continue
+
+                question.extend ([escape (j) for j in i ["answers"]] + [""] * (4 - len (i ["answers"])))
+                question.append (str (min (i ["time"], 300)))
+                question.append (f'"{",".join (str (j) for j in i ["correct"])}"')
+                question.append ("")
+                question.append ("typing" if i ["type"] == "Typing" else "")
+
+                template += ",".join (question) + "\n"
+                stats [i ["type"]] = stats.get (i ["type"], 0) + 1
+
+            blob = window.Blob.new ([template], {"type": "text/csv"})
+            link = html.A ("", href = window.URL.createObjectURL (blob), download = "blooket-export.csv")
+            link.click ()
+            return stats
+
+        def convert (_):
+            import re
+            game_url = document ["game_url"].value
+            platform_out = document.querySelector ('input[name="platform"]:checked').value
+            id_regex = r"[0-9a-f]{24}" # 24-character hex
+            document ["output"].value = ""
+
+            if "kahoot.it" in game_url:
+                id_regex = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" # UUID
+                platform_in = "kahoot"
+            elif "quizizz.com" in game_url:
+                game_id = game_url.split ("/") [-1]
+                platform_in = "quizizz"
+            elif "blooket.com" in game_url:
+                game_id = game_url.split ("/") [-1]
+                platform_in = "blooket"
+            else:
+                log (f"Invalid game URL: {game_url}")
+                return
+            game_id = re.search (id_regex, game_url)
+            if game_id is None:
+                log (f"Cannot find game ID in URL: {game_url}")
+                return
+            game_id = game_id [0]
+
+            converters = {
+                "kahoot": (kahoot_import, f"https://create.kahoot.it/rest/kahoots/{game_id}", kahoot_export),
+                "quizizz": (quizizz_import, f"https://quizizz.com/_quizserver/main/v2/quiz/{game_id}", quizizz_export),
+                "blooket": (blooket_import, f"https://dashboard.blooket.com/api/games?gameId={game_id}", blooket_export)
+            }
+            cors_proxy = "https://corsproxy.io/?" # Replace with your own CORS proxy if needed
+            def callback (req):
+                if req.status != 200:
+                    log (f"HTTP Error {req.status}")
+                    log ("Please check the game URL and try again.")
+                    return
+                game = json.loads (req.text)
+
+                log (f"\n>>> Running {converters [platform_in] [0].__name__}()")
+                game = converters [platform_in] [0] (game)
+                show_stats ("Imported {stats}\n", {i: len ([j for j in game if j ["type"] == i]) for i in set (j ["type"] for j in game)}) # Count question types
+                window.console.log (json.dumps (game, indent = 4))
+                
+                log (f">>> Running {converters [platform_out] [2].__name__}()")
+                show_stats ("Exported {stats}\n", converters [platform_out] [2] (game))
+                log (">>> Conversion complete, saving to file")
+
+            log (">>> Fetching game data")
+            ajax.get (cors_proxy + converters [platform_in] [1], oncomplete = callback, cache = True)
+
+        document ["form"].bind ("submit", convert)
+    </script>
+</body>
+</html>
