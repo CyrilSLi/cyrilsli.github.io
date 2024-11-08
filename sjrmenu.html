@@ -5,7 +5,7 @@
     <meta charset = "utf-8">
     <script src = "https://cdn.jsdelivr.net/npm/brython@3.11/brython.min.js"></script>
     <script src = "https://cdn.jsdelivr.net/npm/brython@3.11/brython_stdlib.min.js"></script>
-    <script src = "https://cdn.jsdelivr.net/npm/any-date-parser/dist/browser-bundle.min.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/pdfjs-dist/build/pdf.min.js"></script>
     <style>
         html, body {
             margin: 0px;
@@ -63,22 +63,15 @@
     <script type = "text/python">
         from browser import document, ajax, html, window
         from browser.local_storage import storage
+        from bisect import bisect
         from datetime import datetime as d
         import json
 
         # (Brunch, Soup, Salad, Deli, Hot Entrée, Vegetarian Entrée, Hydration Station) for each day
-        keys = (
-            "Monday Brunch", "Tuesday Brunch", "WednesdayBrunch", "Thursday Brunch", "Friday Brunch",
-            "Monday_Soup", "Tuesday_Soup", "Wednesday_Soup", "Thursday_Soup", "Friday_Soup",
-            "Monday_Salad", "Tuesday_Salad", "Wednesday_Salad", "Thursday_Salad", "Friday_Salad",
-            "Monday_Deli", "Tuesday_Deli", "Wednesday_Deli", "Thursday_Deli", "Friday_Deli",
-            "Monday_Entree", "Tuesday_Entree", "Wednesday_Entree", "Thursday_Entree", "Friday_Entree",
-            "Monday_Veg", "Tuesday_Veg", "Wednesday_Veg", "Thursday_Veg", "Friday_Veg",
-            "Monday_Hyd", "Tuesday_Hyd", "Wednesday_Hyd", "Thursday_Hyd", "Friday_Hyd"
-        )
+
         days = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
-        items = ("Brunch", "Soup", "Salad", "Deli", "Hot Entrée", "Vegetarian Entrée", "Hydration Station")
-        VERSION = "2" # Affected by changes in the menu format
+        items = ("Brunch", "Soup", "Salad", "Deli", "Hot Entrée", "Vegetarian Entrée", "Dinner")
+        VERSION = "3" # Affected by changes in the menu format
 
         def rfind (text, values, end = ")>>"):
             pointer = 0
@@ -88,20 +81,33 @@
                     return "N/A"
             return " • ".join (i for i in text [pointer + len (values [-1]) : pointer + text [pointer : ].find (end)].split ("\\r\\n") if i)
 
-        def complete (res):
+        def complete (p):
+            global keys, days, items, values, weekday
             document.clear ()
-            pdf = ""
-            for i in res.text:
-                if i > 31 and i < 127:
-                    pdf += chr (i)
-            pdf = pdf.split ("</x:xmpmeta>", 1) [1].replace ("\\(", "(").replace ("\\)", ")")
 
-            header = rfind (pdf, ["PageHeader", "/V("])
-            document <= html.A (html.H1 (f"Menu for '{header}' (Click to Refresh)"), id = "title", href = "javascript:void (0)")
+            text = [i ["str"] for i in p ["items"] if i ["str"].replace ("\uf0b5", "").strip ()]
+            transform = [i ["transform"] for i in p ["items"] if i ["str"].replace ("\uf0b5", "").strip ()]
+            document <= html.A (html.H1 (f"Menu for '{text [0]}' (Click to Refresh)"), id = "title", href = "javascript:void (0)")
             document ["title"].bind ("click", fetch_menu)
 
-            global values
-            values = tuple (rfind (pdf, [i, "/V("]) for i in keys)
+            columns = {}
+            for i, j in zip (text, transform):
+                columns.setdefault (str (j [4]), []).append ([i, j [5]])
+            columns = [sorted (v, key = lambda x: -x [1]) for k, v in sorted (columns.items (), key = lambda x: float (x [0])) if len (v) > 2]
+            
+            row_headers = ["water, and milk", "Daily Soup", "Salad Bar", "Deli Station", "Hot Entrée", "Vegetarian Entrée", "Dinner"]
+            row_heights = []
+            for i, j in zip (row_headers, row_headers [1 : ]):
+                a = transform [text.index (i)] [5]
+                b = transform [text.index (j)] [5]
+                row_heights.append ((float (a) + float (b)) / 2) # Average of the two heights
+            row_heights.reverse () # PDF coordinates start from bottom
+
+            values = [[] for i in range (35)]
+            for j, i in enumerate (columns):
+                for k in i:
+                    values [(6 - bisect (row_heights, k [1])) * 5 + j].append (k [0])
+            values = [" • ".join (i) for i in values]
             window.console.log ("Values: ", values)
             
             select = html.P ("<mark>Display: </mark>", style = "margin: 20px;")
@@ -146,10 +152,16 @@
                 weekday = int (weekday) - 1
             else:
                 weekday = d.now ().weekday ()
-
             document.clear ()
             document <= html.P ("Fetching Menu...", id = "start")
-            ajax.get ("https://api.codetabs.com/v1/proxy?quest=https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf", mode = "binary", oncomplete = complete)
+
+            pdf = window.pdfjsLib.getDocument ("https://api.codetabs.com/v1/proxy?quest=https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf").promise
+            def get_page (p):
+                return p.getPage (1)
+            pdf = pdf.then (lambda p: p.getPage (1))
+            pdf = pdf.then (lambda p: p.getTextContent ())
+            pdf = pdf.then (complete)
+
         fetch_menu (None)
     </script>
     <script>
