@@ -1,17 +1,65 @@
 <!DOCTYPE html>
 <html lang = "en">
 <head>
-    <title>Cyril's Website</title>
+    <title>cyrilsli.github.io</title>
+    <meta charset = "utf-8">
+    <script src = "https://cdn.jsdelivr.net/npm/brython@3.11/brython.min.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/brython@3.11/brython_stdlib.min.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/pdfjs-dist/build/pdf.min.js"></script>
     <style>
-        form {display: inline}
-        p {font-family: Ariel, sans-serif}
-        h1 {font-family: Ariel, sans-serif}
+        html, body {
+            margin: 0px;
+        }
+        p, h1 {
+            font-family: Arial, sans-serif;
+            color: #000000;
+            margin: 20px;
+            display: block;
+        }
+        p {
+            font-size: 20px;
+            line-height: 1.5;
+        }
+        h1 {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        a {
+            text-decoration: none;
+            color: blue;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
-<body>
-    <form action = "portfolio"><button type = "submit" value = "Digital Portfolio" style = "background-color: #f8f8f8; color: #000000; font-size: 36px; padding: 10px 10px 10px; margin: 20px 10px 10px 20px">Digital Portfolio</button></form>
-    <form action = "restaurant"><button type = "submit" value = "Le Gril de l'océan" style = "background-color: #f8f8f8; color: #000000; font-size: 36px; padding: 10px 10px 10px; margin: 20px 10px 10px">Le Gril de l'océan</button></form>
-    <form action = "story/0t"><button type = "submit" value = "Le manteau" style = "background-color: #f8f8f8; color: #000000; font-size: 36px; padding: 10px 10px 10px; margin: 20px 20px 10px 10px">Le manteau</button></form>
-    <h1 style = "color: #000000; font-size: 36px; margin: 10px 20px 10px">Cyril's Website</h1>
+<body onload = "brython (0)">
+    <noscript>
+        <p id = "start">JavaScript is required to use this website.</p>
+    </noscript>
+    <script type = "text/python">
+        from browser import document, ajax, html, window
+
+        def complete (res):
+            import re
+            document.clear ()
+            if res.status != 200:
+                document <= html.P (f"Failed to load README.md - Error {res.status}")
+            else:
+                items = [i.split (")", 1) for i in res.text.split ("\n") if i.strip ()] # get links
+                print (items)
+                body = f"""
+                <h1>{items [0] [0] [2 : ]}</h1>
+                <p>{items [1] [0]}</p>
+                """
+                for i in items [2 : ]:
+                    link = i [0].split ("(", 1) [1]
+                    body += f'<p> - <a href = "{link}">{link}</a>{i [1]}'
+                document.body.innerHTML = body
+
+        ajax.get ("https://raw.githubusercontent.com/CyrilSLi/cyrilsli.github.io/refs/heads/main/README.md", oncomplete = complete)
+    </script>
+    <script>
+        document.body.insertAdjacentHTML ("beforeend", `<p>Starting Brython...</p>`)
+    </script>
 </body>
-</html>
