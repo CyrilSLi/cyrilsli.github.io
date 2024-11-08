@@ -112,7 +112,7 @@
                 <br>&emsp;- Left & Right Arrows: Navigate between autocomplete suggestions
                 <br>&emsp;- Right Arrow: Focus on the first autocomplete suggestion if at the right edge of the search bar
                 <br>&emsp;- '1' to '9': While focused on the autocomplete list, search for the corresponding suggestion
-                <br><br>If the search word is only found in the other language, the dictionary will automatically switch to that language.
+                <br><br>If the search word is only found in the other language, the dictionary will automatically switch to that language. Double-clicking on any word in the dictionary page will search for that word.
                 <br><br>Autocomplete suggestions are cached for faster loading times. The cache is cleared on page reload.
                 <br><br>The entire site is contained within a single <a href = "https://github.com/CyrilSLi/cyrilsli.github.io/blob/main/wrplusplus.html">HTML file</a> and is fully functional if opened locally.
                 </p>
@@ -128,24 +128,33 @@
             return text [pointer + (0 if start else len (values [-2])) : pointer + text [pointer : ].find (values [-1]) + (len (values [-1]) if end else 0)]
         def resize_page (_ = None):
             document ["page"].attrs ["style"] = f"height: {document ['page'].contentDocument.documentElement.offsetHeight + 1}px;"
-        def complete (res, type):
+        def complete (res, dict_type):
             document ["results"].clear ()
-            if type == "dict":
+            if dict_type == "dict":
                 sw_lang (rfind (res.text, ["wrserver", "ddict", '"dict": "', '",'], start = False))
                 page_doc = "<!DOCTYPE html><html><head>"
                 page_doc += rfind (res.text, ["<style", "</style>"], end = True)
                 page_doc += "</head><body>"
                 page_doc += rfind (res.text, ["<div id='articleWRD'>", "<div id='collinsdiv'>"])
                 page_doc += "</body></html>"
-            elif type == "conj":
+            elif dict_type == "conj":
                 page_doc = '<!DOCTYPE html><html><head><link rel="stylesheet" type="text/css" href="https://www.wordreference.com/css/main.min.css"><link rel="stylesheet" type="text/css" href="https://www.wordreference.com/css/WRredesign.min.css"></head><body>'
                 page_doc += rfind (res.text, ["<div class='content'>", "<script>"])
                 page_doc += "</body></html>"
+            else:
+                return
             document ["results"] <= html.H1 (rfind (res.text, ["<title>", "</title>"], start = False))
             document ["results"] <= html.IFRAME (srcdoc = page_doc, id = "page", frameBorder = "0", onload = "resize_page ()", sandbox = "allow-same-origin", scrolling = "no")
             document ["search"].value = ""
             document ["page"].contentWindow.addEventListener ("keydown", arrow_nav)
             document ["page"].contentWindow.addEventListener ("resize", resize_page)
+            def word_click (ev):
+                sel = document ["page"].contentWindow.getSelection ().toString ()
+                if sel not in ("", " ", "\n", "(", ")"):
+                    sw_lang ()
+                    document ["search"].value = sel
+                    req_search ()
+            document ["page"].contentWindow.addEventListener ("dblclick", word_click)
             autocomplete ()
         def sw_lang (lang = None):
             global dict_lang
