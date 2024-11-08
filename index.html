@@ -55,6 +55,7 @@
                 for i in items [2 : ]:
                     link = i [0].split ("(", 1) [1]
                     body += f'<p> - <a href = "{link}">{link}</a>{i [1]}'
+                body += '<p>This page is generated on each visit from README.md on the <a href="https://github.com/CyrilSLi/cyrilsli.github.io">GitHub repository</a>.</p>'
                 document.body.innerHTML = body
 
         ajax.get ("https://raw.githubusercontent.com/CyrilSLi/cyrilsli.github.io/refs/heads/main/README.md", oncomplete = complete)
