@@ -87,13 +87,24 @@
 
             text = [i ["str"] for i in p ["items"] if i ["str"].replace ("\uf0b5", "").strip ()]
             transform = [i ["transform"] for i in p ["items"] if i ["str"].replace ("\uf0b5", "").strip ()]
-            document <= html.A (html.H1 (f"Menu for '{text [0]}' (Click to Refresh)"), id = "title", href = "javascript:void (0)")
-            document ["title"].bind ("click", fetch_menu)
 
             columns = {}
             for i, j in zip (text, transform):
-                columns.setdefault (str (j [4]), []).append ([i, j [5]])
-            columns = [sorted (v, key = lambda x: -x [1]) for k, v in sorted (columns.items (), key = lambda x: float (x [0])) if len (v) > 2]
+                columns.setdefault (str (j [4]), []).append ([i, j [5], j [4]])
+            columns = [sorted (v, key = lambda x: -x [1]) for k, v in sorted (columns.items (), key = lambda x: float (x [0])) if float (k) > 100] # TEMPORARY FIX - Magic number
+
+            titles, column = [], 0
+            while column < len (columns):
+                i = columns [column]
+                if any (k [1] > 520 for k in i): # TEMPORARY FIX - Magic number
+                    title = columns.pop (column)
+                    column -= 1
+                    if any (k [1] > 540 for k in title):
+                        titles.extend ([k [0] for k in title])
+                column += 1
+
+            document <= html.A (html.H1 (f'{" • ".join (titles)} (Click to Refresh)'), id = "title", href = "javascript:void (0)")
+            document ["title"].bind ("click", fetch_menu)
             
             row_headers = ["water, and milk", "Daily Soup", "Salad Bar", "Deli Station", "Hot Entrée", "Vegetarian Entrée", "Dinner"]
             row_heights = []
@@ -103,10 +114,13 @@
                 row_heights.append ((float (a) + float (b)) / 2) # Average of the two heights
             row_heights.reverse () # PDF coordinates start from bottom
 
+            col_headers = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+            col_heights = [transform [text.index (i)] [4] for i in col_headers]
+
             values = [[] for i in range (35)]
-            for j, i in enumerate (columns):
-                for k in i:
-                    values [(6 - bisect (row_heights, k [1])) * 5 + j].append (k [0])
+            for i in columns:
+                for j in i:
+                    values [(6 - bisect (row_heights, j [1])) * 5 + bisect (col_heights, j [2])].append (j [0])
             values = [" • ".join (i) for i in values]
             window.console.log ("Values: ", values)
             
