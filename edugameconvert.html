@@ -16,7 +16,37 @@
             display: flex;
             flex-direction: column;
         }
-        p, input, button, label, span {
+        #tutorial {
+            display: block;
+        }
+        h1 {
+            font-family: Arial, sans-serif;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0px 10px;
+            flex: 1;
+        }
+        pre {
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            margin: 20px;
+            line-height: 1.5;
+            white-space: pre-wrap;       /* Since CSS 2.1 */
+            white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+        }
+        p {
+            margin: 0px;
+            padding: 0px;
+            display: inline;
+        }
+        a, a:visited {
+            text-decoration: underline;
+            color: blue;
+        }
+        input, button, label, span {
             font-family: Arial, sans-serif;
             font-size: 32px;
             color: black;
@@ -45,21 +75,21 @@
             display: flex;
             flex-direction: column;
         }
-        #platform {
+        #platform, #header, #footer {
             display: flex;
             flex-direction: row;
-            margin: 0px 10px;
+            margin: 20px 10px;
         }
-        button[type="submit"] {
+        #site button {
             flex: 1;
         }
-        #report {
-            margin: 0px 20px 20px;
+        #help1, #help2, #report {
+            margin: 0px 10px;
             padding: 5px 7px;
             font-size: 20px;
         }
         #game_url {
-            margin: 20px;
+            margin: 20px 20px 0px;
             padding: 5px 7px;
             font-size: 28px;
             display: block;
@@ -78,7 +108,7 @@
         textarea {
             font-family: monospace;
             font-size: 20px;
-            margin: 20px;
+            margin: 0px 20px;
             padding: 10px;
             color: darkred;
             line-height: normal;
@@ -107,8 +137,7 @@
                 <button type="submit">&nbsp;Convert!&nbsp;</button>
             </div>
         </form>
-
-<textarea id="output" readonly>
+        <textarea id="output" readonly>
 Welcome to edugameconvert! This is a tool to convert questions between Kahoot, Quizizz, and Blooket.
 Paste the URL of a question set in the box above, select the platform to convert to, and click "Convert!"
 A file would be downloaded with the converted questions, which you can import into the selected platform.
@@ -119,34 +148,97 @@ Supported question types and fields for each platform are listed below:
 - Kahoot:  MCQ (max 4 answers), time limit (limited options)
 - Quizizz: MCQ (max 5 answers), time limit (limited options), Typing (max 5 answers), Image (URL)
 - Blooket: MCQ (max 4 answers), time limit (max 300 seconds), Typing (max 4 answers)
-</textarea>
+        </textarea>
+        <div id="footer">
+            <button id="help1">Help</button>
+            <button id="report" onclick="location.href='https://github.com/CyrilSLi/cyrilsli.github.io/blob/main/edugameconvert.html';">GitHub&nbsp;repo&nbsp;/&nbsp;Report&nbsp;a&nbsp;bug</button>
+        </div>
+    </div>
+    <div id="tutorial">
+        <div id="header">
+            <button id="help2">Back</button>
+            <h1>How to use edugameconvert</h1>
+        </div>
+        <pre>
+Please read the text on the main page for a quick description and the limitations of each platform.
 
-        <button id="report" onclick="location.href='https://github.com/CyrilSLi/edugameconvert';">GitHub&nbsp;repo&nbsp;/&nbsp;Report&nbsp;a&nbsp;bug</button>
+1.  Paste the URL of a question set from Kahoot, Quizizz, or Blooket into the top box.
+&#9-  The set must be public and cannot be a game or homework link (i.e. the list of questions must be visible).
+&#9-  Example URLs (your link does not have to be in this exact format, it just must contain the game ID):
+&#9&#9-  Kahoot: <p style="color: blue;">https://create.kahoot.it/details/a1b2c3d4-a1b2-a1b2-a1b2-a1b2c3d4e5f6</p>
+&#9&#9-  Quizizz: <p style="color: blue;">https://quizizz.com/admin/quiz/a1b2c3d4e5f6a1b2c3d4e5f6/game-name</p>
+&#9&#9-  Blooket: <p style="color: blue;">https://dashboard.blooket.com/set/a1b2c3d4e5f6a1b2c3d4e5f6</p>
+
+2.  Select the platform you want to convert the questions to.
+&#9-  <b>Please check the limitations on question types and fields for each platform on the main page.</b>
+&#9-  <i>Tip: Even though some button outlines are not visible, everything can be selected using the keyboard.</i>
+
+3.  Click the <b>Convert!</b> button and save the generated .xlsx or .csv (depending on the platform) file.
+&#9-  If no file is generated, please raise an issue on the GitHub repository with the following information:
+&#9&#9-  Question set URL
+&#9&#9-  Platform you tried to convert to
+&#9&#9-  Information displayed in the output box
+&#9&#9-  Any errors and the game JSON (if available) displayed in the browser console
+&#9-  The output box displays import & export statistics and any warnings generated during the conversion.
+
+4.  Import the file into the selected platform.
+&#9-  <b>Remember to check questions and answers after importing!</b> Please report any issues you encounter.
+&#9-  Import guides (do not use the templates provided in the guides, upload the generated file directly):
+&#9&#9-  <a href="https://support.kahoot.com/hc/en-us/articles/115002812547-How-to-import-questions-from-a-spreadsheet-to-your-kahoot" target="_blank">Kahoot import guide</a>
+&#9&#9-  <a href="https://support.quizizz.com/hc/en-us/articles/115003688491-Import-an-Assessment-Quiz-From-a-Spreadsheet" target="_blank">Quizizz import guide</a>
+&#9&#9-  <a href="https://help.blooket.com/hc/en-us/articles/16002377931543-How-to-Import-Questions-from-a-Spreadsheet-into-Blooket" target="_blank">Blooket import guide</a>
+
+<b>CORS Proxy</b>
+As this tool runs entirely in the browser, fetching game data from other websites is restricted by <a href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing" target="_blank">CORS</a>.
+It uses <a href="https://corsproxy.io/" target="_blank">corsproxy.io</a> by default to bypass this restriction, however this may be blocked on certain networks.
+If you wish to use another proxy, set the <b>cors_url</b> query parameter to a URL prefix (e.g. <a href="?cors_url=https://cors-anywhere.herokuapp.com/" target="_self">cors-anywhere</a>).
+If you have a CORS bypass extension installed (<a href="https://chromewebstore.google.com/detail/cors-unblock/lfhmikememgdcahcdlaciloancbhjino" target="_blank">example</a>), disable the proxy by <a href="?cors_url=" target="_self">setting an empty value</a>.
+
+<b>This tool is not sponsored by or affiliated with any proxies, extensions, or platforms mentioned.</b>
+        </pre>
     </div>
     <script type = "text/python">
         from browser import document, html, ajax, window
-        import json
+        import json, html as py_html # Avoid name conflict with Brython's html module
+        from html.parser import HTMLParser
 
         def log (msg):
             document ["output"].value += msg + "\n"
             document ["output"].scrollTop = document ["output"].scrollHeight
-        def show_metadata (title, creator, description, platform):
-            log (f'{platform} game "{title}" by {creator}') # Description is currently not used
+        def show_metadata (title, creator, description, num_qs, platform):
+            log (f'{platform} game "{title}" by {creator} with {num_qs} question(s)') # Description is currently not used
         def show_warning (question, message):
             log (f'WARNING - Question {question + 1}: {message}')
         def show_stats (msg, stats):
            stats ["Total"] = sum (stats.values ())
            log (msg.format (stats = ", ".join (f"{v} {k}" for k, v in sorted (stats.items (), key = lambda x: x [1]))))
 
+        class Filter (HTMLParser):
+            text = ""
+            def handle_data (self, data):
+                self.text += data
+        def strip_html (text):
+            f = Filter ()
+            f.feed (text)
+            return py_html.unescape (f.text)
+
+        document ["tutorial"].style.display = "none"
+        def toggle_help (ev):
+            for i in (document ["site"], document ["tutorial"]):
+                i.style.display = {"none": "", "": "none"} [i.style.display]
+        document ["help1"].bind ("click", toggle_help)
+        document ["help2"].bind ("click", toggle_help)
+
         def kahoot_import (game):
-            show_metadata (game ["title"], game ["creator_username"], game ["description"], "Kahoot")
+            show_metadata (game ["title"], game ["creator_username"], game ["description"], len (game ["questions"]), "Kahoot")
             export = []
             for j, i in enumerate (game ["questions"]):
                 if i ["type"] not in ("quiz", "multiple_select_quiz", "open_ended"):
                     show_warning (j, f"Question type {i ['type']} not supported, skipping")
+                    export.append (None) # Keep index consistent
                     continue
                 question = {
-                    "question": i ["question"],
+                    "question": strip_html (i ["question"]),
                     "type": {"quiz": "MCQ", "multiple_select_quiz": "MCQ", "open_ended": "Typing"} [i ["type"]],
                     "time": i ["time"] // 1000,
                     "image": i ["image"] if "image" in i else ""
@@ -161,6 +253,7 @@ Supported question types and fields for each platform are listed below:
                         show_warning (j, f"Image answer not supported, using alt text {k ["image"] ["altText"]}")
                     else:
                         show_warning (j, "Non-text answer not supported, skipping")
+                        export.append (None) # Keep index consistent
                         break
                     if k ["correct"]:
                         correct.append (len (answers)) # 1-indexed
@@ -171,20 +264,19 @@ Supported question types and fields for each platform are listed below:
             return export
 
         def quizizz_import (game):
-            import re
             game = game ["data"] ["quiz"]
-            show_metadata (game ["info"] ["name"], game ["createdBy"] ["local"] ["username"], "", "Quizizz")
+            show_metadata (game ["info"] ["name"], game ["createdBy"] ["local"] ["username"], "", len (game ["info"] ["questions"]), "Quizizz")
             game = game ["info"] ["questions"]
             export = []
 
             for j, i in enumerate (game):
                 if i ["type"] not in ("MCQ", "MSQ", "BLANK"):
                     show_warning (j, f"Question type {i ['type']} not supported, skipping")
+                    export.append (None) # Keep index consistent
                     continue
 
-                exp = re.compile ("<[^>]*>") # Strip HTML tag
                 question = {
-                    "question": exp.sub ("", i ["structure"] ["query"] ["text"]),
+                    "question": strip_html (i ["structure"] ["query"] ["text"]),
                     "type": {"MCQ": "MCQ", "MSQ": "MCQ", "BLANK": "Typing"} [i ["type"]],
                     "time": i ["time"] // 1000,
                     "image": i ["structure"] ["query"] ["media"] [0] ["url"] if i ["structure"] ["query"] ["media"] else "",
@@ -201,8 +293,9 @@ Supported question types and fields for each platform are listed below:
                 for k in i ["structure"] ["options"]:
                     if k ["type"] != "text":
                         show_warning (j, "Non-text answer not supported, skipping")
+                        export.append (None) # Keep index consistent
                         break
-                    answers.append (exp.sub ("", k ["text"]))
+                    answers.append (strip_html (k ["text"]))
                 else:
                     if question ["type"] == "Typing":
                         question ["correct"] = list (range (1, len (answers) + 1))
@@ -215,11 +308,11 @@ Supported question types and fields for each platform are listed below:
             return export
 
         def blooket_import (game):
-            show_metadata (game ["title"], game ["author"], game ["desc"], "Blooket")
+            show_metadata (game ["title"], game ["author"], game ["desc"], len (game ["questions"]), "Blooket")
             export = []
             for i in game ["questions"]:
                 question = {
-                    "question": i ["question"],
+                    "question": strip_html (i ["question"]),
                     "type": {"mc": "MCQ", "typing": "Typing"} [i ["qType"]],
                     "answers": i ["answers"],
                     "correct": [i ["answers"].index (j) + 1 for j in i ["correctAnswers"]],
@@ -279,7 +372,10 @@ Supported question types and fields for each platform are listed below:
             stats = {}
 
             for j, i in enumerate (game):
+                if not i:
+                    continue # Skip unsupported question types
                 question = [i ["question"] [ : 120]]
+
                 if i ["type"] != "MCQ":
                     show_warning (j, f"Question type {i ['type']} not supported, skipping")
                     continue
@@ -338,7 +434,10 @@ Supported question types and fields for each platform are listed below:
             stats = {}
 
             for j, i in enumerate (game):
+                if not i:
+                    continue # Skip unsupported question types
                 question = [i ["question"]]
+
                 if i ["type"] == "MCQ":
                     if len (i ["correct"]) > 1:
                         question.append ("Checkbox")
@@ -368,7 +467,10 @@ Supported question types and fields for each platform are listed below:
             stats = {}
 
             for j, i in enumerate (game):
+                if not i:
+                    continue # Skip unsupported question types
                 question = ["", escape (i ["question"])]
+
                 if i ["type"] not in ("MCQ", "Typing"):
                     show_warning (j, f"Question type {i ['type']} not supported, skipping")
                     continue
@@ -419,7 +521,11 @@ Supported question types and fields for each platform are listed below:
                 "quizizz": (quizizz_import, f"https://quizizz.com/_quizserver/main/v2/quiz/{game_id}", quizizz_export),
                 "blooket": (blooket_import, f"https://dashboard.blooket.com/api/games?gameId={game_id}", blooket_export)
             }
-            cors_proxy = "https://corsproxy.io/?" # Replace with your own CORS proxy if needed
+
+            cors_proxy = document.query.getvalue ("cors_url")
+            if cors_proxy is None:
+                cors_proxy = "https://corsproxy.io/?" # Default CORS proxy
+
             def callback (req):
                 if req.status != 200:
                     log (f"HTTP Error {req.status}")
@@ -429,8 +535,8 @@ Supported question types and fields for each platform are listed below:
 
                 log (f"\n>>> Running {converters [platform_in] [0].__name__}()")
                 game = converters [platform_in] [0] (game)
-                show_stats ("Imported {stats}\n", {i: len ([j for j in game if j ["type"] == i]) for i in set (j ["type"] for j in game)}) # Count question types
-                window.console.log (json.dumps (game, indent = 4))
+                show_stats ("Imported {stats}\n", {i: len ([j for j in game if j and j ["type"] == i]) for i in set (j ["type"] for j in game if j)}) # Count question types
+                window.console.log (json.dumps (game, indent = 4, ensure_ascii = False))
                 
                 log (f">>> Running {converters [platform_out] [2].__name__}()")
                 show_stats ("Exported {stats}\n", converters [platform_out] [2] (game))
