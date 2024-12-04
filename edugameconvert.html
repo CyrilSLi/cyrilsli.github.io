@@ -80,6 +80,9 @@
             flex-direction: row;
             margin: 20px 10px;
         }
+        #platform {
+            overflow-x: auto;
+        }
         #site button {
             flex: 1;
         }
@@ -136,21 +139,26 @@
                 <label for="blooket">Blooket</label>
                 <input type="radio" name="platform" id="gimkit" value="gimkit">
                 <label for="gimkit">Gimkit</label>
+                <input type="radio" name="platform" id="classquiz" value="classquiz">
+                <label for="classquiz">ClassQuiz</label>
                 <button type="submit">&nbsp;Convert!&nbsp;</button>
             </div>
         </form>
         <textarea id="output" readonly>
-Welcome to edugameconvert! This is a tool to convert questions between Kahoot, Quizizz, and Blooket.
+Welcome to edugameconvert, a tool to convert questions between educational game platforms!
+The current supported platforms are Kahoot, Quizizz, Blooket, Gimkit, and ClassQuiz.
+
 Paste the URL of a question set in the box above, select the platform to convert to, and click "Convert!"
 A file would be downloaded with the converted questions, which you can import into the selected platform.
 Information and warnings would be displayed here. Enjoy!
 
 Each platform has different import limitations. The tool would attempt to convert as much as possible.
-Supported question types and fields for each platform are listed below:
-- Kahoot:  MCQ (max 4 answers), time limit (limited options)
-- Quizizz: MCQ (max 5 answers), time limit (limited options), Typing (max 5 answers), Image (URL)
-- Blooket: MCQ (max 4 answers), time limit (max 300 seconds), Typing (max 4 answers)
-- Gimkit:  MCQ (max 4 answers, only 1 correct), no time limit
+Supported question types and fields when exporting to each platform are listed below:
+- Kahoot:    MCQ (max 4 answers), time limit (limited options)
+- Quizizz:   MCQ (max 5 answers), time limit (limited options), Typing (max 5 answers), Image (URL)
+- Blooket:   MCQ (max 4 answers), time limit (max 300 seconds), Typing (max 4 answers)
+- Gimkit:    MCQ (max 4 answers, only 1 correct), no time limit
+- ClassQuiz: MCQ (max 4 answers), time limit (max 999 seconds), Typing (max 4 answers)
         </textarea>
         <div id="footer">
             <button id="help1">Help</button>
@@ -173,6 +181,7 @@ If you have an issue or want to suggest a platform, please raise an issue on the
 &#9&#9-  Quizizz: <p style="color: blue;">https://quizizz.com/admin/quiz/a1b2c3d4e5f6a1b2c3d4e5f6/game-name</p>
 &#9&#9-  Blooket: <p style="color: blue;">https://dashboard.blooket.com/set/a1b2c3d4e5f6a1b2c3d4e5f6</p>
 &#9&#9-  Gimkit: <p style="color: blue;">https://www.gimkit.com/view/a1b2c3d4e5f6a1b2c3d4e5f6</p>
+&#9&#9-  ClassQuiz: <p style="color: blue;">https://classquiz.de/view/a1b2c3d4-a1b2-a1b2-a1b2-a1b2c3d4e5f6</p>
 
 2.  Select the platform you want to convert the questions to.
 &#9-  <b>Please check the limitations on question types and fields for each platform on the main page.</b>
@@ -193,6 +202,7 @@ If you have an issue or want to suggest a platform, please raise an issue on the
 &#9&#9-  <a href="https://support.quizizz.com/hc/en-us/articles/115003688491-Import-an-Assessment-Quiz-From-a-Spreadsheet" target="_blank">Quizizz import guide</a>
 &#9&#9-  <a href="https://help.blooket.com/hc/en-us/articles/16002377931543-How-to-Import-Questions-from-a-Spreadsheet-into-Blooket" target="_blank">Blooket import guide</a>
 &#9&#9-  <a href="https://help.gimkit.com/en/article/create-a-kit-with-a-csv-file-wv72i9" target="_blank">Gimkit import guide</a>
+&#9&#9-  ClassQuiz: Upload the .cqa file to Homepage -> Import -> "A ClassQuiz-Quiz"
 
 <b>CORS Proxy</b>
 As this tool runs entirely in the browser, fetching game data from other websites is restricted by <a href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing" target="_blank">CORS</a>.
@@ -252,7 +262,7 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
                     continue
                 question = {
                     "question": strip_html (i ["question"]),
-                    "type": {"quiz": "MCQ", "multiple_select_quiz": "MCQ", "open_ended": "Typing"} [i ["type"]],
+                    "type": {"quiz": "MCQ", "multiple_select_quiz": "MSQ", "open_ended": "Typing"} [i ["type"]],
                     "time": i ["time"] // 1000,
                     "image": i ["image"] if "image" in i else ""
                 }
@@ -290,7 +300,7 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
 
                 question = {
                     "question": strip_html (i ["structure"] ["query"] ["text"]),
-                    "type": {"MCQ": "MCQ", "MSQ": "MCQ", "BLANK": "Typing"} [i ["type"]],
+                    "type": {"MCQ": "MCQ", "MSQ": "MSQ", "BLANK": "Typing"} [i ["type"]],
                     "time": i ["time"] // 1000,
                     "image": i ["structure"] ["query"] ["media"] [0] ["url"] if i ["structure"] ["query"] ["media"] else "",
                     "correct": []
@@ -353,6 +363,32 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
                 export.append (question)
             return export
 
+        def classquiz_import (game):
+            game = game [1] ["data"] ["quiz"]
+            show_metadata (game ["title"], game ["user_id"] ["username"], game ["description"], len (game ["questions"]), "ClassQuiz")
+            export = []
+            for i in game ["questions"]:
+                if i ["type"] not in ("ABCD", "CHECK", "TEXT"):
+                    show_warning (j, f"Question type {i ['type']} not supported, skipping")
+                    export.append (None) # Keep index consistent
+                    continue
+
+                question = {
+                    "question": i ["question"],
+                    "type": {"ABCD": "MCQ", "CHECK": "MSQ", "TEXT": "Typing"} [i ["type"]],
+                    "answers": [k ["answer"] for k in i ["answers"]],
+                    "time": int (i ["time"]),
+                    "image": f"https://classquiz.de/api/v1/storage/download/{i ['image']}" if i ["image"] else "",
+                    "correct": []
+                }
+
+                if question ["type"] == "Typing":
+                    question ["correct"] = list (range (1, len (question ["answers"]) + 1))
+                else:
+                    question ["correct"] = [k + 1 for k, j in enumerate (i ["answers"]) if j ["right"]]
+                export.append (question)
+            return export
+
         def add_row (values):
             return [{"value": i, "type": "string"} for i in values]
 
@@ -406,7 +442,7 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
                     continue # Skip unsupported question types
                 question = [i ["question"] [ : 120]]
 
-                if i ["type"] != "MCQ":
+                if i ["type"] not in ("MCQ", "MSQ"):
                     show_warning (j, f"Question type {i ['type']} not supported, skipping")
                     continue
                 if not remove_answers (j, i, 4):
@@ -468,7 +504,7 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
                     continue # Skip unsupported question types
                 question = [i ["question"]]
 
-                if i ["type"] == "MCQ":
+                if i ["type"] in ("MCQ", "MSQ"):
                     if len (i ["correct"]) > 1:
                         question.append ("Checkbox")
                     else:
@@ -501,7 +537,7 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
                     continue # Skip unsupported question types
                 question = ["", escape (i ["question"])]
 
-                if i ["type"] not in ("MCQ", "Typing"):
+                if i ["type"] not in ("MCQ", "MSQ", "Typing"):
                     show_warning (j, f"Question type {i ['type']} not supported, skipping")
                     continue
                 if not remove_answers (j, i, 4):
@@ -531,13 +567,11 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
                     continue # Skip unsupported question types
                 question = [escape (i ["question"])]
 
-                if i ["type"] not in ("MCQ", "Typing"):
+                if i ["type"] not in ("MCQ", "MSQ"):
                     show_warning (j, f"Question type {i ['type']} not supported, skipping")
                     continue
                 if not remove_answers (j, i, 4, mult_correct = False):
                     continue
-                if i ["type"] == "Typing":
-                    show_warning (j, "Typing question exported as MCQ", "INFO")
 
                 # Move correct answer to front
                 correct = i ["correct"] [0] - 1
@@ -550,6 +584,70 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
 
             blob = window.Blob.new ([template], {"type": "text/csv"})
             link = html.A ("", href = window.URL.createObjectURL (blob), download = "gimkit-export.csv")
+            link.click ()
+            return stats
+
+        def classquiz_export (game):
+            import gzip
+            template = {
+                "public": True,
+                "title": "ClassQuiz Export",
+                "description": "Exported from https://cyrilsli.github.io/edugameconvert.html",
+                "created_at": "1970-01-01T00:00:00.000000",
+                "updated_at": "1970-01-01T00:00:00.000000",
+                "questions": [],
+                "imported_from_kahoot": False,
+                "cover_image": None,
+                "background_color": None,
+                "background_image": None,
+                "kahoot_id": None,
+                "likes": 0,
+                "dislikes": 0,
+                "plays": 0,
+                "views": 0,
+                "mod_rating": None,
+                "gameresultss": [],
+                "ratings": [],
+                "storageitems": []
+            }
+            stats = {}
+
+            for j, i in enumerate (game):
+                if not i:
+                    continue # Skip unsupported question types
+                if i ["type"] not in ("MCQ", "MSQ", "Typing"):
+                    show_warning (j, f"Question type {i ['type']} not supported, skipping")
+                    continue
+                if not remove_answers (j, i, 4):
+                    continue
+
+                question = {
+                    "question": i ["question"],
+                    "time": str (i ["time"]),
+                    "type": {"MCQ": "ABCD", "MSQ": "CHECK", "Typing": "TEXT"} [i ["type"]],
+                    "answers": [],
+                    "image": None
+                }
+                if i ["type"] != "Typing":
+                    question ["answers"] = [{
+                        "right": l + 1 in i ["correct"],
+                        "answer": k,
+                        "color": "#FFFFFF"
+                    } for l, k in enumerate (i ["answers"])]
+                else:
+                    question ["answers"] = [{
+                        "answer": k,
+                        "case_sensitive": False
+                    } for k in i ["answers"]]
+
+                template ["questions"].append (question)
+                stats [i ["type"]] = stats.get (i ["type"], 0) + 1
+
+            # https://github.com/mawoka-myblock/ClassQuiz/blob/master/classquiz/routers/cqa-file-format.md
+            game = gzip.compress (json.dumps (template).encode ("utf-8"), compresslevel = 9) + bytes.fromhex ("c7c7c700")
+            game = window.Uint8Array.new ([int (i) for i in game])
+            blob = window.Blob.new ([game], {"type": "application/octet-stream"})
+            link = html.A ("", href = window.URL.createObjectURL (blob), download = "classquiz-export.cqa")
             link.click ()
             return stats
 
@@ -572,6 +670,9 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
             elif "gimkit.com" in game_url:
                 game_id = game_url.split ("/") [-1]
                 platform_in = "gimkit"
+            elif "classquiz.de" in game_url:
+                id_regex = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" # UUID
+                platform_in = "classquiz"
             else:
                 log (f"Invalid game URL: {game_url}")
                 return
@@ -585,7 +686,8 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
                 "kahoot": (kahoot_import, f"https://create.kahoot.it/rest/kahoots/{game_id}", kahoot_export),
                 "quizizz": (quizizz_import, f"https://quizizz.com/_quizserver/main/v2/quiz/{game_id}", quizizz_export),
                 "blooket": (blooket_import, f"https://dashboard.blooket.com/api/games?gameId={game_id}", blooket_export),
-                "gimkit": (gimkit_import, f"https://www.gimkit.com/api/games/fetch/{game_id}", gimkit_export)
+                "gimkit": (gimkit_import, f"https://www.gimkit.com/api/games/fetch/{game_id}", gimkit_export),
+                "classquiz": (classquiz_import, f"https://classquiz.de/view/{game_id}", classquiz_export)
             }
 
             cors_proxy = document.query.getvalue ("cors_url")
@@ -597,7 +699,10 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
                     log (f"HTTP Error {req.status}")
                     log ("Please check the game URL and try again.")
                     return
-                game = json.loads (req.text)
+                if platform_in == "classquiz":
+                    game = window.eval (req.text.split ("const data = ") [-1].split (";") [0]) # Extract JSON from html
+                else:
+                    game = json.loads (req.text)
 
                 log (f"\n>>> Running {converters [platform_in] [0].__name__}()")
                 game = converters [platform_in] [0] (game)
