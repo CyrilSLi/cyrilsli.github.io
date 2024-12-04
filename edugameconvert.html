@@ -368,7 +368,7 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
             game = game [1] ["data"] ["quiz"]
             show_metadata (game ["title"], game ["user_id"] ["username"], game ["description"], len (game ["questions"]), "ClassQuiz")
             export = []
-            for i in game ["questions"]:
+            for j, i in enumerate (game ["questions"]):
                 if i ["type"] not in ("ABCD", "CHECK", "TEXT"):
                     show_warning (j, f"Question type {i ['type']} not supported, skipping")
                     export.append (None) # Keep index consistent
@@ -397,13 +397,17 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
             if not mult_correct and len (question ["correct"]) > 1:
                 show_warning (num, "Multiple correct answers not supported, skipping")
                 return False # continue loop
+            elif not len (question ["correct"]):
+                show_warning (num, "No correct answer found, skipping")
+                return False
+
             if len (question ["answers"]) > max_answers:
                 if max (question ["correct"]) <= max_answers:
                     question ["answers"] = question ["answers"] [ : max_answers]
                     show_warning (num, f"More than maximum of {max_answers} answers, removing excess answers", "INFO")
                 else:
                     show_warning (num, f"More than maximum of {max_answers} answers and correct answer is outside range, skipping")
-                    return False # continue loop
+                    return False
             return True # Success
 
         def kahoot_export (game):
