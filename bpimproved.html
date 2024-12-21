@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <title>BPImproved</title>
+    <meta charset = "utf-8">
+    <script src = "https://cdn.jsdelivr.net/npm/brython@3.11/brython.min.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/brython@3.11/brython_stdlib.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/any-date-parser/dist/browser-bundle.min.js"></script>
+    <style>
+        html, body {
+            margin: 0px;
+        }
+        h1, p, div, textarea {
+            color: #000000;
+        }
+        p, span, div, textarea {
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            line-height: 1.5;
+        }
+        span {
+            color: #ff0000;
+            padding: 5px;
+            border: 1px solid red;
+            margin: 5px;
+        }
+        p {
+            margin: 0px;
+        }
+        #start {
+            line-height: 1;
+            font-size: 20px;
+        }
+        h1 {
+            font-family: Arial, sans-serif;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 20px;
+        }
+        textarea {
+            font-size: 20px;
+            margin: 0px 20px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body onload = "brython (0)">
+    <noscript>
+        <p id = "start">JavaScript is required to use this website.</p>
+    </noscript>
+    <script type = "text/python">
+        from browser import document, ajax, html, window
+        from urllib import parse
+        document ["results"].clear ()
+        document <= html.DIV ("", id = "error")
+        def show_error (ev):
+            document ["error"].innerHTML = ev.target.outerHTML + " - " + ev.target.attrs ["title"]
+        def complete (res):
+            document ["results"].clear ()
+            window.display_result (res.text)
+            for i in document ["results"].select_one ("p"):
+                i.bind ("mouseenter", show_error)
+        def req_search (ev):
+            ajax.get ("https://corsproxy.io/?url=https://bonpatron.com/ajax?typedText=" + document ["results"].innerText, oncomplete = complete, cache = True)
+        document ["request"].bind ("submit", req_search)  
+    </script>
+    <h1>BPImproved</h1>
+    <form action = javascript:void(0); id = "request">
+        <textarea id = "text"></textarea>
+        <button type = "submit" id = "enter">Submit</button>
+    </form>
+    <script>
+        document.body.insertAdjacentHTML ("beforeend", `<div id = "results" style = "margin: 20px" contenteditable = "true" spellcheck = "false"><p id = "start">Starting Brython...</p></div>`)
+        function display_result (result) {
+            parser = new DOMParser ();
+            document.getElementById ("results").appendChild (parser.parseFromString (result, "text/xml").getElementsByTagName ("results") [0].getElementsByTagName ("text") [0].getElementsByTagName ("p") [0]);
+        }
+    </script>
+</body>
