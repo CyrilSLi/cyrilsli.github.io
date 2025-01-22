@@ -100,7 +100,7 @@
                 elif ev.target.value [1] in "123456789":
                     disable (("emuid", "car", "row", "col"), "disabled")
                     cndate = (datetime.now (timezone.utc) + timedelta (hours = 8)).strftime ("%Y%m%d")
-                    ajax.get (f"https://corsproxy.io/?url=https://mobile.12306.cn/wxxcx/openplatform-inner/miniprogram/wifiapps/appFrontEnd/v2/lounge/open-smooth-common/trainStyleBatch/getCarDetail?carCode=&trainCode={ev.target.value [0].upper () + ev.target.value [1 : ]}&runningDay={cndate}&reqType=form&", mode = "json", oncomplete = getchedi)
+                    ajax.get ("https://corsproxy.io/?url=" + window.encodeURIComponent (f"https://mobile.12306.cn/wxxcx/openplatform-inner/miniprogram/wifiapps/appFrontEnd/v2/lounge/open-smooth-common/trainStyleBatch/getCarDetail?carCode=&trainCode={ev.target.value [0].upper () + ev.target.value [1 : ]}&runningDay={cndate}&reqType=form&"), mode = "json", oncomplete = getchedi)
                     ev.target.value = "列车编号获取中..."
                 elif ev.type == "focus":
                     if ev.target.value [ : 2] in ("列车", "车厢"):
@@ -149,12 +149,13 @@
         def getqrform (req):
             global regular_ids
             if not req.json:
-                disable (("emuid", "car", "row", "col"), "", True)
+                document ["emuid"].value = "列车编号不在数据库"
+                disable (("emuid", "car", "row", "col"), "", False)
                 return None
             form = req.json ["url"]
             form = form [form.find ("c=") + 2 : form.find ("&w")]
             if not form.startswith ("CR"):
-                ajax.get ("https://corsproxy.io/?url=https://mobile.12306.cn/wxxcx/wechat/main/travelServiceDecodeQrcode", data = f"c={form}&w=h&eKey=zKT3tfG8H8MzIGMJ2%2FxbcUbhyU6lfkOJRPiZFqf2Z61y19QIs1TS5oL%2BL0OYKF%2FnFocNWnPt1105UkKKQnSIoanOHkFIkpnJzBE9pAPSHOSZ0oNhuWyHPb3xQPOehcoUwKh%2BV6jDV7K4jeVIPvKCvA%3D%3D", oncomplete = limited_qr)
+                ajax.post ("https://corsproxy.io/?url=" + window.encodeURIComponent ("https://mobile.12306.cn/wxxcx/wechat/main/travelServiceDecodeQrcode"), data = f"c={form}&w=h&eKey=zKT3tfG8H8MzIGMJ2%2FxbcUbhyU6lfkOJRPiZFqf2Z61y19QIs1TS5oL%2BL0OYKF%2FnFocNWnPt1105UkKKQnSIoanOHkFIkpnJzBE9pAPSHOSZ0oNhuWyHPb3xQPOehcoUwKh%2BV6jDV7K4jeVIPvKCvA%3D%3D", oncomplete = limited_qr)
                 document ["emuid"].value = "车厢和座位号受限"
                 genqr (f"https://p.12306.cn/tservice/qr/travel/v1?c={form}&w=h")
             else:
@@ -167,7 +168,10 @@
                 document ["col"].value = req.json ["data"] ["seatNo"] [-1]
                 disable (("emuid", "car", "row", "col"), "")
             except Exception as e:
-                document ["emuid"].value = "列车编号不在数据库"
+                if req.json ["errorMsg"]:
+                    document ["emuid"].value = req.json ["errorMsg"]
+                else:
+                    document ["emuid"].value = "其他错误"
                 disable (("emuid", "car", "row", "col"), "", False)
                 window.console.log (f"Error retrieving databse QR Code: {e}")
         def emublur (ev):
