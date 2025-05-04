@@ -91,7 +91,7 @@
         from browser import document, ajax, html, window
         from urllib import parse
         from random import shuffle
-        global playlist, cors_url, player_pwd
+        global playlist, cors_url, player_pwd, kb_funcs
         document ["settings"].attrs ["hidden"] = "hidden"
         def rfind (text, values, end = "}"):
             pointer = 0
@@ -311,6 +311,28 @@
                     document ["setpwd"].textContent = "Set"
             else:
                 window.alert ("Password incorrect.")
+        kb_funcs = {
+            "h": lambda: req_search (True),
+            "Enter": search_id,
+            "c": remove_video,
+            "v": hide_show,
+            "l": list_change,
+            "m": list_manage,
+            "p": lambda: list_op ("play"),
+            "r": lambda: list_op ("reverse"),
+            "s": lambda: list_op ("shuffle"),
+            "i": lambda: search_id (True),
+            "e": lambda: list_op ("export"),
+            "d": lambda: list_op ("clear"),
+        }
+        def kb_shortcuts (ev):
+            global kb_funcs
+            if not ev.altKey:
+                return
+            elif ev.key in kb_funcs:
+                ev.preventDefault ()
+                kb_funcs [ev.key] ()
+        document.bind ("keydown", kb_shortcuts)
         window.req_search = req_search
         window.req_user = req_user
         window.req_video = req_video
