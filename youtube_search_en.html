@@ -102,10 +102,10 @@
             return text [pointer + len (values [-1]) + 3 : pointer + text [pointer : ].find (end) - 1].replace ("\\n", "\n").replace ("\\u0026", "&").replace ('\\"', '"')
         player_url = document.query.getvalue ("player_url")
         if not player_url:
-            player_url = "https://www.youtube-nocookie.com/embed/%v?rel=0&playlist=%p&loop=1&modestbranding=1"
+            player_url = "https://www.youtube-nocookie.com/embed/%v?rel=0&playlist=%p&loop=1&modestbranding=1&feature=oembed"
         cors_url = document.query.getvalue ("cors_url")
         if not cors_url:
-            cors_url = "https://corsproxy.io/?url=" # Default CORS proxy
+            cors_url = "https://api.codetabs.com/v1/proxy?quest=" # Default CORS proxy
         playlist, player_pwd = [], ""
         player_persist = False if document.query.getvalue ("player_persist") else True
         show_id = False if document.query.getvalue ("show_id") else True
