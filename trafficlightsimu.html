@@ -82,7 +82,6 @@
         document ["position"].text = f"#{position}"
         phases = timings [position - 1]
 
-
         def frame ():
             global phases, period
             if period == 0:
@@ -141,7 +140,6 @@
                 timer.set_timeout (complete1, 2000)
             timer.set_timeout (complete, 4000)
         document ["crash"].bind ("click", crash)
-
     </script>
 </body>
 </html>
