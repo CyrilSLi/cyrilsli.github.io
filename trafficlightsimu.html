@@ -63,12 +63,14 @@
         period = 20 # Seconds for a full cycle
 
         timings = [
-            [9, 14],  [11, 14], [7, 11],  [5, 9],  [8, 12],
-            [0, 5],   [10, 15], [5, 9],   [1, 12], [4, 9],
-            [7, 12],  [8, 13],  [17, 22], [1, 6],  [10, 14]
+            [9, 14],  [11, 14], [7, 11],  [5, 9],   [8, 12],
+            [0, 5],   [10, 15], [5, 9],   [1, 12],  [4, 9],
+            [7, 12],  [8, 13],  [17, 22], [1, 6],   [10, 14]
         ]
         connected_timings = [
-            [9, 14],  [12, 17], [15, 0], [18, 23], [1, 6]
+            [3, 8],   [6, 11],  [9, 14],  [12, 17], [15, 0],
+            [0, 5],   [10, 15], [5, 9],   [1, 12],  [18, 3],
+            [7, 12],  [8, 13],  [17, 22], [1, 6],   [10, 14]
         ]
 
         position = document.query.getvalue ("pos")
@@ -108,8 +110,7 @@
             document ["light"].style.backgroundImage = "url('https://media1.tenor.com/m/9cC_TaRxiNkAAAAC/dedsec.gif')"
             document ["light"].style.backgroundColor = "gray"
             document ["connect"].disabled = "disabled"
-            if position <= 5:
-                phases = connected_timings [position - 1]
+            phases = connected_timings [position - 1]
             def complete ():
                 global phases, period
                 nonlocal orig_period
