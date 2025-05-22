@@ -71,7 +71,7 @@
             [9, 14],  [12, 17], [15, 0], [18, 23], [1, 6]
         ]
 
-        position = int (document.query.getvalue ("pos"))
+        position = document.query.getvalue ("pos")
         while position is None:
             try:
                 position = int (window.prompt ("Enter your position: ").strip ())
@@ -79,6 +79,7 @@
                     position = None
             except:
                 pass
+        position = int (position)
         document ["position"].text = f"#{position}"
         phases = timings [position - 1]
 
