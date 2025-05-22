@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Traffic Light simulation</title>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/brython@3/brython.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3/brython_stdlib.min.js"></script>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        input, button {
+            font-family: Arial, sans-serif;
+            font-size: 32px;
+            padding: 10px 14px;
+            margin: 10px;
+            border-radius: 0px;
+            text-decoration: none;
+            font-weight: normal;
+            background-color: #f8f8f8;
+            color: black;
+            -webkit-appearance: none;
+            border: 1px solid black;
+            display: inline-block;
+        }
+        #light {
+            width: 100%;
+            flex: 1;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        p {
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 40px;
+            margin: 10px;
+            padding: 0px 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body onload="brython(0)">
+    <noscript>
+        <p>JavaScript is required to use this website.</p>
+    </noscript>
+    <div style="margin: 10px;">
+        <p id="position">#null</p>
+        <button id="connect">Connect to TMS</button>
+        <button id="crash" disabled>test</button>
+    </div>
+    <div id="light" style="background-color: gray;"></div>
+    <script type="text/python">
+        from browser import document, html, timer, window
+        global phases, period
+        phases = [3, 8] # [Offset until green, Offset until red] Yellow is 2 seconds
+        period = 20 # Seconds for a full cycle
+
+        timings = [
+            [9, 14],  [11, 14], [7, 11],  [5, 9],  [7, 11],
+            [0, 5],   [10, 15], [5, 9],   [1, 12], [4, 8],
+            [7, 12],  [8, 13],  [17, 22], [1, 6],  [10, 14]
+        ]
+        connected_timings = [
+            [9, 14],  [12, 17], [15, 0], [18, 23], [1, 6]
+        ]
+
+        position = int (document.query.getvalue ("pos"))
+        while position is None:
+            try:
+                position = int (window.prompt ("Enter your position: ").strip ())
+                if position < 1 or position > 15:
+                    position = None
+            except:
+                pass
+        document ["position"].text = f"#{position}"
+        phases = timings [position - 1]
+
+
+        def frame ():
+            global phases, period
+            if period == 0:
+                return
+            time = (window.Date.now () // 1000) % period
+            index, count, colour = phases [1], 0, "red"
+            while index != phases [0]:
+                index = (index - 1) % period
+                count += 1
+                if index == time:
+                    if count <= 2:
+                        colour = "yellow"
+                    else:
+                        colour = "green"
+                    break
+            document ["light"].style.backgroundColor = colour
+        timer.set_interval (frame, 100)
+
+        def connect (ev):
+            global phases, period, position
+            orig_period = period
+            period = 0 # Stop the timer
+            document ["light"].style.backgroundImage = "url('https://media1.tenor.com/m/9cC_TaRxiNkAAAAC/dedsec.gif')"
+            document ["light"].style.backgroundColor = "gray"
+            document ["connect"].disabled = "disabled"
+            if position <= 5:
+                phases = connected_timings [position - 1]
+            def complete ():
+                global phases, period
+                nonlocal orig_period
+                document ["light"].style.backgroundImage = ""
+                period = orig_period
+                document ["connect"].text = "Connected!"
+                document ["crash"].disabled = ""
+            timer.set_timeout (complete, 5000)
+        document ["connect"].bind ("click", connect)
+
+        def crash (ev):
+            global phases, period, position
+            orig_period = period
+            period = 0 # Stop the timer
+            document ["light"].style.backgroundImage = "url('https://media.tenor.com/yij_XBd89fAAAAAj/test-print.gif')"
+            document ["light"].style.backgroundColor = "gray"
+            document ["crash"].disabled = "disabled"
+            if position in (4, 8):
+                orig_period = 0 # Broken light
+            def complete1 ():
+                global phases, period
+                nonlocal orig_period
+                document ["light"].style.backgroundImage = ""
+                document ["light"].style.backgroundColor = "red"
+                document ["crash"].text = "tested?"
+                period = orig_period
+            def complete ():
+                document ["light"].style.backgroundImage = "url('https://media.tenor.com/jYfP3Nj30agAAAAM/kaboom-explosion.gif')"
+                timer.set_timeout (complete1, 2000)
+            timer.set_timeout (complete, 4000)
+        document ["crash"].bind ("click", crash)
+
+    </script>
+</body>
+</html>
