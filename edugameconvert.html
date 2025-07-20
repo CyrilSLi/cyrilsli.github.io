@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <script src="https://cdn.jsdelivr.net/npm/brython@3/brython.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/brython@3/brython_stdlib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/epoxy-tls-polyfill@1.0.0/dist/brython.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/zipcelx@1.6.2/lib/standalone.min.js"></script>
     <style>
         html, body, div {
@@ -205,11 +206,9 @@ If you have an issue or want to suggest a platform, please raise an issue on the
 &#9&#9-  <a href="https://help.gimkit.com/en/article/create-a-kit-with-a-csv-file-wv72i9" target="_blank">Gimkit import guide</a>
 &#9&#9-  ClassQuiz: Upload the .cqa file to Homepage -> Import -> "A ClassQuiz-Quiz"
 
-<b>CORS Proxy</b>
+<b>CORS</b>
 As this tool runs entirely in the browser, fetching game data from other websites is restricted by <a href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing" target="_blank">CORS</a>.
-It uses <a href="https://corsproxy.io/" target="_blank">corsproxy.io</a> by default to bypass this restriction, however this may be blocked on certain networks.
-If you wish to use another proxy, set the <b>cors_url</b> query parameter to a URL prefix (e.g. <a href="?cors_url=https://cors-anywhere.herokuapp.com/" target="_self">cors-anywhere</a>).
-If you have a CORS bypass extension installed (<a href="https://chromewebstore.google.com/detail/cors-unblock/lfhmikememgdcahcdlaciloancbhjino" target="_blank">example</a>), disable the proxy by <a href="?cors_url=" target="_self">setting an empty value</a>.
+It uses a <a href="https://wisp.mercurywork.shop" target="_blank">Wisp server</a> and <a href="https://github.com/MercuryWorkshop/epoxy-tls" target="_blank">epoxy-tls</a> to bypass the restriction, however this may be blocked on certain networks.
 
 <b>This tool is not sponsored by or affiliated with any proxies, extensions, or platforms mentioned.</b>
         </pre>
@@ -695,10 +694,6 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
                 "classquiz": (classquiz_import, f"https://classquiz.de/view/{game_id}", classquiz_export)
             }
 
-            cors_proxy = document.query.getvalue ("cors_url")
-            if cors_proxy is None:
-                cors_proxy = "https://corsproxy.io/?url=" # Default CORS proxy
-
             def callback (req):
                 if req.status != 200:
                     log (f"HTTP Error {req.status}")
@@ -719,7 +714,7 @@ If you have a CORS bypass extension installed (<a href="https://chromewebstore.g
                 log (">>> Conversion complete, saving to file")
 
             log (">>> Fetching game data")
-            ajax.get (cors_proxy + converters [platform_in] [1], oncomplete = callback, cache = True)
+            ajax.get (converters [platform_in] [1], oncomplete = callback, cache = True)
 
         document ["form"].bind ("submit", convert)
     </script>

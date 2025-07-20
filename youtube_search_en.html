@@ -5,6 +5,7 @@
     <meta charset = "utf-8">
     <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
     <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.min.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/epoxy-tls-polyfill@1.0.0/dist/brython.min.js"></script>
     <style>
         html, body {
             margin: 0px;
@@ -91,7 +92,7 @@
         from browser import document, ajax, html, window
         from urllib import parse
         from random import shuffle
-        global playlist, cors_url, player_pwd, kb_funcs
+        global playlist, player_pwd, kb_funcs
         document ["settings"].attrs ["hidden"] = "hidden"
         def rfind (text, values, end = "}"):
             pointer = 0
@@ -103,9 +104,6 @@
         player_url = document.query.getvalue ("player_url")
         if not player_url:
             player_url = "https://www.youtube-nocookie.com/embed/%v?rel=0&playlist=%p&loop=1&modestbranding=1&feature=oembed"
-        cors_url = document.query.getvalue ("cors_url")
-        if not cors_url:
-            cors_url = "https://api.codetabs.com/v1/proxy/?quest=" # Default CORS proxy
         playlist, player_pwd = [], ""
         player_persist = False if document.query.getvalue ("player_persist") else True
         show_id = False if document.query.getvalue ("show_id") else True
@@ -135,11 +133,11 @@
                 if homepage:
                     document ["enter"].textContent = "Settings"
                     document ["results"] <= html.H1 ("Homepage")
-                    cors_get ("https://www.youtube.com/?app=desktop&hl=en&persist_app=1")
+                    ajax.get ("https://www.youtube.com/?app=desktop&hl=en&persist_app=1", oncomplete = complete)
                     document ["player"] <= html.P ("Loading...", id = "load")
                 elif search:
                     document ["results"] <= html.H1 (f'Results for "{search}"')
-                    cors_get ("https://www.youtube.com/results?app=desktop&hl=en&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D")
+                    ajax.get ("https://www.youtube.com/results?app=desktop&hl=en&persist_app=1&search_query=" + parse.quote (search).replace (" ", "+") + "&sp=EgIQAQ%253D%253D", oncomplete = complete)
                     document ["player"] <= html.P ("Loading...", id = "load")
                 else:
                     del document ["settings"].attrs ["hidden"]
@@ -151,7 +149,7 @@
                 document ["results"] <= (html.H1 (f'Videos by "{name}" ({url [1 : ]})'))
                 document ["player"] <= html.P ("Loading...", id = "load")
                 window.scrollTo (0, 0)
-                cors_get ("https://www.youtube.com" + url + "/videos?app=desktop&hl=en&persist_app=1")
+                ajax.get ("https://www.youtube.com" + url + "/videos?app=desktop&hl=en&persist_app=1", oncomplete = complete)
         def req_video (url):
             window.event.preventDefault ()
             if "load" not in document:
@@ -165,7 +163,7 @@
                 document ["player"] <= html.IFRAME (src = url, flex = "1", height = "0px", id = "frame", frameBorder = "0", allowfullscreen = "allowfullscreen", onload = "reload_frame ();")
         def reload_frame ():
             document ["frame"].onload = ""
-            document ["frame"].src += ""
+            document ["frame"].attrs ["src"] += ""
             del document ["load"]
             if "player_old" in document:
                 del document ["player_old"]
@@ -200,7 +198,7 @@
                         run = ""
                 else:
                     if "frame" in document:
-                        listindex, frame_url = player_url.find ("%p") + 9, document ["frame"].src
+                        listindex, frame_url = player_url.find ("%p") + 9, document ["frame"].attrs ["src"]
                         document ["search"].value = "ytpid:" + frame_url [listindex : max (0, frame_url.find ("&", listindex))]        
         def hide_show ():
             global player_pwd
@@ -218,7 +216,7 @@
                 window.alert ("Password incorrect.")
         def list_change (change = True):
             if "change" in document:
-                vid_id = document ["frame"].src [player_url.find ("%v") : player_url.find ("%v") + 11]
+                vid_id = document ["frame"].attrs ["src"] [player_url.find ("%v") : player_url.find ("%v") + 11]
                 if change:
                     if vid_id in playlist:
                         playlist.remove (vid_id)
@@ -296,11 +294,6 @@
                 document ["enter"].textContent = "Search"
             else:
                 document ["enter"].textContent = "Settings"
-        def cors_get (url, oncomplete = complete):
-            if cors_url.lower () != "none":
-                ajax.get (cors_url + window.encodeURIComponent (url), oncomplete = oncomplete)
-            else:
-                ajax.get (url, oncomplete = oncomplete)
         def set_pwd ():
             global player_pwd
             if not player_pwd or player_pwd == window.prompt ("Enter the current password:"):

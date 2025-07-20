@@ -5,6 +5,7 @@
     <meta charset = "utf-8">
     <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
     <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.min.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/epoxy-tls-polyfill@1.0.0/dist/brython.min.js"></script>
     <script src = "https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
     <style>
         :root {
@@ -100,7 +101,7 @@
                 elif ev.target.value [1] in "123456789":
                     disable (("emuid", "car", "row", "col"), "disabled")
                     cndate = (datetime.now (timezone.utc) + timedelta (hours = 8)).strftime ("%Y%m%d")
-                    ajax.get ("https://corsproxy.io/?url=" + window.encodeURIComponent (f"https://mobile.12306.cn/wxxcx/openplatform-inner/miniprogram/wifiapps/appFrontEnd/v2/lounge/open-smooth-common/trainStyleBatch/getCarDetail?carCode=&trainCode={ev.target.value [0].upper () + ev.target.value [1 : ]}&runningDay={cndate}&reqType=form&"), mode = "json", oncomplete = getchedi)
+                    ajax.get (f"https://mobile.12306.cn/wxxcx/openplatform-inner/miniprogram/wifiapps/appFrontEnd/v2/lounge/open-smooth-common/trainStyleBatch/getCarDetail?carCode=&trainCode={window.encodeURIComponent (ev.target.value [0].upper () + ev.target.value [1 : ])}&runningDay={cndate}&reqType=form&", mode = "json", oncomplete = getchedi)
                     ev.target.value = "列车编号获取中..."
                 elif ev.type == "focus":
                     if ev.target.value [ : 2] in ("列车", "车厢"):
@@ -140,12 +141,12 @@
             if document ["emuid"].value not in regular_ids:
                 disable (("emuid", "car", "row", "col"), "disabled")
                 if not qr_url:
-                    ajax.get (f'https://corsproxy.io/?url=https://api.rail.re/emu/{document ["emuid"].value.replace ("-", "")}/qr', mode = "json", oncomplete = getqrform)
+                    ajax.get (f'https://api.rail.re/emu/{document ["emuid"].value.replace ("-", "")}/qr', mode = "json", oncomplete = getqrform)
             else:
                 disable (("emuid", "car", "row", "col"), "")
             if not qr_url:
                 qr_url = f"https://p.12306.cn/tservice/qr/travel/v1?c={document ['emuid'].value}-{document ['car'].value}-{document ['row'].value}{document ['col'].value}&w=h"
-            document ["qr"].src = window.QRious.new ({"element": html.CANVAS (), "level": "M", "size": 814, "padding": 37, "value": qr_url}).toDataURL ()
+            document ["qr"].attrs ["src"] = window.QRious.new ({"element": html.CANVAS (), "level": "M", "size": 814, "padding": 37, "value": qr_url}).toDataURL ()
         def getqrform (req):
             global regular_ids
             if not req.json:
@@ -155,7 +156,7 @@
             form = req.json ["url"]
             form = form [form.find ("c=") + 2 : form.find ("&w")]
             if not form.startswith ("CR"):
-                ajax.post ("https://corsproxy.io/?url=" + window.encodeURIComponent ("https://mobile.12306.cn/wxxcx/wechat/main/travelServiceDecodeQrcode"), data = f"c={form}&w=h&eKey=zKT3tfG8H8MzIGMJ2%2FxbcUbhyU6lfkOJRPiZFqf2Z61y19QIs1TS5oL%2BL0OYKF%2FnFocNWnPt1105UkKKQnSIoanOHkFIkpnJzBE9pAPSHOSZ0oNhuWyHPb3xQPOehcoUwKh%2BV6jDV7K4jeVIPvKCvA%3D%3D", oncomplete = limited_qr)
+                ajax.post ("https://mobile.12306.cn/wxxcx/wechat/main/travelServiceDecodeQrcode", data = f"c={form}&w=h&eKey=zKT3tfG8H8MzIGMJ2%2FxbcUbhyU6lfkOJRPiZFqf2Z61y19QIs1TS5oL%2BL0OYKF%2FnFocNWnPt1105UkKKQnSIoanOHkFIkpnJzBE9pAPSHOSZ0oNhuWyHPb3xQPOehcoUwKh%2BV6jDV7K4jeVIPvKCvA%3D%3D", oncomplete = limited_qr)
                 document ["emuid"].value = "车厢和座位号受限"
                 genqr (f"https://p.12306.cn/tservice/qr/travel/v1?c={form}&w=h")
             else:
