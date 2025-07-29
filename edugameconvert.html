@@ -210,7 +210,7 @@ If you have an issue or want to suggest a platform, please raise an issue on the
 As this tool runs entirely in the browser, fetching game data from other websites is restricted by <a href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing" target="_blank">CORS</a>.
 It uses a <a href="https://wisp.mercurywork.shop" target="_blank">Wisp server</a> and <a href="https://github.com/MercuryWorkshop/epoxy-tls" target="_blank">epoxy-tls</a> to bypass the restriction, however this may be blocked on certain networks.
 
-<b>This tool is not sponsored by or affiliated with any proxies, extensions, or platforms mentioned.</b>
+<b>This tool is not sponsored by or affiliated with any platforms mentioned.</b>
         </pre>
     </div>
     <script type = "text/python">
@@ -288,7 +288,7 @@ It uses a <a href="https://wisp.mercurywork.shop" target="_blank">Wisp server</a
 
         def quizizz_import (game):
             game = game ["data"] ["quiz"]
-            show_metadata (game ["info"] ["name"], game ["createdBy"] ["local"] ["username"], "", len (game ["info"] ["questions"]), "Quizizz")
+            show_metadata (game ["info"] ["name"], game ["createdBy"] ["firstName"], "", len (game ["info"] ["questions"]), "Quizizz")
             game = game ["info"] ["questions"]
             export = []
 
@@ -665,7 +665,7 @@ It uses a <a href="https://wisp.mercurywork.shop" target="_blank">Wisp server</a
             if "kahoot.it" in game_url:
                 id_regex = r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" # UUID
                 platform_in = "kahoot"
-            elif "quizizz.com" in game_url:
+            elif "quizizz.com" in game_url or "wayground.com" in game_url:
                 game_id = game_url.split ("/") [-1]
                 platform_in = "quizizz"
             elif "blooket.com" in game_url:
@@ -688,7 +688,7 @@ It uses a <a href="https://wisp.mercurywork.shop" target="_blank">Wisp server</a
 
             converters = {
                 "kahoot": (kahoot_import, f"https://create.kahoot.it/rest/kahoots/{game_id}", kahoot_export),
-                "quizizz": (quizizz_import, f"https://quizizz.com/_quizserver/main/v2/quiz/{game_id}", quizizz_export),
+                "quizizz": (quizizz_import, f"https://wayground.com/_quizserver/main/v2/quiz/{game_id}", quizizz_export),
                 "blooket": (blooket_import, f"https://dashboard.blooket.com/api/games?gameId={game_id}", blooket_export),
                 "gimkit": (gimkit_import, f"https://www.gimkit.com/api/games/fetch/{game_id}", gimkit_export),
                 "classquiz": (classquiz_import, f"https://classquiz.de/view/{game_id}", classquiz_export)
