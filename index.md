@@ -6,7 +6,7 @@ This is my personal website with some school projects and a collection of single
 
 - [edugameconvert.html](edugameconvert.html) - Converts questions between Kahoot, Quizizz, and Blooket games
 - [hc-roadsign-sticker](hc-roadsign-sticker) - Generates road sign stickers/images with nearby highway and transit information
-- [health-protection-reports](https://github.com/CyrilSLi/health-protection-reports) - View Manitoba Health Protection Reports data on a user-friendly map
+- [health-protection-reports](health-protection-reports) - View Manitoba Health Protection Reports data on a user-friendly map
 - [pohai.html](pohai.html) - A tool for generating 铁路畅行码 (China Railway QR codes) given the trainset number and seat
 - [sjrmenu.html](sjrmenu.html) - Parses the PDF menu and displays it in point form
 - [wrplusplus.html](wrplusplus.html) - A wrapper around WordReference dictionaries which implements cached autocomplete and a kayboard-focused interface
