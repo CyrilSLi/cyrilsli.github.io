@@ -70,8 +70,9 @@
         # (Brunch, Soup, Salad, Deli, Hot Entrée, Vegetarian Entrée, Hydration Station) for each day
 
         days = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
-        items = ("Brunch", "Soup", "Salad", "Deli", "Hot Entrée", "Vegetarian Entrée", "Dinner")
-        VERSION = "3" # Affected by changes in the menu format
+        items =       ("Brunch",          "Hot Entrée", "Salad",     "Deli",         "Soup",       "Vegetarian Entrée", "Kinder/1 Lunch", "Extended Day", "Dinner")
+        row_headers = ("water, and milk", "Hot Entrée", "Salad Bar", "Deli Station", "Daily Soup", "Vegetarian Entrée", "Kinder/1 Lunch", "Extended Day", "Dinner")
+        VERSION = "4" # Affected by changes in the menu format
 
         def rfind (text, values, end = ")>>"):
             pointer = 0
@@ -106,7 +107,6 @@
             document <= html.A (html.H1 (f'{" • ".join (titles)} (Click to Refresh)'), id = "title", href = "javascript:void (0)")
             document ["title"].bind ("click", fetch_menu)
             
-            row_headers = ["water, and milk", "Daily Soup", "Salad Bar", "Deli Station", "Hot Entrée", "Vegetarian Entrée", "Dinner"]
             row_heights = []
             for i, j in zip (row_headers, row_headers [1 : ]):
                 a = transform [text.index (i)] [5]
@@ -117,7 +117,7 @@
             col_headers = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
             col_heights = [transform [text.index (i)] [4] for i in col_headers]
 
-            values = [[] for i in range (35)]
+            values = [[] for i in range (len (days) * len (items))]
             for i in columns:
                 for j in i:
                     values [(6 - bisect (row_heights, j [1])) * 5 + bisect (col_heights, j [2])].append (j [0])
@@ -170,8 +170,6 @@
             document <= html.P ("Fetching Menu...", id = "start")
 
             pdf = window.pdfjsLib.getDocument ("https://api.codetabs.com/v1/proxy?quest=https://sjr.myschoolapp.com/ftpimages/1091/download/download_5418715.pdf").promise
-            def get_page (p):
-                return p.getPage (1)
             pdf = pdf.then (lambda p: p.getPage (1))
             pdf = pdf.then (lambda p: p.getTextContent ())
             pdf = pdf.then (complete)
