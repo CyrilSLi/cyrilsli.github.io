@@ -4,15 +4,15 @@
 
 Here is a collection of single-page web tools that I created, ordered alphabetically:
 
-- [cptdb-photo-stream](cptdb-photo-stream) - A web application which displays all photos from a given CPTDB forum user on a single scrollable page
-- [edugameconvert.html](edugameconvert.html) - Converts questions between Kahoot, Quizizz, Blooket, Gimkit, and ClassQuiz games
-- [hc-roadsign-sticker](hc-roadsign-sticker) - Generates road sign stickers/images with nearby highway and transit information
-- [health-protection-reports](health-protection-reports) - View Manitoba Health Protection Reports data on a user-friendly map
-- [mcdonalds-price-tracker](mcdonalds-price-tracker) - Compare the prices of McDonald's menu items across different restaurants
-- [pohai.html](pohai.html) - A tool for generating 铁路畅行码 (China Railway QR codes) given the trainset number and seat
-- [sjrmenu.html](sjrmenu.html) - Parses the PDF menu and displays it in point form
-- [wrplusplus.html](wrplusplus.html) - A wrapper around WordReference dictionaries which implements cached autocomplete and a kayboard-focused interface
-- [youtube_search_en.html](youtube_search_en.html) - A wrapper around a YouTube embed which implements search and a local playlist
+- [cptdb-photo-stream](https://cyrilsli.github.io/cptdb-photo-stream) - A web application which displays all photos from a given CPTDB forum user on a single scrollable page
+- [edugameconvert.html](https://cyrilsli.github.io/edugameconvert.html) - Converts questions between Kahoot, Quizizz, Blooket, Gimkit, and ClassQuiz games
+- [hc-roadsign-sticker](https://cyrilsli.github.io/hc-roadsign-sticker) - Generates road sign stickers/images with nearby highway and transit information
+- [health-protection-reports](https://cyrilsli.github.io/health-protection-reports) - View Manitoba Health Protection Reports data on a user-friendly map
+- [mcdonalds-price-tracker](https://cyrilsli.github.io/mcdonalds-price-tracker) - Compare the prices of McDonald's menu items across different restaurants
+- [pohai.html](https://cyrilsli.github.io/pohai.html) - A tool for generating 铁路畅行码 (China Railway QR codes) given the trainset number and seat
+- [sjrmenu.html](https://cyrilsli.github.io/sjrmenu.html) - Parses the PDF menu and displays it in point form
+- [wrplusplus.html](https://cyrilsli.github.io/wrplusplus.html) - A wrapper around WordReference dictionaries which implements cached autocomplete and a kayboard-focused interface
+- [youtube_search_en.html](https://cyrilsli.github.io/youtube_search_en.html) - A wrapper around a YouTube embed which implements search and a local playlist
 
 ## Other Technical Projects
 
