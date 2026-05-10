@@ -5,7 +5,7 @@
 Here is a collection of single-page web tools that I created, ordered alphabetically:
 
 - [cptdb-photo-stream](cptdb-photo-stream) - A web application which displays all photos from a given CPTDB forum user on a single scrollable page
-- [edugameconvert.html](edugameconvert.html) (UNMAINTAINED) - Converts questions between Kahoot, Quizizz, and Blooket games
+- [edugameconvert.html](edugameconvert.html) - Converts questions between Kahoot, Quizizz, Blooket, Gimkit, and ClassQuiz games
 - [hc-roadsign-sticker](hc-roadsign-sticker) - Generates road sign stickers/images with nearby highway and transit information
 - [health-protection-reports](health-protection-reports) - View Manitoba Health Protection Reports data on a user-friendly map
 - [mcdonalds-price-tracker](mcdonalds-price-tracker) - Compare the prices of McDonald's menu items across different restaurants

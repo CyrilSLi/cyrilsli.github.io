@@ -306,15 +306,34 @@ It uses a <a href="https://wisp.mercurywork.shop" target="_blank">Wisp server</a
                     "correct": []
                 }
 
-                if type (i ["structure"] ["answer"]) == int:
-                    if i ["structure"] ["answer"] > -1:
-                        question ["correct"] = [i ["structure"] ["answer"] + 1]
+                answer = i ["structure"] ["answer"]
+                fitb = False
+                if type (answer) == int:
+                    if answer > -1:
+                        question ["correct"] = [answer + 1]
+                elif type (answer) == list and len (answer):
+                    if type (answer [0]) == int:
+                        question ["correct"] = [k + 1 for k in answer]
+                    elif type (answer [0]) == dict and "optionId" in answer [0]:
+                        if len (answer) > 1:
+                            show_warning (j, "Multiple answer targets (e.g. FITB with multiple blanks) not supported, skipping")
+                            export.append (None) # Keep index consistent
+                            continue
+                        question ["correct"] = []
+                        fitb = True
+                        for l, k in enumerate (i ["structure"] ["options"]):
+                            if k ["id"] == answer [0] ["optionId"]:
+                                question ["correct"] = [l + 1]
+                                break
+
                 else:
-                    question ["correct"] = [k + 1 for k in i ["structure"] ["answer"]]
+                    show_warning (j, "No correct answer found, skipping")
+                    export.append (None) # Keep index consistent
+                    continue
 
                 answers = []
                 for k in i ["structure"] ["options"]:
-                    if k ["type"] != "text":
+                    if k ["type"] != "text" and not (fitb and k ["type"] is None):
                         show_warning (j, "Non-text answer not supported, skipping")
                         export.append (None) # Keep index consistent
                         break
@@ -351,9 +370,18 @@ It uses a <a href="https://wisp.mercurywork.shop" target="_blank">Wisp server</a
         def gimkit_import (game):
             show_metadata (game ["kit"] ["title"], game ["creator"] ["name"], "", len (game ["kit"] ["questions"]), "Gimkit")
             export = []
-            for i in game ["kit"] ["questions"]:
+            for j, i in enumerate (game ["kit"] ["questions"]):
+                if "text" in i:
+                    text = i ["text"]
+                elif "latex" in i:
+                    text = i ["latex"] # Use raw LaTeX as a compromise to support math questions
+                else:
+                    show_warning (j, "No question text found (likely an audio question), skipping")
+                    export.append (None) # Keep index consistent
+                    continue
+
                 question = {
-                    "question": i ["text"],
+                    "question": text,
                     "type": {"mc": "MCQ", "text": "Typing"} [i ["type"]],
                     "answers": [j ["text"] for j in i ["answers"]],
                     "correct": [k + 1 for k, j in enumerate (i ["answers"]) if j ["correct"]],
@@ -364,7 +392,6 @@ It uses a <a href="https://wisp.mercurywork.shop" target="_blank">Wisp server</a
             return export
 
         def classquiz_import (game):
-            game = game [1] ["data"] ["quiz"]
             show_metadata (game ["title"], game ["user_id"] ["username"], game ["description"], len (game ["questions"]), "ClassQuiz")
             export = []
             for j, i in enumerate (game ["questions"]):
@@ -691,7 +718,7 @@ It uses a <a href="https://wisp.mercurywork.shop" target="_blank">Wisp server</a
                 "quizizz": (quizizz_import, f"https://wayground.com/_quizserver/main/v2/quiz/{game_id}", quizizz_export),
                 "blooket": (blooket_import, f"https://dashboard.blooket.com/api/games?gameId={game_id}", blooket_export),
                 "gimkit": (gimkit_import, f"https://www.gimkit.com/api/games/fetch/{game_id}", gimkit_export),
-                "classquiz": (classquiz_import, f"https://classquiz.de/view/{game_id}", classquiz_export)
+                "classquiz": (classquiz_import, f"https://classquiz.de/api/v1/quiz/get/public/{game_id}", classquiz_export)
             }
 
             def callback (req):
@@ -699,10 +726,7 @@ It uses a <a href="https://wisp.mercurywork.shop" target="_blank">Wisp server</a
                     log (f"HTTP Error {req.status}")
                     log ("Please check the game URL and try again.")
                     return
-                if platform_in == "classquiz":
-                    game = window.eval (req.text.split ("const data = ") [-1].split (";") [0]) # Extract JSON from html
-                else:
-                    game = json.loads (req.text)
+                game = json.loads (req.text)
 
                 log (f"\n>>> Running {converters [platform_in] [0].__name__}()")
                 game = converters [platform_in] [0] (game)
