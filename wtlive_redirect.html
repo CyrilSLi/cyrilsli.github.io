@@ -5,20 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WTLive Run Redirect</title>
     <script src="https://cdn.jsdelivr.net/npm/epoxy-tls-polyfill@1/dist/javascript.min.js"></script>
+    <style>
+        * {
+            touch-action: manipulation;
+            margin: 0px;
+            padding: 0px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            font-weight: normal;
+            border: none;
+        }
+        body {
+            margin: 20px;
+            background-color: white;
+        }
+        p, a {
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            overflow-wrap: break-word;
+        }
+    </style>
+    <div id="content">
+        <p>Loading redirect...</p>
+    </div>
     <script>
-        (async () => {
-            const run = new URLSearchParams(window.location.search).get("run");
-            const schedules = new DOMParser().parseFromString(await fetch("https://www.wtlivewpg.com/Pages/Timetables").then(res => res.text()), "text/html");
-            const timetableDate = schedules.querySelector('a[href^="20"]').href.match(/\d{4}-\d{2}-\d{2}/)[0];
-            const scheduleType = {
-                "1": "Weekday",
-                "2": "Saturday",
-                "3": "Sunday"
-            }[run.charAt(0)];
+        function showMsg(msg) {
+            document.getElementById("content").innerHTML = `<p>${msg}</p>`;
+        }
+        function showRedir(url) {
+            document.getElementById("content").innerHTML = `<p>Redirecting to <a href="${url}">${url}</a>...</p>`;
             const link = document.createElement("a");
-            link.href = `https://www.wtlivewpg.com/Pages/Timetables/${timetableDate}/Runs/${scheduleType}/${run.slice(2)}/Run.html`;
+            link.href = url;
             document.body.appendChild(link);
             link.click();
+        }
+        (async () => {
+            const search = new URLSearchParams(window.location.search);
+            if (search.get("run")) {
+                const run = search.get("run");
+                showMsg(`Redirecting to run ${run}...`);
+                const schedules = new DOMParser().parseFromString(await fetch("https://www.wtlivewpg.com/Pages/Timetables").then(res => res.text()), "text/html");
+                const timetableDate = schedules.querySelector('a[href^="20"]').href.match(/\d{4}-\d{2}-\d{2}/)[0];
+                const scheduleType = {
+                    "1": "Weekday",
+                    "2": "Saturday",
+                    "3": "Sunday"
+                }[run.charAt(0)];
+                showRedir(`https://www.wtlivewpg.com/Pages/Timetables/${timetableDate}/Runs/${scheduleType}/${run.slice(2)}/Run.html`);
+            } else if (search.get("vehicle")) {
+                const vehicle = search.get("vehicle");
+                showMsg(`Redirecting to vehicle ${vehicle}...`);
+                const vehiclesURL = "https://www.wtlivewpg.com/php/history/Buses/";
+                const vehicles = new DOMParser().parseFromString(await fetch(vehiclesURL).then(res => res.text()), "text/html");
+                if (!([...vehicles.querySelectorAll("a")].some((link) => {
+                    if (link.textContent.trim() === vehicle) {
+                        showRedir(new URL(link.getAttribute("href"), vehiclesURL));
+                        return true;
+                    }
+                }))) {
+                    showMsg(`ERROR: Vehicle ${vehicle} not found.`);
+                }
+            } else {
+                showMsg("ERROR: No redirect target specified.");
+            }
         })();
     </script>
 </head>
