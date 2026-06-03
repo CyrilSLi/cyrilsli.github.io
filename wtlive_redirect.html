@@ -45,14 +45,14 @@
             if (search.get("run")) {
                 const run = search.get("run");
                 showMsg(`Redirecting to run ${run}...`);
-                const schedules = new DOMParser().parseFromString(await fetch("https://www.wtlivewpg.com/Pages/Timetables").then(res => res.text()), "text/html");
+                const schedules = new DOMParser().parseFromString(await fetch("https://www.wtlivewpg.com/php/timetables").then(res => res.text()), "text/html");
                 const timetableDate = schedules.querySelector('a[href^="20"]').href.match(/\d{4}-\d{2}-\d{2}/)[0];
                 const scheduleType = {
                     "1": "Weekday",
                     "2": "Saturday",
                     "3": "Sunday"
                 }[run.charAt(0)];
-                showRedir(`https://www.wtlivewpg.com/Pages/Timetables/${timetableDate}/Runs/${scheduleType}/${run.slice(2)}/Run.html`);
+                showRedir(`https://www.wtlivewpg.com/php/timetables/${timetableDate}/Runs/${scheduleType}/${run.slice(2)}/Run.php`);
             } else if (search.get("vehicle")) {
                 const vehicle = search.get("vehicle");
                 showMsg(`Redirecting to vehicle ${vehicle}...`);

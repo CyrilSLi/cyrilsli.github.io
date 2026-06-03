@@ -103,7 +103,7 @@
             return text [pointer + len (values [-1]) + 3 : pointer + text [pointer : ].find (end) - 1].replace ("\\n", "\n").replace ("\\u0026", "&").replace ('\\"', '"')
         player_url = document.query.getvalue ("player_url")
         if not player_url:
-            player_url = "https://www.youtube.com/embed/%v?rel=0&playlist=%p&loop=1&modestbranding=1&feature=oembed"
+            player_url = "https://www.youtube-nocookie.com/embed/%v?rel=0&playlist=%p&loop=1&modestbranding=1&feature=oembed"
         playlist, player_pwd = [], ""
         player_persist = False if document.query.getvalue ("player_persist") else True
         show_id = False if document.query.getvalue ("show_id") else True
