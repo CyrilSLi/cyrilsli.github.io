@@ -46,7 +46,12 @@
                 const run = search.get("run");
                 showMsg(`Redirecting to run ${run}...`);
                 const schedules = new DOMParser().parseFromString(await fetch("https://www.wtlivewpg.com/php/timetables").then(res => res.text()), "text/html");
-                const timetableDate = schedules.querySelector('a[href^="20"]').href.match(/\d{4}-\d{2}-\d{2}/)[0];
+                const currentDate = new Date().toLocaleString("en-CA").split(",")[0];
+                let timetableDate;
+                [...schedules.querySelectorAll('a[href^="20"]')].some((link) => {
+                    timetableDate = link.href.match(/\d{4}-\d{2}-\d{2}/)[0];
+                    return currentDate >= timetableDate;
+                });
                 const scheduleType = {
                     "1": "Weekday",
                     "2": "Saturday",
