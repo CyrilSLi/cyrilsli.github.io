@@ -43,7 +43,30 @@
         (async () => {
             const search = new URLSearchParams(window.location.search);
             if (search.get("run")) {
-                const run = search.get("run");
+                let run = search.get("run");
+                run = (() => {
+                    switch (run.split("-").length) {
+                        case 3:
+                            return run;
+                        case 2:
+                            switch (new Date().getDay()) {
+                                case 1:
+                                case 2:
+                                case 3:
+                                case 4:
+                                case 5:
+                                    return "1-" + run;
+                                case 6:
+                                    return "2-" + run;
+                                case 0:
+                                    return "3-" + run;
+                            }
+                    }
+                })();
+                if (!run) {
+                    showMsg("ERROR: Invalid run format.");
+                    return;
+                }
                 showMsg(`Redirecting to run ${run}...`);
                 const schedules = new DOMParser().parseFromString(await fetch("https://www.wtlivewpg.com/php/timetables").then(res => res.text()), "text/html");
                 const currentDate = new Date().toLocaleString("en-CA").split(",")[0];
