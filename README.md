@@ -4,14 +4,16 @@
 
 Here is a collection of single-page web tools that I created, ordered alphabetically:
 
-- [cptdb-photo-stream](https://cyrilsli.github.io/cptdb-photo-stream) - A web application which displays all photos from a given CPTDB forum user on a single scrollable page
+- ~~[cptdb-photo-stream](https://cyrilsli.github.io/cptdb-photo-stream) - A web application which displays all photos from a given CPTDB forum user on a single scrollable page~~ (currently unavailable due to CAPTCHAs on CPTDB)
 - [edugameconvert.html](https://cyrilsli.github.io/edugameconvert.html) - Converts questions between Kahoot, Quizizz, Blooket, Gimkit, and ClassQuiz games
 - [hc-roadsign-sticker](https://cyrilsli.github.io/hc-roadsign-sticker) - Generates road sign stickers/images with nearby highway and transit information
 - [health-protection-reports](https://cyrilsli.github.io/health-protection-reports) - View Manitoba Health Protection Reports data on a user-friendly map
+- [luminator-web](https://cyrilsli.github.io/luminator-web) - (Unofficial) A local web-based transit destination sign editor emulating the Luminator Horizon line of monochrome LED signs
 - [mcdonalds-price-tracker](https://cyrilsli.github.io/mcdonalds-price-tracker) - Compare the prices of McDonald's menu items across different restaurants
 - [pohai.html](https://cyrilsli.github.io/pohai.html) - A tool for generating 铁路畅行码 (China Railway QR codes) given the trainset number and seat
 - [wrplusplus.html](https://cyrilsli.github.io/wrplusplus.html) - A wrapper around WordReference dictionaries which implements cached autocomplete and a kayboard-focused interface
 - [youtube_search_en.html](https://cyrilsli.github.io/youtube_search_en.html) - A wrapper around a YouTube embed which implements search and a local playlist
+- [wt-custom-tracker](https://cyrilsli.github.io/wt-custom-tracker) - A patch for the Winnipeg Transit web app mainly aimed at transit photographers and enthusiasts. (installation instructions currently broken due to changes in the WT web app)
 
 ## Other Technical Projects
 
